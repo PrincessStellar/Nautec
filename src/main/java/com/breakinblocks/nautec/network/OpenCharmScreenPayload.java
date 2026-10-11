@@ -13,14 +13,13 @@ public record OpenCharmScreenPayload(int hand, Info info) implements CustomPacke
     public static final int AUGMENT = -1;
     public static final Type<OpenCharmScreenPayload> TYPE = new Type<>(Nautec.rl("open_charm_screen"));
 
-    public record Info(boolean bound, String network, String owner, boolean access, int uplinks, int downlinks, int stored, int pylons,
-                       int priority) {
+    public record Info(boolean bound, String network, String owner, boolean access, int uplinks, int nodes, int stored, int priority) {
         public static final StreamCodec<ByteBuf, Info> STREAM_CODEC = new StreamCodec<>() {
             @Override
             public Info decode(ByteBuf buf) {
                 return new Info(ByteBufCodecs.BOOL.decode(buf), ByteBufCodecs.STRING_UTF8.decode(buf), ByteBufCodecs.STRING_UTF8.decode(buf),
                         ByteBufCodecs.BOOL.decode(buf), ByteBufCodecs.VAR_INT.decode(buf), ByteBufCodecs.VAR_INT.decode(buf),
-                        ByteBufCodecs.VAR_INT.decode(buf), ByteBufCodecs.VAR_INT.decode(buf), ByteBufCodecs.VAR_INT.decode(buf));
+                        ByteBufCodecs.VAR_INT.decode(buf), ByteBufCodecs.VAR_INT.decode(buf));
             }
 
             @Override
@@ -30,9 +29,8 @@ public record OpenCharmScreenPayload(int hand, Info info) implements CustomPacke
                 ByteBufCodecs.STRING_UTF8.encode(buf, info.owner());
                 ByteBufCodecs.BOOL.encode(buf, info.access());
                 ByteBufCodecs.VAR_INT.encode(buf, info.uplinks());
-                ByteBufCodecs.VAR_INT.encode(buf, info.downlinks());
+                ByteBufCodecs.VAR_INT.encode(buf, info.nodes());
                 ByteBufCodecs.VAR_INT.encode(buf, info.stored());
-                ByteBufCodecs.VAR_INT.encode(buf, info.pylons());
                 ByteBufCodecs.VAR_INT.encode(buf, info.priority());
             }
         };

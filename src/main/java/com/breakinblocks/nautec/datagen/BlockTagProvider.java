@@ -47,8 +47,6 @@ public class BlockTagProvider extends BlockTagsProvider {
                 GATEWAY,
                 GATEWAY_RING,
                 RESONANCE_CHAMBER,
-                PRISMATIC_MIRROR,
-                BEAM_SPLITTER,
                 FOCUSING_LENS,
                 PRISMARINE_RELAY,
                 MIXER,
@@ -56,7 +54,6 @@ public class BlockTagProvider extends BlockTagsProvider {
                 CHARGER,
                 CONFINED_SPAWNER,
                 CRYSTAL_CRADLE,
-                LONG_DISTANCE_LASER,
                 LASER_JUNCTION,
                 DRAIN,
                 DRAIN_WALL,
@@ -93,8 +90,6 @@ public class BlockTagProvider extends BlockTagsProvider {
                 TIDAL_ROTOR,
                 THERMAL_VENT_TAP,
                 COMBUSTION_DYNAMO,
-                RESONANCE_PYLON,
-                ABYSSAL_PYLON,
                 RESONANCE_NODE,
                 CONDUIT_BEACON,
                 AQUARINE_DISH_STORAGE,
@@ -102,7 +97,6 @@ public class BlockTagProvider extends BlockTagsProvider {
                 ATLANTIC_GOLD_DISH_STORAGE,
                 PRISMATIC_EMITTER,
                 UPLINK_ARRAY,
-                DOWNLINK_ARRAY,
                 SATELLITE_ARRAY_TOP,
                 FUSION_CASING,
                 AQUAMARINE_STRUCTURAL_GLASS,
@@ -114,13 +108,11 @@ public class BlockTagProvider extends BlockTagsProvider {
         tag(BlockTags.NEEDS_IRON_TOOL,
                 THERMAL_VENT_TAP,
                 COMBUSTION_DYNAMO,
-                RESONANCE_PYLON,
                 RESONANCE_NODE,
                 PRISMATIC_EMITTER,
                 UPLINK_ARRAY,
-                DOWNLINK_ARRAY,
                 SATELLITE_ARRAY_TOP);
-        NTBlocks.BIOME_TANKS.values().forEach(tank -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(tank.get()));
+        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(NTBlocks.BIOME_TANK.get());
         tag(NTTags.Blocks.VENT_HEAT_SOURCES).add(Blocks.MAGMA_BLOCK, Blocks.LAVA, HYDROTHERMAL_VENT.get());
         tag(BlockTags.PREVENT_MOB_SPAWNING_INSIDE, HELD_WATER);
         tag(BlockTags.DOORS, PRESSURE_HATCH);
@@ -128,7 +120,6 @@ public class BlockTagProvider extends BlockTagsProvider {
         tag(Tags.Blocks.BUDS, SMALL_PRISMARINE_BUD, MEDIUM_PRISMARINE_BUD, LARGE_PRISMARINE_BUD);
         tag(Tags.Blocks.CLUSTERS, PRISMARINE_CLUSTER);
         tag(BlockTags.NEEDS_DIAMOND_TOOL,
-                ABYSSAL_PYLON,
                 FUSION_CASING,
                 AQUAMARINE_STRUCTURAL_GLASS,
                 CONTAINMENT_COIL,

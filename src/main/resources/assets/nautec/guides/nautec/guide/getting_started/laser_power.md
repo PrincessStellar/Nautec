@@ -18,7 +18,7 @@ item_ids:
 
 NauTec machines run on laser power, measured in AP per tick (AP/t). A beam carries two values: its power, and its purity. Machines use the power to run, and recipes check the purity before they start.
 
-A beam only forms between two laser blocks. The sending block needs something on that side that accepts a beam (a machine, a relay, an optic), no more than 16 blocks away (`laserDistance` in `config/nautec-common.toml`), with no solid block in between. Beams pass through water.
+A beam only forms between two laser blocks. The sending block needs something on that side that accepts a beam (a machine, a relay, a junction, a lens), no more than 16 blocks away (`laserDistance` in `config/nautec-common.toml`), or 64 from a relay, with no solid block in between. Beams pass through water.
 
 ***
 
@@ -35,13 +35,15 @@ Load fuel by right-clicking the catalyst with a stack, or feed it from a hopper.
 
 | Fuel | Purity | Power | Burn time |
 |---|---|---|---|
-| Prismarine Shard | 0.4 | 12 AP/t | 8 s |
-| Prismarine Crystals | 0.8 | 6 AP/t | 8 s |
-| <ItemLink id="prismarine_crystal_shard"/> | 1.2 | 12 AP/t | 10 s |
+| Prismarine Shard | 0.4 | 12 AP/t | 30 s |
+| Prismarine Crystals | 0.8 | 6 AP/t | 30 s |
+| <ItemLink id="prismarine_crystal_shard"/> | 1.2 | 12 AP/t | 37.5 s |
 
 The face you are looking at when you place it is the pale intake, with eight sockets that fill as you load fuel. The beam leaves from the opposite face, the dark one with the cyan lens. Look down while placing it to fire downward, look up to fire upward. An <ItemLink id="aquarine_steel_wrench"/> rotates a placed catalyst.
 
-The catalyst only burns while a receiver is on its emitter side. With nothing there it holds its fuel and waits, so a catalyst with no target wastes nothing. It moves straight from one fuel item to the next, so the beam stays on as long as the stack lasts.
+The catalyst only burns while a receiver is on its emitter side. With nothing there it holds its fuel and waits, so a catalyst with no target wastes nothing. It moves straight from one fuel item to the next, so the beam stays on as long as the stack lasts. A stack of 64 shards runs for 32 minutes.
+
+A redstone signal pauses it. A paused catalyst sends no beam and keeps its fuel and the progress on the item it was burning, then carries on where it left off once the signal stops.
 
 <ItemLink id="budding_prismarine"/> touching the catalyst on any face except the lens face boosts it. Each block adds 25% to its power and 0.1 to its purity, up to a purity of 2.0 (`catalystBuddingOutputBonus`, `catalystBuddingPurityBonus` and `catalystBuddingMaxPurity`). A boosting Budding Prismarine grows nothing: the catalyst breaks any Prismarine Cluster on it every second, with no drop.
 
@@ -75,8 +77,7 @@ The crystal stays where it generated, so build around it. An Aquarine Steel Pick
 ## <Color id="gold">Moving Power</Color>
 
 * [Laser Manipulation](nautec:laser_chemistry/laser_manipulation.md): the Prismarine Laser Relay passes a beam on, and the Laser Junction merges and splits beams.
-* [Beam Optics](nautec:deep_engineering/beam_optics.md): mirrors, splitters and lenses.
-* [Long Distance Laser](nautec:laser_augmentation/long_distance_laser.md): for beams longer than 16 blocks.
+* [Beam Optics](nautec:deep_engineering/beam_optics.md): the Focusing Lens, for raising purity.
 * [Charger](nautec:laser_chemistry/charger.md) and [Prismatic Battery](nautec:laser_chemistry/prismatic_battery.md): storing power in items.
 
 Wear a <ItemLink id="prism_monocle"/> to read the power and purity arriving at any laser block.

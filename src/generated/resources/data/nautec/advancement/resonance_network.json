@@ -11,7 +11,7 @@
       "translate": "advancements.nautec.resonance_network.description"
     },
     "icon": {
-      "id": "nautec:resonance_pylon"
+      "id": "nautec:resonance_node"
     },
     "title": {
       "translate": "advancements.nautec.resonance_network.title"

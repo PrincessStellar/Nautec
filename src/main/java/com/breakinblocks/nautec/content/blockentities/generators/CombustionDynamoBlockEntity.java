@@ -5,7 +5,7 @@ import com.breakinblocks.nautec.api.sides.SlotRoles;
 import com.breakinblocks.nautec.content.blocks.generators.CombustionDynamoBlock;
 import com.breakinblocks.nautec.content.menus.CombustionDynamoMenu;
 import com.breakinblocks.nautec.content.recipes.CombustionAdditiveRecipe;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
+import com.breakinblocks.nautec.utils.DataSlots;
 import com.breakinblocks.nautec.registries.NTBlockEntityTypes;
 import com.breakinblocks.nautec.tags.NTTags;
 import net.minecraft.core.BlockPos;
@@ -59,16 +59,16 @@ public class CombustionDynamoBlockEntity extends FeGeneratorBlockEntity implemen
         @Override
         public int get(int index) {
             return switch (index) {
-                case DATA_FE -> ResonancePylonBlockEntity.low(getEnergyStorage().getAmountAsInt());
-                case DATA_FE + 1 -> ResonancePylonBlockEntity.high(getEnergyStorage().getAmountAsInt());
-                case DATA_CAPACITY -> ResonancePylonBlockEntity.low(getEnergyStorage().getCapacityAsInt());
-                case DATA_CAPACITY + 1 -> ResonancePylonBlockEntity.high(getEnergyStorage().getCapacityAsInt());
-                case DATA_RATE -> ResonancePylonBlockEntity.low(rate);
-                case DATA_RATE + 1 -> ResonancePylonBlockEntity.high(rate);
-                case DATA_ADDITIVE_LEFT -> ResonancePylonBlockEntity.low(additiveLeft);
-                case DATA_ADDITIVE_LEFT + 1 -> ResonancePylonBlockEntity.high(additiveLeft);
-                case DATA_ADDITIVE_TOTAL -> ResonancePylonBlockEntity.low(additiveTotal);
-                case DATA_ADDITIVE_TOTAL + 1 -> ResonancePylonBlockEntity.high(additiveTotal);
+                case DATA_FE -> DataSlots.low(getEnergyStorage().getAmountAsInt());
+                case DATA_FE + 1 -> DataSlots.high(getEnergyStorage().getAmountAsInt());
+                case DATA_CAPACITY -> DataSlots.low(getEnergyStorage().getCapacityAsInt());
+                case DATA_CAPACITY + 1 -> DataSlots.high(getEnergyStorage().getCapacityAsInt());
+                case DATA_RATE -> DataSlots.low(rate);
+                case DATA_RATE + 1 -> DataSlots.high(rate);
+                case DATA_ADDITIVE_LEFT -> DataSlots.low(additiveLeft);
+                case DATA_ADDITIVE_LEFT + 1 -> DataSlots.high(additiveLeft);
+                case DATA_ADDITIVE_TOTAL -> DataSlots.low(additiveTotal);
+                case DATA_ADDITIVE_TOTAL + 1 -> DataSlots.high(additiveTotal);
                 case DATA_STATUS -> status.ordinal();
                 case DATA_FUEL_PERCENT -> Math.round(fuelMultiplier * 100);
                 default -> 0;

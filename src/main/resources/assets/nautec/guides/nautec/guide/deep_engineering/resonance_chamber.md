@@ -63,7 +63,7 @@ Vent damage, radius and cooldown are `resonanceVentDamage`, `resonanceVentRadius
 
 ## <Color id="gold">Getting Purity 3.0</Color>
 
-A <ItemLink id="prismarine_crystal"/> hit from the side emits 3.0. Point it straight at the Chamber, or carry the beam there through Prismarine Laser Relays, which keep purity unchanged. A Prismatic Mirror (2.7) or Beam Splitter (2.4) lowers it, and a [Focusing Lens](beam_optics.md) only raises purity up to 2.0, so keep the route straight.
+A <ItemLink id="prismarine_crystal"/> hit from the side emits 3.0. Point it straight at the Chamber, or carry the beam there through Prismarine Laser Relays and Laser Junctions, which keep purity unchanged. A [Focusing Lens](beam_optics.md) only raises purity up to 2.0, so it does not help here.
 
 ***
 

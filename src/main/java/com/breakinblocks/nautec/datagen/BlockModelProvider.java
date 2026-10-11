@@ -4,9 +4,6 @@ import com.breakinblocks.nautec.content.conduits.ConduitArm;
 import com.breakinblocks.nautec.content.conduits.ConduitTapBlock;
 import com.breakinblocks.nautec.content.conduits.CurrentConduitBlock;
 import com.breakinblocks.nautec.content.conduits.TapArm;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import com.breakinblocks.nautec.content.biometank.BiomeTankType;
-import com.breakinblocks.nautec.content.biometank.BiomeTankBlock;
 import com.breakinblocks.nautec.content.conduit.ConduitBeaconBlock;
 import com.breakinblocks.nautec.content.blocks.OxygenDiffuserBlock;
 import com.breakinblocks.nautec.content.blocks.ColonyReplicatorBlock;
@@ -125,14 +122,11 @@ public class BlockModelProvider extends ModelProvider {
                 blockTexture(NTBlocks.CREATIVE_POWER_SOURCE.get())));
         simpleBlock(NTBlocks.ENERGY_CONVERTER.get(), artModel(NTBlocks.ENERGY_CONVERTER.get()));
         fusionPlant();
-        simpleBlock(NTBlocks.RESONANCE_PYLON.get(), existingModelFile(NTBlocks.RESONANCE_PYLON.get()));
-        simpleBlock(NTBlocks.ABYSSAL_PYLON.get(), existingModelFile(NTBlocks.ABYSSAL_PYLON.get()));
         blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(NTBlocks.RESONANCE_NODE.get(),
                         BlockModelGenerators.plainVariant(existingModelFile(NTBlocks.RESONANCE_NODE.get())))
                 .with(BlockModelGenerators.ROTATIONS_COLUMN_WITH_FACING));
         simpleBlock(NTBlocks.PRISMATIC_EMITTER.get(), existingModelFile(NTBlocks.PRISMATIC_EMITTER.get()));
         simpleBlock(NTBlocks.UPLINK_ARRAY.get(), existingModelFile(NTBlocks.UPLINK_ARRAY.get()));
-        simpleBlock(NTBlocks.DOWNLINK_ARRAY.get(), existingModelFile(NTBlocks.DOWNLINK_ARRAY.get()));
         simpleBlock(NTBlocks.SATELLITE_ARRAY_TOP.get(), existingModelFile(NTBlocks.SATELLITE_ARRAY_TOP.get()));
         generators();
         aquaticCatalyst(NTBlocks.AQUATIC_CATALYST.get());
@@ -150,10 +144,7 @@ public class BlockModelProvider extends ModelProvider {
 
         simpleBlock(NTBlocks.RESONANCE_CHAMBER.get(), artModel(NTBlocks.RESONANCE_CHAMBER.get()));
 
-        facingBlock(NTBlocks.PRISMATIC_MIRROR.get(), artModel(NTBlocks.PRISMATIC_MIRROR.get()));
-        facingBlock(NTBlocks.BEAM_SPLITTER.get(), artModel(NTBlocks.BEAM_SPLITTER.get()));
         facingBlock(NTBlocks.FOCUSING_LENS.get(), artModel(NTBlocks.FOCUSING_LENS.get()));
-        longDistanceLaser(NTBlocks.LONG_DISTANCE_LASER.get());
         laserJunction(NTBlocks.LASER_JUNCTION.get());
         currentConduit(NTBlocks.CURRENT_CONDUIT.get());
         conduitTap(NTBlocks.CONDUIT_TAP.get());
@@ -266,7 +257,7 @@ public class BlockModelProvider extends ModelProvider {
         dishStorage(NTBlocks.AQUARINE_DISH_STORAGE.get());
         dishStorage(NTBlocks.DEEP_STEEL_DISH_STORAGE.get());
         dishStorage(NTBlocks.ATLANTIC_GOLD_DISH_STORAGE.get());
-        biomeTanks();
+        simpleBlock(NTBlocks.BIOME_TANK.get(), existingModelFile(NTBlocks.BIOME_TANK.get()));
         simpleBlock(NTBlocks.HYDROTHERMAL_VENT.get(), existingModelFile(NTBlocks.HYDROTHERMAL_VENT.get()));
         simpleBlock(NTBlocks.DISTRIBUTOR.get(), cubeBottomTop("nautechnical_distributor", blockTexture(NTBlocks.DISTRIBUTOR.get(), "_side"),
                 blockTexture(NTBlocks.DISTRIBUTOR.get(), "_bottom"), blockTexture(NTBlocks.DISTRIBUTOR.get(), "_top")));
@@ -301,16 +292,6 @@ public class BlockModelProvider extends ModelProvider {
                 .put(TextureSlot.TOP, blockTexture(block, "_top"))
                 .put(TextureSlot.BOTTOM, blockTexture(block, "_bottom")), blockModels.modelOutput);
         horizontalBlock(block, model);
-    }
-
-    private void biomeTanks() {
-        TextureSlot plant = TextureSlot.create("plant");
-        ModelTemplate template = new ModelTemplate(Optional.of(Nautec.rl("block/biome_tank")), Optional.empty(), plant);
-        for (Map.Entry<BiomeTankType, DeferredBlock<BiomeTankBlock>> entry : NTBlocks.BIOME_TANKS.entrySet()) {
-            Identifier model = template.create(entry.getValue().get(), new TextureMapping().put(plant, new Material(entry.getKey().texture())),
-                    blockModels.modelOutput);
-            simpleBlock(entry.getValue().get(), model);
-        }
     }
 
     private void oxygenDiffuser(Block block) {
@@ -543,18 +524,6 @@ public class BlockModelProvider extends ModelProvider {
         return builder
                 .with(BlockModelGenerators.condition(LaserJunctionBlock.CONNECTION[direction.ordinal()], LaserJunctionBlock.ConnectionType.INPUT), in)
                 .with(BlockModelGenerators.condition(LaserJunctionBlock.CONNECTION[direction.ordinal()], LaserJunctionBlock.ConnectionType.OUTPUT), out);
-    }
-
-    public void longDistanceLaser(Block block) {
-        Identifier model = cube(name(block),
-                blockTexture(block, "_bottom"),
-                blockTexture(block, "_top"),
-                blockTexture(block, "_side"),
-                blockTexture(block, "_side"),
-                blockTexture(block, "_side"),
-                blockTexture(block, "_side"),
-                blockTexture(block, "_side"));
-        facingBlock(block, model);
     }
 
     public void existingFacingBlock(Block block, Block modelOf) {

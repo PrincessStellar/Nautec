@@ -76,6 +76,33 @@ public class ItemTagProvider extends IntrinsicHolderTagsProvider<Item> {
                 Items.FIRE_CORAL_FAN,
                 Items.HORN_CORAL_FAN);
 
+        tag(NTTags.Items.BIOME_TANK_PLANTS,
+                NTBlocks.GLOW_POLYP,
+                NTBlocks.LUMINESCENT_ALGAE,
+                NTBlocks.DEEP_KELP,
+                NTBlocks.PRISMARINE_FROND,
+                NTBlocks.ABYSSAL_CORAL,
+                NTBlocks.VENT_TUBEWORM,
+                Items.KELP,
+                Items.SEAGRASS,
+                Items.SEA_PICKLE,
+                Items.TUBE_CORAL,
+                Items.BRAIN_CORAL,
+                Items.BUBBLE_CORAL,
+                Items.FIRE_CORAL,
+                Items.HORN_CORAL,
+                Items.CACTUS,
+                Items.SUGAR_CANE,
+                Items.BAMBOO,
+                Items.SWEET_BERRIES,
+                Items.GLOW_BERRIES,
+                Items.RED_MUSHROOM,
+                Items.BROWN_MUSHROOM,
+                Items.CRIMSON_FUNGUS,
+                Items.WARPED_FUNGUS,
+                Items.CHORUS_FRUIT,
+                Items.COCOA_BEANS);
+
     }
 
     private void tag(TagKey<Item> itemTagKey, ItemLike... items) {

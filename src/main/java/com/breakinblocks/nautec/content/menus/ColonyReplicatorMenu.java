@@ -3,7 +3,7 @@ package com.breakinblocks.nautec.content.menus;
 import com.breakinblocks.nautec.api.menu.NTMachineMenu;
 import com.breakinblocks.nautec.api.menu.slots.SlotBacteriaStorage;
 import com.breakinblocks.nautec.content.blockentities.ColonyReplicatorBlockEntity;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
+import com.breakinblocks.nautec.utils.DataSlots;
 import com.breakinblocks.nautec.registries.NTMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -54,11 +54,11 @@ public class ColonyReplicatorMenu extends NTMachineMenu<ColonyReplicatorBlockEnt
     }
 
     public int getProgress() {
-        return ResonancePylonBlockEntity.join(data.get(ColonyReplicatorBlockEntity.DATA_PROGRESS), data.get(ColonyReplicatorBlockEntity.DATA_PROGRESS + 1));
+        return DataSlots.join(data.get(ColonyReplicatorBlockEntity.DATA_PROGRESS), data.get(ColonyReplicatorBlockEntity.DATA_PROGRESS + 1));
     }
 
     public int getDuration() {
-        return Math.max(1, ResonancePylonBlockEntity.join(data.get(ColonyReplicatorBlockEntity.DATA_DURATION),
+        return Math.max(1, DataSlots.join(data.get(ColonyReplicatorBlockEntity.DATA_DURATION),
                 data.get(ColonyReplicatorBlockEntity.DATA_DURATION + 1)));
     }
 
@@ -71,6 +71,6 @@ public class ColonyReplicatorMenu extends NTMachineMenu<ColonyReplicatorBlockEnt
     }
 
     public int getBiomass() {
-        return ResonancePylonBlockEntity.join(data.get(ColonyReplicatorBlockEntity.DATA_BIOMASS), data.get(ColonyReplicatorBlockEntity.DATA_BIOMASS + 1));
+        return DataSlots.join(data.get(ColonyReplicatorBlockEntity.DATA_BIOMASS), data.get(ColonyReplicatorBlockEntity.DATA_BIOMASS + 1));
     }
 }

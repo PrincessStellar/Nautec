@@ -25,11 +25,12 @@ public enum AquaticCatalystComponentProvider implements StreamServerDataProvider
 
     private static final Identifier UID = Nautec.rl("aquatic_catalyst");
 
-    public record Data(boolean burning, boolean waiting, ItemStack queued, int remainingDuration, int transferring,
+    public record Data(boolean burning, boolean waiting, boolean paused, ItemStack queued, int remainingDuration, int transferring,
                        int scanStatus, int scanDistance, BlockState target, int maxDistance) {
         public static final StreamCodec<RegistryFriendlyByteBuf, Data> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.BOOL, Data::burning,
                 ByteBufCodecs.BOOL, Data::waiting,
+                ByteBufCodecs.BOOL, Data::paused,
                 ItemStack.OPTIONAL_STREAM_CODEC, Data::queued,
                 ByteBufCodecs.VAR_INT, Data::remainingDuration,
                 ByteBufCodecs.VAR_INT, Data::transferring,
@@ -48,6 +49,7 @@ public enum AquaticCatalystComponentProvider implements StreamServerDataProvider
         return new Data(
                 blockEntity.isActive(),
                 blockEntity.isWaiting(),
+                blockEntity.isPaused(),
                 blockEntity.getProcessingItem().copy(),
                 blockEntity.getRemainingDuration(),
                 blockEntity.getPowerToTransfer(),
@@ -73,7 +75,9 @@ public enum AquaticCatalystComponentProvider implements StreamServerDataProvider
         @Override
         public void appendTooltip(ITooltip iTooltip, BlockAccessor blockAccessor, IPluginConfig iPluginConfig) {
             AquaticCatalystComponentProvider.INSTANCE.decodeFromData(blockAccessor).ifPresent(data -> {
-                if (data.burning()) {
+                if (data.paused()) {
+                    iTooltip.add(Component.translatable("nautec.jade.status.paused").withStyle(ChatFormatting.YELLOW));
+                } else if (data.burning()) {
                     iTooltip.add(Component.translatable("nautec.jade.status.burning").withStyle(ChatFormatting.GREEN));
                 } else if (data.waiting()) {
                     iTooltip.add(Component.translatable("nautec.jade.status.waiting").withStyle(ChatFormatting.RED));
@@ -85,7 +89,7 @@ public enum AquaticCatalystComponentProvider implements StreamServerDataProvider
                             data.queued().getCount(),
                             data.queued().getHoverName()));
                 }
-                if (data.burning() || data.waiting()) {
+                if (data.burning() || data.waiting() || (data.paused() && data.remainingDuration() > 0)) {
                     iTooltip.add(Component.translatable("nautec.jade.remaining_duration", data.remainingDuration()));
                     iTooltip.add(Component.translatable("nautec.jade.transferring", data.transferring()));
                 }

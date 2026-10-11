@@ -69,8 +69,8 @@ Copies settings from one block to another. Sneak and right-click a machine to co
 * A block's own settings only paste onto the same kind of block:
   * a <ItemLink id="confined_spawner"/>'s filter and whitelist mode
   * a <ItemLink id="resonance_node"/>'s network, input or output mode, priority, limit and chunk loading
-  * a <ItemLink id="resonance_pylon"/>'s network, send or receive mode and chunk loading
-  * an Uplink or Downlink Array's network and chunk loading, plus a Downlink Array's priority and limit
+  * a <ItemLink id="resonance_node"/>'s network, input or output mode, priority, limit and chunk loading
+  * an <ItemLink id="uplink_array"/>'s network and chunk loading
   * a <ItemLink id="laser_junction"/>'s input and output faces
 
 Pasting a resonance network checks that you are allowed to use it, the same as choosing it in the screen.

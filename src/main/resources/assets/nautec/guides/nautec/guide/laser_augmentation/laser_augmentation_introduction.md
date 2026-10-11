@@ -40,4 +40,4 @@ JEI lists every part under Augmentation Effects, with the slots it fits and what
 
 [Player Augmentation](augmentation.md) covers the body slots, the install itself, the key bindings for the active augments and how to replace one.
 
-The same chapter covers [Aquarine Steel Armor](aquarine_steel_armor.md), which runs on stored power, and the [Long Distance Laser](long_distance_laser.md), a relay for carrying a beam further than 16 blocks.
+The same chapter covers [Aquarine Steel Armor](aquarine_steel_armor.md), which runs on stored power.

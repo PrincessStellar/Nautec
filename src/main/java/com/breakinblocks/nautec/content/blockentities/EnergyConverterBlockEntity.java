@@ -5,7 +5,7 @@ import com.breakinblocks.nautec.api.blockentities.LaserBlockEntity;
 import com.breakinblocks.nautec.capabilities.IOActions;
 import com.breakinblocks.nautec.content.items.EnergyConversionUpgradeItem;
 import com.breakinblocks.nautec.content.menus.EnergyConverterMenu;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
+import com.breakinblocks.nautec.utils.DataSlots;
 import com.breakinblocks.nautec.registries.NTBlockEntityTypes;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
@@ -59,18 +59,18 @@ public class EnergyConverterBlockEntity extends LaserBlockEntity implements Menu
         @Override
         public int get(int index) {
             return switch (index) {
-                case DATA_RATE -> ResonancePylonBlockEntity.low(getRate());
-                case DATA_RATE + 1 -> ResonancePylonBlockEntity.high(getRate());
-                case DATA_MAX -> ResonancePylonBlockEntity.low(getMaxRate());
-                case DATA_MAX + 1 -> ResonancePylonBlockEntity.high(getMaxRate());
-                case DATA_SENDING -> ResonancePylonBlockEntity.low(sending);
-                case DATA_SENDING + 1 -> ResonancePylonBlockEntity.high(sending);
-                case DATA_FE -> ResonancePylonBlockEntity.low(feBuffer.getAmountAsInt());
-                case DATA_FE + 1 -> ResonancePylonBlockEntity.high(feBuffer.getAmountAsInt());
-                case DATA_CAPACITY -> ResonancePylonBlockEntity.low(maxFe());
-                case DATA_CAPACITY + 1 -> ResonancePylonBlockEntity.high(maxFe());
-                case DATA_FE_PER_AP -> ResonancePylonBlockEntity.low(NTConfig.energyConverterFePerAp);
-                case DATA_FE_PER_AP + 1 -> ResonancePylonBlockEntity.high(NTConfig.energyConverterFePerAp);
+                case DATA_RATE -> DataSlots.low(getRate());
+                case DATA_RATE + 1 -> DataSlots.high(getRate());
+                case DATA_MAX -> DataSlots.low(getMaxRate());
+                case DATA_MAX + 1 -> DataSlots.high(getMaxRate());
+                case DATA_SENDING -> DataSlots.low(sending);
+                case DATA_SENDING + 1 -> DataSlots.high(sending);
+                case DATA_FE -> DataSlots.low(feBuffer.getAmountAsInt());
+                case DATA_FE + 1 -> DataSlots.high(feBuffer.getAmountAsInt());
+                case DATA_CAPACITY -> DataSlots.low(maxFe());
+                case DATA_CAPACITY + 1 -> DataSlots.high(maxFe());
+                case DATA_FE_PER_AP -> DataSlots.low(NTConfig.energyConverterFePerAp);
+                case DATA_FE_PER_AP + 1 -> DataSlots.high(NTConfig.energyConverterFePerAp);
                 case DATA_BEAMS -> connectedOutputs();
                 default -> 0;
             };

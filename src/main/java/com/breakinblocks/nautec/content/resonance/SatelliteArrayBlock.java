@@ -41,15 +41,8 @@ public class SatelliteArrayBlock extends LaserBlock {
     private static final VoxelShape SHAPE = Shapes.or(Block.box(1, 0, 1, 15, 3, 15), Block.box(3, 3, 3, 13, 13, 13),
             Block.box(2, 13, 2, 14, 15, 14), Block.box(6, 15, 6, 10, 16, 10));
 
-    private final boolean uplink;
-
-    public SatelliteArrayBlock(Properties properties, boolean uplink) {
+    public SatelliteArrayBlock(Properties properties) {
         super(properties);
-        this.uplink = uplink;
-    }
-
-    public boolean isUplink() {
-        return uplink;
     }
 
     @Override
@@ -123,9 +116,7 @@ public class SatelliteArrayBlock extends LaserBlock {
         }
         String error = null;
         ResonanceNetwork network = array.getNetwork();
-        if (!array.isUplink()) {
-            error = "nautec.satellite.error.downlink";
-        } else if (network != null && !ResonanceNetworks.canUse(serverPlayer, network)) {
+        if (network != null && !ResonanceNetworks.canUse(serverPlayer, network)) {
             error = "nautec.resonance.error.no_access";
         } else if (array.hasSatellite()) {
             error = "nautec.satellite.error.occupied";
@@ -175,7 +166,7 @@ public class SatelliteArrayBlock extends LaserBlock {
         if (level.getBlockEntity(blockPos) instanceof SatelliteArrayBlockEntity array) {
             boolean online = array.getStatus() == SatelliteArrayBlockEntity.STATUS_ONLINE;
             lines.add(Component.translatable("nautec.monocle.satellite",
-                    Component.translatable(uplink ? "nautec.satellite.kind.uplink" : "nautec.satellite.kind.downlink"),
+                    Component.translatable("nautec.satellite.kind.uplink"),
                     Component.translatable(SatelliteArrayBlockEntity.statusKey(array.getStatus())))
                     .withStyle(online ? ChatFormatting.AQUA : ChatFormatting.RED));
         }
@@ -184,6 +175,6 @@ public class SatelliteArrayBlock extends LaserBlock {
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(properties -> new SatelliteArrayBlock(properties, uplink));
+        return simpleCodec(SatelliteArrayBlock::new);
     }
 }

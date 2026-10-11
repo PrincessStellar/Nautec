@@ -33,7 +33,6 @@ public class SatelliteArrayBERenderer extends LaserBlockEntityRenderer<Satellite
     private static final float CRYSTAL_SCALE = 0.06F;
     private static final float SATELLITE_SCALE = 3F;
     private static final int UPLINK_COLOR = 0x86E7F3;
-    private static final int DOWNLINK_COLOR = 0x7FFFE0;
     private static final int FULL_BRIGHT = 15728880;
 
     private final ItemModelResolver itemModelResolver;
@@ -58,7 +57,6 @@ public class SatelliteArrayBERenderer extends LaserBlockEntityRenderer<Satellite
     public void extractRenderState(SatelliteArrayBlockEntity array, ArrayRenderState state, float partialTick, Vec3 cameraPos,
                                    ModelFeatureRenderer.@Nullable CrumblingOverlay crumbling) {
         super.extractRenderState(array, state, partialTick, cameraPos, crumbling);
-        state.uplink = array.isUplink();
         state.online = array.getStatus() == SatelliteArrayBlockEntity.STATUS_ONLINE;
         state.active = state.online && array.getRelay() > 0;
         state.satellite = array.hasSatellite();
@@ -67,7 +65,7 @@ public class SatelliteArrayBERenderer extends LaserBlockEntityRenderer<Satellite
         state.seed = PrismarineCrystalRenderer.seed(array.getBlockPos());
         state.launch = array.getLaunchedAt() == Long.MIN_VALUE ? 1F
                 : Mth.clamp((gameTime - array.getLaunchedAt() + partialTick) / SatelliteArrayBlockEntity.LAUNCH_TICKS, 0F, 1F);
-        if (state.uplink && state.satellite) {
+        if (state.satellite) {
             this.itemModelResolver.updateForTopItem(state.item, satelliteStack(), ItemDisplayContext.FIXED,
                     array.getLevel(), null, 0);
         } else {
@@ -88,24 +86,16 @@ public class SatelliteArrayBERenderer extends LaserBlockEntityRenderer<Satellite
         poseStack.popPose();
 
         Vector3f focus = new Vector3f(0.5F, hover, 0.5F);
-        int color = state.uplink ? UPLINK_COLOR : DOWNLINK_COLOR;
-        if (state.uplink) {
-            if (!state.satellite) {
-                return;
-            }
-            Vector3f satellite = satellitePosition(state, focus);
-            submitSatellite(state, poseStack, collector, satellite);
-            if (state.active && state.launch >= 1F) {
-                int beam = ARGB.color(Math.round(150F + 90F * pulse), color);
-                LaserBeamRenderer.submitBeam(poseStack, collector, focus, satellite, 0.1F, beam, true);
-                LaserBeamRenderer.submitFlare(poseStack, collector, satellite, 0.5F + 0.2F * pulse, beam, true);
-                LaserBeamRenderer.submitFlare(poseStack, collector, focus, 0.2F, beam, true);
-            }
-        } else if (state.active) {
-            int beam = ARGB.color(Math.round(150F + 90F * pulse), color);
-            Vector3f sky = new Vector3f(0.5F, FOCUS + ORBIT_HEIGHT, 0.5F);
-            LaserBeamRenderer.submitBeam(poseStack, collector, sky, focus, 0.1F, beam, true);
-            LaserBeamRenderer.submitFlare(poseStack, collector, focus, 0.22F + 0.08F * pulse, beam, true);
+        if (!state.satellite) {
+            return;
+        }
+        Vector3f satellite = satellitePosition(state, focus);
+        submitSatellite(state, poseStack, collector, satellite);
+        if (state.active && state.launch >= 1F) {
+            int beam = ARGB.color(Math.round(150F + 90F * pulse), UPLINK_COLOR);
+            LaserBeamRenderer.submitBeam(poseStack, collector, focus, satellite, 0.1F, beam, true);
+            LaserBeamRenderer.submitFlare(poseStack, collector, satellite, 0.5F + 0.2F * pulse, beam, true);
+            LaserBeamRenderer.submitFlare(poseStack, collector, focus, 0.2F, beam, true);
         }
     }
 
@@ -158,7 +148,6 @@ public class SatelliteArrayBERenderer extends LaserBlockEntityRenderer<Satellite
 
     public static class ArrayRenderState extends LaserRenderState {
         public final ItemStackRenderState item = new ItemStackRenderState();
-        public boolean uplink;
         public boolean online;
         public boolean active;
         public boolean satellite;

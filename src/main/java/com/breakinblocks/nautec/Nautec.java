@@ -25,6 +25,7 @@ import com.breakinblocks.nautec.data.NTDataAttachments;
 import com.breakinblocks.nautec.data.NTDataComponents;
 import com.breakinblocks.nautec.data.NTDataMaps;
 import com.breakinblocks.nautec.data.generated.GeneratedPackFinder;
+import com.breakinblocks.nautec.registries.NTAliases;
 import com.breakinblocks.nautec.registries.NTArgumentTypes;
 import com.breakinblocks.nautec.registries.NTAttachmentTypes;
 import com.breakinblocks.nautec.registries.NTAugmentSlots;
@@ -105,6 +106,7 @@ public final class Nautec {
         modEventBus.addListener(AddPackFindersEvent.class, GeneratedPackFinder::onAddPackFinders);
         modEventBus.addListener(RegisterTicketControllersEvent.class, ResonanceChunkLoading::register);
 
+        NTAliases.register();
         NTEntities.ENTITIES.register(modEventBus);
         NTItems.ITEMS.register(modEventBus);
         NTBlocks.BLOCKS.register(modEventBus);
@@ -226,8 +228,6 @@ public final class Nautec {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, NTBlockEntityTypes.CREATIVE_ENERGY_SOURCE.get(),
                 (blockEntity, dir) -> blockEntity);
         event.registerBlockEntity(Capabilities.Energy.BLOCK, NTBlockEntityTypes.PRISMATIC_EMITTER.get(),
-                (blockEntity, dir) -> blockEntity.getPort());
-        event.registerBlockEntity(Capabilities.Energy.BLOCK, NTBlockEntityTypes.RESONANCE_PYLON.get(),
                 (blockEntity, dir) -> blockEntity.getPort());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, NTBlockEntityTypes.SATELLITE_ARRAY.get(),
                 (blockEntity, dir) -> blockEntity.getPort());

@@ -19,7 +19,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import com.breakinblocks.nautec.data.components.SubmarineModuleState;
+import net.minecraft.core.Holder;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -55,6 +57,8 @@ public final class NTDataComponents {
 
     public static final Supplier<DataComponentType<Integer>> RESONANCE_PRIORITY = registerDataComponentType("resonance_priority",
             () -> builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
+    public static final Supplier<DataComponentType<Holder<Item>>> BIOME_TANK_PLANT = registerDataComponentType("biome_tank_plant",
+            () -> builder -> builder.persistent(Item.CODEC).networkSynchronized(Item.STREAM_CODEC));
 
     public static final Supplier<DataComponentType<GlobalPos>> TUNED_EMITTER = registerDataComponentType("tuned_emitter",
             () -> builder -> builder.persistent(GlobalPos.CODEC).networkSynchronized(GlobalPos.STREAM_CODEC));

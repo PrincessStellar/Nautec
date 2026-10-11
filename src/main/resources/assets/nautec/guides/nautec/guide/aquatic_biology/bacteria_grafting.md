@@ -77,7 +77,7 @@ Packs can change this list. JEI's Bacteria Grafting category always shows the cu
 
 The Grafting Station grafts without the tool, and without the biome. Give it an empty <ItemLink id="petri_dish"/>, one of the graftable blocks from the table above, and Salt Water, and every cycle puts a fresh colony in the dish. There is no chance roll, so it never wastes a try.
 
-* Power: a beam of at least 100 AP at purity 2.8 or higher, into any face except the front. A <ItemLink id="prismarine_crystal"/> beam (3.0) fed straight in works; one bounced off a [Prismatic Mirror](nautec:deep_engineering/beam_optics.md) (2.7) is too weak.
+* Power: a beam of at least 100 AP at purity 2.8 or higher, into any face except the front. A <ItemLink id="prismarine_crystal"/> beam (3.0) fed straight in, or through relays and junctions, works.
 * Salt Water: 4,000 mB per colony. The tank holds 16,000 mB. Pipe it in or right-click with a bucket.
 * Time: one minute per colony. A weak beam pauses it without losing progress.
 * Each colony uses up one dish and one block, unless a Grafting Anchor or Advanced Grafting Anchor is fitted.

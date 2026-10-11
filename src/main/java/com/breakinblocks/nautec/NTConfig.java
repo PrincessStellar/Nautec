@@ -37,9 +37,9 @@ public final class NTConfig {
     private static final ModConfigSpec.IntValue REGULAR_LASER_DISTANCE = BUILDER
             .comment("The distance of normals lasers.")
             .defineInRange("laserDistance", 16, 0, 128);
-    private static final ModConfigSpec.IntValue LONG_DISTANCE_LASER_DISTANCE = BUILDER
-            .comment("The distance of Long Distance Laser lasers.")
-            .defineInRange("longDistanceLaserDistance", 64, 0, 128);
+    private static final ModConfigSpec.IntValue RELAY_LASER_DISTANCE = BUILDER
+            .comment("The distance a Prismarine Laser Relay sends its beam.")
+            .defineInRange("relayLaserDistance", 64, 0, 128);
 
     private static final ModConfigSpec.IntValue ENERGY_CONVERTER_FE_PER_AP = BUILDER
             .comment("How much FE an Energy Converter spends for each AP it sends")
@@ -275,30 +275,12 @@ public final class NTConfig {
                     "Experience Algae (nautec:experience_algae) is used when none of them exist")
             .defineList("confinedSpawnerXpFluids", List.of("nautec:experience_algae"), () -> "nautec:experience_algae", entry -> entry instanceof String);
 
-    private static final ModConfigSpec.IntValue RESONANCE_PYLON_THROUGHPUT = BUILDER
-            .comment("The most FE per tick a Resonance Pylon sends or receives over its network")
-            .defineInRange("resonancePylonThroughput", 20_000, 1, Integer.MAX_VALUE / 2);
-    private static final ModConfigSpec.IntValue RESONANCE_PYLON_BUFFER = BUILDER
-            .comment("The FE a Resonance Pylon holds")
-            .defineInRange("resonancePylonBuffer", 200_000, 1, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue ABYSSAL_PYLON_THROUGHPUT = BUILDER
-            .comment("The most FE per tick an Abyssal Pylon sends or receives over its network")
-            .defineInRange("abyssalPylonThroughput", 50_000, 1, Integer.MAX_VALUE / 2);
-    private static final ModConfigSpec.IntValue ABYSSAL_PYLON_BUFFER = BUILDER
-            .comment("The FE an Abyssal Pylon holds")
-            .defineInRange("abyssalPylonBuffer", 500_000, 1, Integer.MAX_VALUE);
-    private static final ModConfigSpec.DoubleValue RESONANCE_SAME_DIMENSION_LOSS = BUILDER
-            .comment("The fraction of FE lost moving between pylons in the same dimension")
-            .defineInRange("resonanceSameDimensionLoss", 0.05, 0.0, 0.99);
-    private static final ModConfigSpec.DoubleValue RESONANCE_CROSS_DIMENSION_LOSS = BUILDER
-            .comment("The fraction of FE lost moving between Abyssal Pylons in different dimensions")
-            .defineInRange("resonanceCrossDimensionLoss", 0.15, 0.0, 0.99);
     private static final ModConfigSpec.IntValue CHARM_TRANSFER_RATE = BUILDER
             .comment("The most FE per tick a Resonance Charm draws from its network to charge the wearer's items")
             .defineInRange("charmTransferRate", 2_000, 1, Integer.MAX_VALUE / 20);
     private static final ModConfigSpec.IntValue EMITTER_RANGE = BUILDER
             .comment("How far in blocks a Prismatic Emitter can reach the machines linked to it")
-            .defineInRange("emitterRange", 16, 1, 64);
+            .defineInRange("emitterRange", 64, 1, 128);
     private static final ModConfigSpec.IntValue EMITTER_THROUGHPUT = BUILDER
             .comment("The most FE per tick a Prismatic Emitter sends out, shared between its linked machines")
             .defineInRange("emitterThroughput", 10_000, 1, Integer.MAX_VALUE / 2);
@@ -306,7 +288,7 @@ public final class NTConfig {
             .comment("The FE a Prismatic Emitter holds")
             .defineInRange("emitterBuffer", 100_000, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.DoubleValue SATELLITE_LOSS = BUILDER
-            .comment("The fraction of AP lost relaying through a Prism Satellite from Uplink Arrays to Downlink Arrays")
+            .comment("The fraction of AP and FE lost relaying through a Prism Satellite from Uplink Arrays to output Resonance Nodes and charms")
             .defineInRange("satelliteLoss", 0.10, 0.0, 0.99);
 
     private static final ModConfigSpec.IntValue REPLICATOR_POWER_USAGE = BUILDER
@@ -421,16 +403,16 @@ public final class NTConfig {
             .defineInRange("resonantFluidPerTransfer", 1_000, 1, Integer.MAX_VALUE);
 
     private static final ModConfigSpec.IntValue SATELLITE_AP_BUFFER = BUILDER
-            .comment("The AP each Uplink and Downlink Array stores")
+            .comment("The AP each Uplink Array stores")
             .defineInRange("satelliteApBuffer", 5_000_000, 1, Integer.MAX_VALUE);
 
     private static final ModConfigSpec.IntValue SATELLITE_FE_BUFFER = BUILDER
-            .comment("The FE each Uplink and Downlink Array stores")
+            .comment("The FE each Uplink Array stores")
             .defineInRange("satelliteFeBuffer", 5_000_000, 1, Integer.MAX_VALUE);
 
     private static final ModConfigSpec.IntValue SATELLITE_TRANSFER_LIMIT = BUILDER
-            .comment("The most AP, and separately the most FE, a Downlink Array takes from its network each tick.",
-                    "Each downlink can be set lower in its screen")
+            .comment("The most AP, and separately the most FE, an output Resonance Node takes from its network each tick.",
+                    "Each node can be set lower in its screen")
             .defineInRange("satelliteTransferLimit", 100_000, 0, Integer.MAX_VALUE);
     private static final ModConfigSpec.DoubleValue SATELLITE_CROSS_DIMENSION_PURITY_LOSS = BUILDER
             .comment("The fraction of purity laser power loses when a network's satellite carries it to a dimension that has no Uplink Array of its own")
@@ -442,7 +424,7 @@ public final class NTConfig {
             .comment("The FE a Resonance Node holds")
             .defineInRange("resonanceNodeFeBuffer", 1_000_000, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.BooleanValue RESONANCE_CHUNK_LOADING = BUILDER
-            .comment("Whether Resonance Nodes, Energy Nodes and Uplink and Downlink Arrays may keep their own chunk loaded when a player turns it on. When false, no block keeps a chunk loaded whatever its setting")
+            .comment("Whether Resonance Nodes and Uplink Arrays may keep their own chunk loaded when a player turns it on. When false, no block keeps a chunk loaded whatever its setting")
             .define("resonanceChunkLoading", true);
     private static final ModConfigSpec.IntValue EMITTER_MAX_LINKS = BUILDER
             .comment("The most machines one Prismatic Emitter can be linked to")
@@ -538,14 +520,6 @@ public final class NTConfig {
     private static final ModConfigSpec.DoubleValue FUEL_CELL_MAX_PURITY = BUILDER
             .comment("The purity a Bacterial Fuel Cell emits at when its colony is at the mutation resistance cap")
             .defineInRange("fuelCellMaxPurity", 2.5, 0, 10);
-
-    private static final ModConfigSpec.DoubleValue MIRROR_PURITY_FACTOR = BUILDER
-            .comment("The fraction of incoming purity a Prismatic Mirror passes on when it turns a beam")
-            .defineInRange("mirrorPurityFactor", 0.9, 0, 1);
-
-    private static final ModConfigSpec.DoubleValue SPLITTER_PURITY_FACTOR = BUILDER
-            .comment("The fraction of incoming purity each branch of a Beam Splitter carries")
-            .defineInRange("splitterPurityFactor", 0.8, 0, 1);
 
     private static final ModConfigSpec.DoubleValue LENS_PURITY_BONUS = BUILDER
             .comment("The purity a Focusing Lens adds to a beam passing straight through it")
@@ -1055,7 +1029,7 @@ public final class NTConfig {
     public static double beamOverclockMaxSpeed = 0.0;
     public static int augmentationStationPower;
     public static int laserDistance;
-    public static int longDistanceLaserDistance;
+    public static int relayLaserDistance;
     public static int energyConverterFePerAp = 10;
     public static int energyConverterFeCapacity = 4_000_000;
     public static int energyConverterBaseAp = 150;
@@ -1123,15 +1097,9 @@ public final class NTConfig {
     public static int confinedSpawnerXpCapacity = 16_000;
     public static int confinedSpawnerXpRatio = 20;
     public static List<String> confinedSpawnerXpFluids = List.of("nautec:experience_algae");
-    public static int resonancePylonThroughput = 20_000;
-    public static int resonancePylonBuffer = 200_000;
-    public static int abyssalPylonThroughput = 50_000;
-    public static int abyssalPylonBuffer = 500_000;
-    public static double resonanceSameDimensionLoss = 0.05;
-    public static double resonanceCrossDimensionLoss = 0.15;
     public static int resonanceMaxNetworksPerPlayer = 16;
     public static int charmTransferRate = 2_000;
-    public static int emitterRange = 16;
+    public static int emitterRange = 64;
     public static int emitterThroughput = 10_000;
     public static int emitterBuffer = 100_000;
     public static int emitterMaxLinks = 16;
@@ -1195,8 +1163,6 @@ public final class NTConfig {
     public static int fuelCellPowerBase = 24;
     public static double fuelCellBurnRate = 0.5;
     public static double fuelCellMaxPurity = 2.5;
-    public static double mirrorPurityFactor = 0.9;
-    public static double splitterPurityFactor = 0.8;
     public static double lensPurityBonus = 0.5;
     public static double resonanceBaseCeiling = 2000.0;
     public static int resonancePowerUsage = 20;
@@ -1389,7 +1355,7 @@ public final class NTConfig {
         augmentationStationPower = value(AUGMENTATION_STATION_POWER_REQUIREMENT);
 
         laserDistance = value(REGULAR_LASER_DISTANCE);
-        longDistanceLaserDistance = value(LONG_DISTANCE_LASER_DISTANCE);
+        relayLaserDistance = value(RELAY_LASER_DISTANCE);
         energyConverterFePerAp = value(ENERGY_CONVERTER_FE_PER_AP);
         energyConverterFeCapacity = value(ENERGY_CONVERTER_FE_CAPACITY);
         energyConverterBaseAp = value(ENERGY_CONVERTER_BASE_AP);
@@ -1457,12 +1423,6 @@ public final class NTConfig {
         confinedSpawnerXpCapacity = value(CONFINED_SPAWNER_XP_CAPACITY);
         confinedSpawnerXpRatio = value(CONFINED_SPAWNER_XP_RATIO);
         confinedSpawnerXpFluids = List.copyOf(value(CONFINED_SPAWNER_XP_FLUIDS));
-        resonancePylonThroughput = value(RESONANCE_PYLON_THROUGHPUT);
-        resonancePylonBuffer = value(RESONANCE_PYLON_BUFFER);
-        abyssalPylonThroughput = value(ABYSSAL_PYLON_THROUGHPUT);
-        abyssalPylonBuffer = value(ABYSSAL_PYLON_BUFFER);
-        resonanceSameDimensionLoss = value(RESONANCE_SAME_DIMENSION_LOSS);
-        resonanceCrossDimensionLoss = value(RESONANCE_CROSS_DIMENSION_LOSS);
         resonanceMaxNetworksPerPlayer = value(RESONANCE_MAX_NETWORKS);
         charmTransferRate = value(CHARM_TRANSFER_RATE);
         emitterRange = value(EMITTER_RANGE);
@@ -1530,8 +1490,6 @@ public final class NTConfig {
         fuelCellPowerBase = value(FUEL_CELL_POWER_BASE);
         fuelCellBurnRate = value(FUEL_CELL_BURN_RATE);
         fuelCellMaxPurity = value(FUEL_CELL_MAX_PURITY);
-        mirrorPurityFactor = value(MIRROR_PURITY_FACTOR);
-        splitterPurityFactor = value(SPLITTER_PURITY_FACTOR);
         lensPurityBonus = value(LENS_PURITY_BONUS);
         resonanceBaseCeiling = value(RESONANCE_BASE_CEILING);
         resonancePowerUsage = value(RESONANCE_POWER_USAGE);

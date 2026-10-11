@@ -2,7 +2,7 @@ package com.breakinblocks.nautec.content.menus;
 
 import com.breakinblocks.nautec.api.menu.NTAbstractContainerMenu;
 import com.breakinblocks.nautec.content.resonance.ResonanceNodeBlockEntity;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
+import com.breakinblocks.nautec.utils.DataSlots;
 import com.breakinblocks.nautec.registries.NTMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -41,7 +41,7 @@ public class ResonanceNodeMenu extends NTAbstractContainerMenu<ResonanceNodeBloc
     }
 
     private int wide(int index) {
-        return ResonancePylonBlockEntity.join(data.get(index), data.get(index + 1));
+        return DataSlots.join(data.get(index), data.get(index + 1));
     }
 
     public int getFlow() {

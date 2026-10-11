@@ -48,6 +48,7 @@ public class AquaticCatalystBlockEntity extends LaserBlockEntity {
     private Identifier nextRecipeId;
     private int syncedTransfer;
     private boolean burning;
+    private boolean paused;
     private BeamScan beamScan;
     private int boosters;
     private final RecipeRevision validatorRevision = new RecipeRevision();
@@ -84,7 +85,7 @@ public class AquaticCatalystBlockEntity extends LaserBlockEntity {
             return;
         }
 
-        if (currentRecipe == null) {
+        if (currentRecipe == null && !paused) {
             startNextRecipe();
         }
 
@@ -101,7 +102,9 @@ public class AquaticCatalystBlockEntity extends LaserBlockEntity {
         }
 
         boolean burningNow = false;
-        if (currentRecipe != null) {
+        if (paused) {
+            transmitPower(0);
+        } else if (currentRecipe != null) {
             int distance = getLaserDistances().getInt(getEmitterDirection());
             if (distance > 0 && beamScan.connected()) {
                 transmitPower(transferAmount());
@@ -211,7 +214,18 @@ public class AquaticCatalystBlockEntity extends LaserBlockEntity {
     }
 
     public boolean isWaiting() {
-        return currentRecipe != null && !isActive();
+        return currentRecipe != null && !paused && !isActive();
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
+
+    public void setPaused(boolean paused) {
+        if (this.paused != paused) {
+            this.paused = paused;
+            setChanged();
+        }
     }
 
     public Direction getEmitterDirection() {
@@ -271,7 +285,9 @@ public class AquaticCatalystBlockEntity extends LaserBlockEntity {
                     String.format("%.2f", found * NTConfig.catalystBuddingPurityBonus)).withStyle(ChatFormatting.LIGHT_PURPLE));
         }
 
-        if (isActive()) {
+        if (paused) {
+            lines.add(Component.translatable("nautec.catalyst.diagnostics.status.paused").withStyle(ChatFormatting.YELLOW));
+        } else if (isActive()) {
             lines.add(Component.translatable("nautec.catalyst.diagnostics.status.burning", getPowerToTransfer())
                     .withStyle(ChatFormatting.GREEN));
         } else if (currentRecipe != null) {
@@ -348,7 +364,7 @@ public class AquaticCatalystBlockEntity extends LaserBlockEntity {
     public Set<Direction> getLaserOutputs() {
         boolean emitting = level != null && level.isClientSide()
                 ? getBlockState().getValue(AquaticCatalystBlock.ACTIVE)
-                : currentRecipe != null;
+                : currentRecipe != null && !paused;
         if (emitting) {
             return Set.of(getEmitterDirection());
         }
@@ -386,6 +402,9 @@ public class AquaticCatalystBlockEntity extends LaserBlockEntity {
 
         this.currentRecipe = loadRecipe(currentRecipeId);
         this.nextRecipe = loadRecipe(nextRecipeId);
+        if (level != null && !level.isClientSide()) {
+            this.paused = level.hasNeighborSignal(worldPosition);
+        }
     }
 
     private RecipeHolder<AquaticCatalystChannelingRecipe> loadRecipe(Identifier location) {

@@ -55,6 +55,13 @@ public class BlockLootTableProvider extends BlockLootSubProvider {
         knownBlocks.add(block);
     }
 
+    private void dropKeepingPlant(Block block) {
+        add(block, LootTable.lootTable().withPool(applyExplosionCondition(block, LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                .add(LootItem.lootTableItem(block)
+                        .apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
+                                .include(NTDataComponents.BIOME_TANK_PLANT.get()))))));
+    }
+
     private void dropKeepingLink(Block block) {
         add(block, LootTable.lootTable().withPool(applyExplosionCondition(block, LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
                 .add(LootItem.lootTableItem(block)
@@ -66,10 +73,7 @@ public class BlockLootTableProvider extends BlockLootSubProvider {
     protected void generate() {
         prismarineSand(NTBlocks.PRISMARINE_SAND.get());
         dropSelf(NTBlocks.AQUATIC_CATALYST.get());
-        dropSelf(NTBlocks.RESONANCE_PYLON.get());
         dropSelf(NTBlocks.UPLINK_ARRAY.get());
-        dropSelf(NTBlocks.DOWNLINK_ARRAY.get());
-        dropSelf(NTBlocks.ABYSSAL_PYLON.get());
         dropSelf(NTBlocks.RESONANCE_NODE.get());
         dropSelf(NTBlocks.CONDUIT_BEACON.get());
         dropKeepingLink(NTBlocks.RESONANT_VAULT.get());
@@ -77,7 +81,7 @@ public class BlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(NTBlocks.AQUARINE_DISH_STORAGE.get());
         dropSelf(NTBlocks.DEEP_STEEL_DISH_STORAGE.get());
         dropSelf(NTBlocks.ATLANTIC_GOLD_DISH_STORAGE.get());
-        NTBlocks.BIOME_TANKS.values().forEach(tank -> dropSelf(tank.get()));
+        dropKeepingPlant(NTBlocks.BIOME_TANK.get());
         dropSelf(NTBlocks.PRISMATIC_EMITTER.get());
         dropSelf(NTBlocks.TIDAL_ROTOR.get());
         dropSelf(NTBlocks.THERMAL_VENT_TAP.get());
@@ -97,10 +101,7 @@ public class BlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(NTBlocks.GATEWAY_RING.get());
         add(NTBlocks.GATEWAY_RING_PART.get(), noDrop());
         dropSelf(NTBlocks.RESONANCE_CHAMBER.get());
-        dropSelf(NTBlocks.PRISMATIC_MIRROR.get());
-        dropSelf(NTBlocks.BEAM_SPLITTER.get());
         dropSelf(NTBlocks.FOCUSING_LENS.get());
-        dropSelf(NTBlocks.LONG_DISTANCE_LASER.get());
         dropSelf(NTBlocks.AQUARINE_STEEL_BLOCK.get());
         dropSelf(NTBlocks.DARK_PRISMARINE_PILLAR.get());
         dropSelf(NTBlocks.CHISELED_DARK_PRISMARINE.get());

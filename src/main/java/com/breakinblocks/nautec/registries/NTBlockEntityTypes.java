@@ -3,8 +3,6 @@ package com.breakinblocks.nautec.registries;
 import com.breakinblocks.nautec.content.conduits.ConduitTapBlockEntity;
 import com.breakinblocks.nautec.content.resonantstorage.ResonantCisternBlockEntity;
 import com.breakinblocks.nautec.content.resonantstorage.ResonantVaultBlockEntity;
-import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.registries.DeferredBlock;
 import com.breakinblocks.nautec.content.biometank.BiomeTankBlockEntity;
 import com.breakinblocks.nautec.content.dishstorage.DishStorageBlockEntity;
 import com.breakinblocks.nautec.content.conduit.ConduitBeaconBlockEntity;
@@ -21,7 +19,6 @@ import com.breakinblocks.nautec.content.blockentities.AdvancedBacterialAnalyzerB
 import com.breakinblocks.nautec.content.blockentities.BacterialAnalyzerBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.GraftingStationBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.BacterialFuelCellBlockEntity;
-import com.breakinblocks.nautec.content.blockentities.BeamSplitterBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.ChargerBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.ConfinedSpawnerBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.CrystalCradleBlockEntity;
@@ -35,7 +32,6 @@ import com.breakinblocks.nautec.content.blockentities.FocusingLensBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.GatewayBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.IncubatorBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.LaserJunctionBlockEntity;
-import com.breakinblocks.nautec.content.blockentities.LongDistanceLaserBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.LuckyFishingZoneBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.LaserCraftingMatrixBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.MixerBlockEntity;
@@ -43,7 +39,6 @@ import com.breakinblocks.nautec.content.blockentities.MutatorBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.OilBarrelBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.PressureForgeBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.PrismarineLaserRelayBlockEntity;
-import com.breakinblocks.nautec.content.blockentities.PrismaticMirrorBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.ResonanceChamberBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.SubmarineDockBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.multiblock.controller.AugmentationStationBlockEntity;
@@ -61,7 +56,6 @@ import com.breakinblocks.nautec.content.blockentities.fusion.FusionCollectorBloc
 import com.breakinblocks.nautec.content.blockentities.generators.CombustionDynamoBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.generators.ThermalVentTapBlockEntity;
 import com.breakinblocks.nautec.content.resonance.PrismaticEmitterBlockEntity;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
 import com.breakinblocks.nautec.content.resonance.SatelliteArrayBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.generators.TidalRotorBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.fusion.FusionControllerBlockEntity;
@@ -82,9 +76,6 @@ public final class NTBlockEntityTypes {
     public static final Supplier<BlockEntityType<PrismarineLaserRelayBlockEntity>> PRISMARINE_LASER_RELAY = BLOCK_ENTITIES.register("prismarine_laser_relay",
             () -> new BlockEntityType<>(PrismarineLaserRelayBlockEntity::new,
                     NTBlocks.PRISMARINE_RELAY.get()));
-    public static final Supplier<BlockEntityType<LongDistanceLaserBlockEntity>> LONG_DISTANCE_LASER = BLOCK_ENTITIES.register("long_distance_laser",
-            () -> new BlockEntityType<>(LongDistanceLaserBlockEntity::new,
-                    NTBlocks.LONG_DISTANCE_LASER.get()));
     public static final Supplier<BlockEntityType<LaserJunctionBlockEntity>> LASER_JUNCTION = BLOCK_ENTITIES.register("laser_junction",
             () -> new BlockEntityType<>(LaserJunctionBlockEntity::new,
                     NTBlocks.LASER_JUNCTION.get()));
@@ -122,12 +113,6 @@ public final class NTBlockEntityTypes {
     public static final Supplier<BlockEntityType<ResonanceChamberBlockEntity>> RESONANCE_CHAMBER = BLOCK_ENTITIES.register("resonance_chamber",
             () -> new BlockEntityType<>(ResonanceChamberBlockEntity::new,
                     NTBlocks.RESONANCE_CHAMBER.get()));
-    public static final Supplier<BlockEntityType<PrismaticMirrorBlockEntity>> PRISMATIC_MIRROR = BLOCK_ENTITIES.register("prismatic_mirror",
-            () -> new BlockEntityType<>(PrismaticMirrorBlockEntity::new,
-                    NTBlocks.PRISMATIC_MIRROR.get()));
-    public static final Supplier<BlockEntityType<BeamSplitterBlockEntity>> BEAM_SPLITTER = BLOCK_ENTITIES.register("beam_splitter",
-            () -> new BlockEntityType<>(BeamSplitterBlockEntity::new,
-                    NTBlocks.BEAM_SPLITTER.get()));
     public static final Supplier<BlockEntityType<FocusingLensBlockEntity>> FOCUSING_LENS = BLOCK_ENTITIES.register("focusing_lens",
             () -> new BlockEntityType<>(FocusingLensBlockEntity::new,
                     NTBlocks.FOCUSING_LENS.get()));
@@ -202,9 +187,6 @@ public final class NTBlockEntityTypes {
     public static final Supplier<BlockEntityType<CrystalCradleBlockEntity>> CRYSTAL_CRADLE = BLOCK_ENTITIES.register("crystal_cradle",
             () -> new BlockEntityType<>(CrystalCradleBlockEntity::new,
                     NTBlocks.CRYSTAL_CRADLE.get()));
-    public static final Supplier<BlockEntityType<ResonancePylonBlockEntity>> RESONANCE_PYLON = BLOCK_ENTITIES.register("resonance_pylon",
-            () -> new BlockEntityType<>(ResonancePylonBlockEntity::new,
-                    NTBlocks.RESONANCE_PYLON.get(), NTBlocks.ABYSSAL_PYLON.get()));
     public static final Supplier<BlockEntityType<ConduitBeaconBlockEntity>> CONDUIT_BEACON = BLOCK_ENTITIES.register("conduit_beacon",
             () -> new BlockEntityType<>(ConduitBeaconBlockEntity::new,
                     NTBlocks.CONDUIT_BEACON.get()));
@@ -213,13 +195,13 @@ public final class NTBlockEntityTypes {
                     NTBlocks.AQUARINE_DISH_STORAGE.get(), NTBlocks.DEEP_STEEL_DISH_STORAGE.get(), NTBlocks.ATLANTIC_GOLD_DISH_STORAGE.get()));
     public static final Supplier<BlockEntityType<BiomeTankBlockEntity>> BIOME_TANK = BLOCK_ENTITIES.register("biome_tank",
             () -> new BlockEntityType<>(BiomeTankBlockEntity::new,
-                    NTBlocks.BIOME_TANKS.values().stream().map(DeferredBlock::get).toArray(Block[]::new)));
+                    NTBlocks.BIOME_TANK.get()));
     public static final Supplier<BlockEntityType<ResonanceNodeBlockEntity>> RESONANCE_NODE = BLOCK_ENTITIES.register("resonance_node",
             () -> new BlockEntityType<>(ResonanceNodeBlockEntity::new,
                     NTBlocks.RESONANCE_NODE.get()));
     public static final Supplier<BlockEntityType<SatelliteArrayBlockEntity>> SATELLITE_ARRAY = BLOCK_ENTITIES.register("satellite_array",
             () -> new BlockEntityType<>(SatelliteArrayBlockEntity::new,
-                    NTBlocks.UPLINK_ARRAY.get(), NTBlocks.DOWNLINK_ARRAY.get()));
+                    NTBlocks.UPLINK_ARRAY.get()));
     public static final Supplier<BlockEntityType<PrismaticEmitterBlockEntity>> PRISMATIC_EMITTER = BLOCK_ENTITIES.register("prismatic_emitter",
             () -> new BlockEntityType<>(PrismaticEmitterBlockEntity::new,
                     NTBlocks.PRISMATIC_EMITTER.get()));

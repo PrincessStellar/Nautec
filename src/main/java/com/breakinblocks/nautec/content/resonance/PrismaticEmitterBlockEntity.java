@@ -136,7 +136,7 @@ public class PrismaticEmitterBlockEntity extends ContainerBlockEntity {
     }
 
     public static boolean accepts(ServerLevel level, BlockPos pos, Direction face) {
-        if (level.getBlockEntity(pos) instanceof ResonancePylonBlockEntity) {
+        if (level.getBlockEntity(pos) instanceof ResonanceNodeBlockEntity) {
             return false;
         }
         return level.getCapability(Capabilities.Energy.BLOCK, pos, face) != null;

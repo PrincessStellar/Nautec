@@ -3,6 +3,7 @@ package com.breakinblocks.nautec.gametest.suite;
 import com.breakinblocks.nautec.api.blockentities.LaserBlockEntity;
 import com.breakinblocks.nautec.content.resonance.ResonanceNodeBlockEntity;
 import org.jetbrains.annotations.Nullable;
+import com.breakinblocks.nautec.content.resonance.ResonanceNodeBlock;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.minecraft.world.item.ItemStack;
 import com.breakinblocks.nautec.content.resonance.ResonanceCharmItem;
@@ -11,8 +12,7 @@ import com.breakinblocks.nautec.content.items.ConfigurationCardItem;
 import com.breakinblocks.nautec.capabilities.power.IPowerStorage;
 import com.breakinblocks.nautec.capabilities.NTCapabilities;
 import com.breakinblocks.nautec.NTConfig;
-import com.breakinblocks.nautec.content.blockentities.LongDistanceLaserBlockEntity;
-import com.breakinblocks.nautec.content.blocks.LongDistanceLaserBlock;
+import com.breakinblocks.nautec.content.blockentities.MixerBlockEntity;
 import com.breakinblocks.nautec.content.resonance.ResonanceNetwork;
 import com.breakinblocks.nautec.content.resonance.ResonanceNetworks;
 import com.breakinblocks.nautec.content.resonance.SatelliteArrayBlockEntity;
@@ -57,19 +57,23 @@ public final class SatelliteTests {
         }
     }
 
-    private static SatelliteArrayBlockEntity array(GameTestHelper helper, BlockPos relative, boolean uplink, @Nullable ResonanceNetwork network) {
+    private static SatelliteArrayBlockEntity uplink(GameTestHelper helper, BlockPos relative, @Nullable ResonanceNetwork network) {
         BlockPos pos = helper.absolutePos(relative);
-        Block block = uplink ? NTBlocks.UPLINK_ARRAY.get() : NTBlocks.DOWNLINK_ARRAY.get();
-        helper.getLevel().setBlock(pos, block.defaultBlockState(), Block.UPDATE_ALL);
+        helper.getLevel().setBlock(pos, NTBlocks.UPLINK_ARRAY.get().defaultBlockState(), Block.UPDATE_ALL);
         openSky(helper, pos);
         SatelliteArrayBlockEntity array = (SatelliteArrayBlockEntity) helper.getLevel().getBlockEntity(pos);
         array.setNetwork(network);
         return array;
     }
 
-    private static ResonanceNodeBlockEntity node(GameTestHelper helper, BlockPos relative, ResonanceNetwork network, boolean output) {
+    private static ResonanceNodeBlockEntity node(GameTestHelper helper, BlockPos relative, @Nullable ResonanceNetwork network, boolean output) {
+        return node(helper, relative, network, output, Direction.UP);
+    }
+
+    private static ResonanceNodeBlockEntity node(GameTestHelper helper, BlockPos relative, @Nullable ResonanceNetwork network, boolean output,
+                                                 Direction facing) {
         BlockPos pos = helper.absolutePos(relative);
-        helper.getLevel().setBlock(pos, NTBlocks.RESONANCE_NODE.get().defaultBlockState(), Block.UPDATE_ALL);
+        helper.getLevel().setBlock(pos, NTBlocks.RESONANCE_NODE.get().defaultBlockState().setValue(ResonanceNodeBlock.FACING, facing), Block.UPDATE_ALL);
         ResonanceNodeBlockEntity node = (ResonanceNodeBlockEntity) helper.getLevel().getBlockEntity(pos);
         node.setNetwork(network);
         node.setOutput(output);
@@ -83,31 +87,29 @@ public final class SatelliteTests {
         });
     }
 
-    private static int share(int downlinks) {
-        return (int) Math.floor(FEED * (1.0 - NTConfig.satelliteLoss) / downlinks);
+    private static int share(int outputs) {
+        return (int) Math.floor(FEED * (1.0 - NTConfig.satelliteLoss) / outputs);
     }
 
     public static void register(NTTestRegistrar r) {
-        r.add("satellite/relays_ap_to_a_downlink_with_loss", 200, helper -> {
+        r.add("satellite/relays_ap_to_an_output_node_with_loss", 200, helper -> {
             ServerPlayer owner = player(helper, "SatOwner");
             ResonanceNetworks networks = ResonanceNetworks.get(helper.getLevel().getServer());
             ResonanceNetwork network = networks.create(owner, "Sat relay").network();
-            SatelliteArrayBlockEntity uplink = array(helper, new BlockPos(1, 1, 1), true, network);
-            SatelliteArrayBlockEntity downlink = array(helper, new BlockPos(1, 1, 6), false, network);
-            BlockPos receiverPos = helper.absolutePos(new BlockPos(5, 1, 6));
-            helper.getLevel().setBlock(receiverPos, NTBlocks.LONG_DISTANCE_LASER.get().defaultBlockState()
-                    .setValue(LongDistanceLaserBlock.FACING, Direction.EAST), Block.UPDATE_ALL);
-            LongDistanceLaserBlockEntity receiver = (LongDistanceLaserBlockEntity) helper.getLevel().getBlockEntity(receiverPos);
+            SatelliteArrayBlockEntity uplink = uplink(helper, new BlockPos(1, 1, 1), network);
+            ResonanceNodeBlockEntity output = node(helper, new BlockPos(1, 1, 6), network, true, Direction.EAST);
+            BlockPos mixerPos = new BlockPos(5, 1, 6);
+            helper.setBlock(mixerPos, NTBlocks.MIXER.get());
             helper.assertTrue(uplink.launch(), "an uplink takes a satellite");
             feed(helper, uplink);
 
             int expected = share(1);
             helper.succeedWhen(() -> {
+                MixerBlockEntity mixer = helper.getBlockEntity(mixerPos, MixerBlockEntity.class);
                 helper.assertValueEqual(uplink.getStatus(), SatelliteArrayBlockEntity.STATUS_ONLINE, "uplink status");
-                helper.assertValueEqual(downlink.getStatus(), SatelliteArrayBlockEntity.STATUS_ONLINE, "downlink status");
-                helper.assertValueEqual(downlink.getRelay(), expected, "the downlink receives the uplink's AP less the loss");
-                helper.assertTrue(Math.abs(downlink.getRelayPurity() - FEED_PURITY) < 0.001F, "purity carries through, got " + downlink.getRelayPurity());
-                helper.assertValueEqual(receiver.getPower(), expected, "the downlink fires its AP into the laser beside it");
+                helper.assertValueEqual(output.getStatus(), ResonanceNodeBlockEntity.STATUS_ONLINE, "output node status");
+                helper.assertValueEqual(mixer.getPower(), expected, "the output node fires the uplink's AP less the loss");
+                helper.assertTrue(Math.abs(mixer.getPurity() - FEED_PURITY) < 0.001F, "purity carries through, got " + mixer.getPurity());
                 networks.delete(owner, network.id());
             });
         });
@@ -116,40 +118,41 @@ public final class SatelliteTests {
             ServerPlayer owner = player(helper, "SatNone");
             ResonanceNetworks networks = ResonanceNetworks.get(helper.getLevel().getServer());
             ResonanceNetwork network = networks.create(owner, "Sat empty").network();
-            SatelliteArrayBlockEntity uplink = array(helper, new BlockPos(1, 1, 1), true, network);
-            SatelliteArrayBlockEntity downlink = array(helper, new BlockPos(6, 1, 6), false, network);
+            SatelliteArrayBlockEntity uplink = uplink(helper, new BlockPos(1, 1, 1), network);
+            ResonanceNodeBlockEntity output = node(helper, new BlockPos(6, 1, 6), network, true);
             feed(helper, uplink);
             helper.runAfterDelay(40, () -> {
                 helper.assertValueEqual(uplink.getStatus(), SatelliteArrayBlockEntity.STATUS_NO_SATELLITE, "uplink without a satellite");
-                helper.assertValueEqual(downlink.getStatus(), SatelliteArrayBlockEntity.STATUS_NO_UPLINK, "downlink with no live uplink");
-                helper.assertValueEqual(downlink.getRelay(), 0, "nothing relayed without a satellite");
+                helper.assertValueEqual(output.getStatus(), ResonanceNodeBlockEntity.STATUS_NO_CORE, "output node with no live uplink");
+                helper.assertValueEqual(output.getApStored(), 0, "nothing relayed without a satellite");
                 networks.delete(owner, network.id());
                 helper.succeed();
             });
         });
 
-        r.add("satellite/blocked_sky_stops_the_downlink", 200, helper -> {
+        r.add("satellite/blocked_sky_stops_the_uplink", 200, helper -> {
             ServerPlayer owner = player(helper, "SatSky");
             ResonanceNetworks networks = ResonanceNetworks.get(helper.getLevel().getServer());
             ResonanceNetwork network = networks.create(owner, "Sat sky").network();
-            SatelliteArrayBlockEntity uplink = array(helper, new BlockPos(1, 1, 1), true, network);
-            SatelliteArrayBlockEntity downlink = array(helper, new BlockPos(6, 1, 6), false, network);
+            SatelliteArrayBlockEntity uplink = uplink(helper, new BlockPos(1, 1, 1), network);
+            ResonanceNodeBlockEntity output = node(helper, new BlockPos(6, 1, 6), network, true);
             uplink.launch();
             feed(helper, uplink);
             helper.runAfterDelay(40, () -> {
-                helper.assertValueEqual(downlink.getRelay(), share(1), "the downlink relays before the sky is blocked");
-                helper.getLevel().setBlock(downlink.getBlockPos().above(4), Blocks.STONE.defaultBlockState(), Block.UPDATE_ALL);
+                helper.assertValueEqual(output.getStatus(), ResonanceNodeBlockEntity.STATUS_ONLINE, "the output node is online before the sky is blocked");
+                helper.assertTrue(output.getApStored() > 0, "the output node receives AP before the sky is blocked");
+                helper.getLevel().setBlock(uplink.getBlockPos().above(4), Blocks.STONE.defaultBlockState(), Block.UPDATE_ALL);
             });
             helper.runAfterDelay(41, () -> helper.succeedWhen(() -> {
-                helper.assertValueEqual(downlink.getStatus(), SatelliteArrayBlockEntity.STATUS_SKY_BLOCKED, "downlink under stone");
-                helper.assertValueEqual(downlink.getRelay(), 0, "a covered downlink receives nothing");
+                helper.assertValueEqual(uplink.getStatus(), SatelliteArrayBlockEntity.STATUS_SKY_BLOCKED, "uplink under stone");
+                helper.assertValueEqual(output.getStatus(), ResonanceNodeBlockEntity.STATUS_NO_CORE, "a covered uplink stops being the core");
                 networks.delete(owner, network.id());
             }));
         });
 
         r.add("satellite/only_solid_blocks_block_the_sky", 60, helper -> {
             BlockPos base = helper.absolutePos(new BlockPos(4, 1, 4));
-            helper.getLevel().setBlock(base, NTBlocks.DOWNLINK_ARRAY.get().defaultBlockState(), Block.UPDATE_ALL);
+            helper.getLevel().setBlock(base, NTBlocks.UPLINK_ARRAY.get().defaultBlockState(), Block.UPDATE_ALL);
             openSky(helper, base);
             BlockPos top = base.above();
             helper.assertTrue(SatelliteGrid.clearSky(helper.getLevel(), top), "open air is clear sky");
@@ -167,18 +170,18 @@ public final class SatelliteTests {
             helper.succeed();
         });
 
-        r.add("satellite/downlinks_share_the_uplink", 200, helper -> {
+        r.add("satellite/output_nodes_share_the_uplink", 200, helper -> {
             ServerPlayer owner = player(helper, "SatSplit");
             ResonanceNetworks networks = ResonanceNetworks.get(helper.getLevel().getServer());
             ResonanceNetwork network = networks.create(owner, "Sat split").network();
-            SatelliteArrayBlockEntity uplink = array(helper, new BlockPos(1, 1, 1), true, network);
-            SatelliteArrayBlockEntity first = array(helper, new BlockPos(6, 1, 1), false, network);
-            SatelliteArrayBlockEntity second = array(helper, new BlockPos(6, 1, 6), false, network);
+            SatelliteArrayBlockEntity uplink = uplink(helper, new BlockPos(1, 1, 1), network);
+            ResonanceNodeBlockEntity first = node(helper, new BlockPos(6, 1, 1), network, true);
+            ResonanceNodeBlockEntity second = node(helper, new BlockPos(6, 1, 6), network, true);
             uplink.launch();
             feed(helper, uplink);
             helper.succeedWhen(() -> {
-                helper.assertValueEqual(first.getRelay(), share(2), "first downlink share");
-                helper.assertValueEqual(second.getRelay(), share(2), "second downlink share");
+                helper.assertTrue(first.getApStored() > 0, "the first output node receives AP");
+                helper.assertValueEqual(first.getApStored(), second.getApStored(), "equal priorities split the uplink evenly");
                 networks.delete(owner, network.id());
             });
         });
@@ -187,7 +190,7 @@ public final class SatelliteTests {
             ServerPlayer owner = player(helper, "SatDim");
             ResonanceNetworks networks = ResonanceNetworks.get(helper.getLevel().getServer());
             ResonanceNetwork network = networks.create(owner, "Sat dimension").network();
-            SatelliteArrayBlockEntity uplink = array(helper, new BlockPos(1, 1, 1), true, network);
+            SatelliteArrayBlockEntity uplink = uplink(helper, new BlockPos(1, 1, 1), network);
             uplink.launch();
             feed(helper, uplink);
             ServerLevel nether = helper.getLevel().getServer().getLevel(Level.NETHER);
@@ -213,7 +216,7 @@ public final class SatelliteTests {
             ServerPlayer owner = player(helper, "NodeOwner");
             ResonanceNetworks networks = ResonanceNetworks.get(helper.getLevel().getServer());
             ResonanceNetwork network = networks.create(owner, "Node relay").network();
-            SatelliteArrayBlockEntity core = array(helper, new BlockPos(1, 1, 1), true, network);
+            SatelliteArrayBlockEntity core = uplink(helper, new BlockPos(1, 1, 1), network);
             core.launch();
             ResonanceNodeBlockEntity input = node(helper, new BlockPos(4, 1, 2), network, false);
             ResonanceNodeBlockEntity output = node(helper, new BlockPos(6, 1, 6), network, true);
@@ -261,33 +264,32 @@ public final class SatelliteTests {
             ServerPlayer owner = player(helper, "SatBuffer");
             ResonanceNetworks networks = ResonanceNetworks.get(helper.getLevel().getServer());
             ResonanceNetwork network = networks.create(owner, "Sat buffer").network();
-            SatelliteArrayBlockEntity uplink = array(helper, new BlockPos(1, 1, 1), true, network);
-            SatelliteArrayBlockEntity downlink = array(helper, new BlockPos(6, 1, 6), false, network);
-            downlink.setNetwork(null);
+            SatelliteArrayBlockEntity uplink = uplink(helper, new BlockPos(1, 1, 1), network);
             uplink.launch();
             feed(helper, uplink);
             try (Transaction tx = Transaction.openRoot()) {
                 helper.assertValueEqual(uplink.getPort().insert(40_000, tx), 40_000, "an uplink takes FE from cables");
-                helper.assertValueEqual(downlink.getPort().insert(40_000, tx), 0, "a downlink takes no FE from cables");
+                helper.assertValueEqual(uplink.getPort().extract(40_000, tx), 0, "an uplink gives no FE back to cables");
                 tx.commit();
             }
             helper.runAfterDelay(20, () -> {
-                helper.assertTrue(uplink.getApStored() >= FEED * 10, "an uplink with no downlink stores its beam, has " + uplink.getApStored());
+                helper.assertTrue(uplink.getApStored() >= FEED * 10, "an uplink with no output node stores its beam, has " + uplink.getApStored());
                 helper.assertTrue(Math.abs(uplink.getApPurity() - FEED_PURITY) < 0.001F, "the stored AP keeps its purity");
-                helper.assertValueEqual(uplink.getEnergy().getAmountAsInt(), 40_000, "the FE stays until a downlink wants it");
+                helper.assertValueEqual(uplink.getEnergy().getAmountAsInt(), 40_000, "the FE stays until an output node wants it");
+                helper.assertValueEqual(uplink.getStatus(), SatelliteArrayBlockEntity.STATUS_NO_OUTPUT, "an uplink with no output node says so");
                 networks.delete(owner, network.id());
                 helper.succeed();
             });
         });
 
-        r.add("satellite/priority_fills_higher_downlinks_first", 80, helper -> {
+        r.add("satellite/priority_fills_higher_output_nodes_first", 80, helper -> {
             ServerPlayer owner = player(helper, "SatPriority");
             ResonanceNetworks networks = ResonanceNetworks.get(helper.getLevel().getServer());
             ResonanceNetwork network = networks.create(owner, "Sat priority").network();
-            SatelliteArrayBlockEntity uplink = array(helper, new BlockPos(1, 1, 1), true, network);
-            SatelliteArrayBlockEntity first = array(helper, new BlockPos(6, 1, 1), false, network);
-            SatelliteArrayBlockEntity second = array(helper, new BlockPos(6, 1, 6), false, network);
-            SatelliteArrayBlockEntity third = array(helper, new BlockPos(1, 1, 6), false, network);
+            SatelliteArrayBlockEntity uplink = uplink(helper, new BlockPos(1, 1, 1), network);
+            ResonanceNodeBlockEntity first = node(helper, new BlockPos(6, 1, 1), network, true);
+            ResonanceNodeBlockEntity second = node(helper, new BlockPos(6, 1, 6), network, true);
+            ResonanceNodeBlockEntity third = node(helper, new BlockPos(1, 1, 6), network, true);
             uplink.launch();
             first.setPriority(5);
             first.setLimit(3_000);
@@ -295,7 +297,7 @@ public final class SatelliteTests {
             helper.runAfterDelay(15, () -> {
                 int deliverable = (int) Math.floor(5_000 * (1.0 - NTConfig.satelliteLoss));
                 int rest = (deliverable - 3_000) / 2;
-                helper.assertValueEqual(first.getEnergy().getAmountAsInt(), 3_000, "the higher priority downlink fills to its limit first");
+                helper.assertValueEqual(first.getEnergy().getAmountAsInt(), 3_000, "the higher priority node fills to its limit first");
                 helper.assertValueEqual(second.getEnergy().getAmountAsInt(), rest, "equal priorities share what is left");
                 helper.assertValueEqual(third.getEnergy().getAmountAsInt(), rest, "equal priorities share what is left");
                 helper.assertTrue(uplink.getEnergy().getAmountAsInt() <= 1, "the uplink paid for it, has " + uplink.getEnergy().getAmountAsInt());
@@ -304,20 +306,21 @@ public final class SatelliteTests {
             });
         });
 
-        r.add("satellite/downlink_settings_copy_and_clamp", 20, helper -> {
-            ServerPlayer owner = player(helper, "SatCopy");
+        r.add("resonance_node/settings_copy_and_clamp", 20, helper -> {
+            ServerPlayer owner = player(helper, "NodeCopy");
             ResonanceNetworks networks = ResonanceNetworks.get(helper.getLevel().getServer());
-            ResonanceNetwork network = networks.create(owner, "Sat copy").network();
-            SatelliteArrayBlockEntity source = array(helper, new BlockPos(1, 1, 1), false, network);
-            SatelliteArrayBlockEntity target = array(helper, new BlockPos(6, 1, 6), false, null);
+            ResonanceNetwork network = networks.create(owner, "Node copy").network();
+            ResonanceNodeBlockEntity source = node(helper, new BlockPos(1, 1, 1), network, true);
+            ResonanceNodeBlockEntity target = node(helper, new BlockPos(6, 1, 6), null, false);
             source.setPriority(500);
-            helper.assertValueEqual(source.getPriority(), SatelliteArrayBlockEntity.MAX_PRIORITY, "priority clamps");
+            helper.assertValueEqual(source.getPriority(), ResonanceNodeBlockEntity.MAX_PRIORITY, "priority clamps");
             source.setLimit(Integer.MAX_VALUE);
-            helper.assertValueEqual(source.getLimit(), NTConfig.satelliteTransferLimit, "the limit clamps to the config");
+            helper.assertValueEqual(source.effectiveLimit(), NTConfig.satelliteTransferLimit, "the limit clamps to the config");
             source.setLimit(2_500);
             MachineSettings card = ConfigurationCardItem.copy(source, helper.getLevel());
-            helper.assertTrue(ConfigurationCardItem.paste(card, target, owner), "the card pastes onto another downlink");
-            helper.assertValueEqual(target.getPriority(), SatelliteArrayBlockEntity.MAX_PRIORITY, "pasted priority");
+            helper.assertTrue(ConfigurationCardItem.paste(card, target, owner), "the card pastes onto another node");
+            helper.assertTrue(target.isOutput(), "pasted mode");
+            helper.assertValueEqual(target.getPriority(), ResonanceNodeBlockEntity.MAX_PRIORITY, "pasted priority");
             helper.assertValueEqual(target.getLimit(), 2_500, "pasted limit");
             helper.assertValueEqual(target.getNetworkId(), network.id(), "pasted network");
             networks.delete(owner, network.id());
@@ -342,11 +345,9 @@ public final class SatelliteTests {
             ServerPlayer owner = player(helper, "SatBreak");
             ResonanceNetworks networks = ResonanceNetworks.get(helper.getLevel().getServer());
             ResonanceNetwork network = networks.create(owner, "Sat break").network();
-            SatelliteArrayBlockEntity uplink = array(helper, new BlockPos(4, 1, 4), true, network);
-            SatelliteArrayBlockEntity downlink = array(helper, new BlockPos(1, 1, 1), false, network);
+            SatelliteArrayBlockEntity uplink = uplink(helper, new BlockPos(4, 1, 4), network);
             BlockPos pos = uplink.getBlockPos();
             helper.assertTrue(helper.getLevel().getBlockState(pos.above()).is(NTBlocks.SATELLITE_ARRAY_TOP.get()), "placing the array adds its top half");
-            helper.assertFalse(downlink.launch(), "a downlink cannot take a satellite");
             helper.assertTrue(uplink.launch(), "the first satellite launches");
             helper.assertFalse(uplink.launch(), "a second satellite does not");
             helper.getLevel().destroyBlock(pos, false);

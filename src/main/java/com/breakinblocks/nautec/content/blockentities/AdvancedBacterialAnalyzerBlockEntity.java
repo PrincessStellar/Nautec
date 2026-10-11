@@ -13,7 +13,7 @@ import com.breakinblocks.nautec.content.blocks.AdvancedBacterialAnalyzerBlock;
 import com.breakinblocks.nautec.content.items.PetriDishItem;
 import com.breakinblocks.nautec.content.menus.AdvancedBacterialAnalyzerMenu;
 import com.breakinblocks.nautec.registries.NTBlockEntityTypes;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
+import com.breakinblocks.nautec.utils.DataSlots;
 import com.breakinblocks.nautec.utils.ItemTemplates;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.BlockPos;
@@ -70,11 +70,11 @@ public class AdvancedBacterialAnalyzerBlockEntity extends LaserBlockEntity imple
         public int get(int index) {
             if (index < DATA_DURATION) {
                 int value = progress[index / 2];
-                return index % 2 == 0 ? ResonancePylonBlockEntity.low(value) : ResonancePylonBlockEntity.high(value);
+                return index % 2 == 0 ? DataSlots.low(value) : DataSlots.high(value);
             }
             return switch (index) {
-                case DATA_DURATION -> ResonancePylonBlockEntity.low(NTConfig.advancedAnalyzerCraftingSpeed);
-                case DATA_DURATION + 1 -> ResonancePylonBlockEntity.high(NTConfig.advancedAnalyzerCraftingSpeed);
+                case DATA_DURATION -> DataSlots.low(NTConfig.advancedAnalyzerCraftingSpeed);
+                case DATA_DURATION + 1 -> DataSlots.high(NTConfig.advancedAnalyzerCraftingSpeed);
                 case DATA_STATUS -> status;
                 default -> 0;
             };

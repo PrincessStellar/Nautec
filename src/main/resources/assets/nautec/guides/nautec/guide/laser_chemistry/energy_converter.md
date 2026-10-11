@@ -56,7 +56,7 @@ All three slots full gives 17,350 AP per tick, which burns 173,500 FE per tick. 
 
 Its beam has a purity of 0. That runs the [Mixer](mixer.md), the [Deep Sea Drain](drain.md), the [Charger](charger.md) and any Item Transformation that needs no purity. A Focusing Lens cannot raise it, since a lens only adds purity to a beam that already has some.
 
-To get pure power from FE, merge the converter beam with a pure source into the same block, such as a [Laser Junction](laser_manipulation.md) or a mirror. Merged beams keep close to the purity of the purest one: a Prismarine Crystal beam at 3.0 joined by a converter beam comes out at about 2.6 with the power of both. See [Beam Optics](nautec:deep_engineering/beam_optics.md) for the pure sources.
+To get pure power from FE, merge the converter beam with a pure source into the same block, such as a [Laser Junction](laser_manipulation.md). Merged beams keep close to the purity of the purest one: a Prismarine Crystal beam at 3.0 joined by a converter beam comes out at about 2.6 with the power of both. See [Beam Optics](nautec:deep_engineering/beam_optics.md) for the pure sources.
 
 <Recipe id="nautec:energy_converter"/>
 

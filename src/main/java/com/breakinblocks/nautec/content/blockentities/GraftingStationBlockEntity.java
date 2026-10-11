@@ -16,7 +16,7 @@ import com.breakinblocks.nautec.data.NTDataMaps;
 import com.breakinblocks.nautec.data.maps.BacteriaObtainValue;
 import com.breakinblocks.nautec.registries.NTBlockEntityTypes;
 import com.breakinblocks.nautec.registries.NTFluids;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
+import com.breakinblocks.nautec.utils.DataSlots;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -73,13 +73,13 @@ public class GraftingStationBlockEntity extends LaserBlockEntity implements Menu
         @Override
         public int get(int index) {
             return switch (index) {
-                case DATA_PROGRESS -> ResonancePylonBlockEntity.low(progress);
-                case DATA_PROGRESS + 1 -> ResonancePylonBlockEntity.high(progress);
-                case DATA_DURATION -> ResonancePylonBlockEntity.low(getDuration());
-                case DATA_DURATION + 1 -> ResonancePylonBlockEntity.high(getDuration());
+                case DATA_PROGRESS -> DataSlots.low(progress);
+                case DATA_PROGRESS + 1 -> DataSlots.high(progress);
+                case DATA_DURATION -> DataSlots.low(getDuration());
+                case DATA_DURATION + 1 -> DataSlots.high(getDuration());
                 case DATA_STATUS -> status;
-                case DATA_POWER -> ResonancePylonBlockEntity.low(getRequiredPower());
-                case DATA_POWER + 1 -> ResonancePylonBlockEntity.high(getRequiredPower());
+                case DATA_POWER -> DataSlots.low(getRequiredPower());
+                case DATA_POWER + 1 -> DataSlots.high(getRequiredPower());
                 default -> 0;
             };
         }

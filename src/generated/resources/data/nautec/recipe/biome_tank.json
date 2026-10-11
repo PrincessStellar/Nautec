@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": "nautec:deep_steel_plating",
+    "G": "#c:glass_panes",
+    "O": "#c:obsidians"
+  },
+  "pattern": [
+    "DGD",
+    "G G",
+    "GOG"
+  ],
+  "result": {
+    "id": "nautec:biome_tank"
+  }
+}

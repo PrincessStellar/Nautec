@@ -1,7 +1,7 @@
 {
   "type": "nautec:aquatic_catalyst_channeling",
-  "duration": 160,
+  "duration": 600,
   "ingredient": "minecraft:prismarine_shard",
-  "power_amount": 2000,
+  "power_amount": 7500,
   "purity": 0.4
 }

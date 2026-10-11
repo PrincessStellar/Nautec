@@ -1,7 +1,7 @@
 package com.breakinblocks.nautec.client.screen;
 
 import com.breakinblocks.nautec.NTConfig;
-import com.breakinblocks.nautec.content.resonance.SatelliteArrayBlockEntity;
+import com.breakinblocks.nautec.content.resonance.ResonanceNodeBlockEntity;
 import com.breakinblocks.nautec.network.OpenCharmScreenPayload;
 import com.breakinblocks.nautec.network.SetCharmPriorityPayload;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -56,7 +56,7 @@ public class ResonanceCharmScreen extends Screen {
     }
 
     private void setPriority(int value) {
-        priority = Mth.clamp(value, SatelliteArrayBlockEntity.MIN_PRIORITY, SatelliteArrayBlockEntity.MAX_PRIORITY);
+        priority = Mth.clamp(value, ResonanceNodeBlockEntity.MIN_PRIORITY, ResonanceNodeBlockEntity.MAX_PRIORITY);
         ClientPacketDistributor.sendToServer(new SetCharmPriorityPayload(hand, priority));
     }
 
@@ -93,13 +93,12 @@ public class ResonanceCharmScreen extends Screen {
             if (!info.access()) {
                 graphics.text(this.font, Component.translatable("nautec.resonance_charm.screen.no_access"), tx, ty + 22, WARNING, false);
             } else {
-                graphics.text(this.font, Component.translatable("nautec.resonance_charm.screen.links", info.uplinks(), info.downlinks()),
+                graphics.text(this.font, Component.translatable("nautec.resonance_charm.screen.links", info.uplinks(), info.nodes()),
                         tx, ty + 22, READOUT_DIM, false);
                 graphics.text(this.font, Component.translatable("nautec.resonance_charm.screen.stored", format.format(info.stored())),
                         tx, ty + 33, READOUT_DIM, false);
-                graphics.text(this.font, Component.translatable("nautec.resonance_charm.screen.pylons", info.pylons()), tx, ty + 44, READOUT_DIM, false);
                 graphics.text(this.font, Component.translatable("nautec.resonance_charm.screen.rate", format.format(NTConfig.charmTransferRate)),
-                        tx, ty + 55, READOUT_DIM, false);
+                        tx, ty + 44, READOUT_DIM, false);
             }
         }
         graphics.text(this.font, Component.translatable("nautec.resonance_charm.screen.priority"), x + 8, y + 105, LABEL, false);

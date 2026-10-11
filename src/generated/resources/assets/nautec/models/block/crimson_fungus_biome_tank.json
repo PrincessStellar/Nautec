@@ -1,6 +1,0 @@
-{
-  "parent": "nautec:block/biome_tank",
-  "textures": {
-    "plant": "minecraft:block/crimson_fungus"
-  }
-}

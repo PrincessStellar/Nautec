@@ -1,7 +1,7 @@
 package com.breakinblocks.nautec.content.menus;
 
 import com.breakinblocks.nautec.api.menu.NTAbstractContainerMenu;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
+import com.breakinblocks.nautec.utils.DataSlots;
 import com.breakinblocks.nautec.content.resonance.SatelliteArrayBlockEntity;
 import com.breakinblocks.nautec.registries.NTMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;
@@ -41,7 +41,7 @@ public class SatelliteArrayMenu extends NTAbstractContainerMenu<SatelliteArrayBl
     }
 
     public int getPower() {
-        return ResonancePylonBlockEntity.join(data.get(SatelliteArrayBlockEntity.DATA_POWER), data.get(SatelliteArrayBlockEntity.DATA_POWER + 1));
+        return DataSlots.join(data.get(SatelliteArrayBlockEntity.DATA_POWER), data.get(SatelliteArrayBlockEntity.DATA_POWER + 1));
     }
 
     public float getPurity() {
@@ -56,20 +56,12 @@ public class SatelliteArrayMenu extends NTAbstractContainerMenu<SatelliteArrayBl
         return data.get(SatelliteArrayBlockEntity.DATA_UPLINKS);
     }
 
-    public int getDownlinks() {
-        return data.get(SatelliteArrayBlockEntity.DATA_DOWNLINKS);
-    }
-
-    public boolean isUplink() {
-        return data.get(SatelliteArrayBlockEntity.DATA_KIND) == 1;
-    }
-
     public int getAp() {
-        return ResonancePylonBlockEntity.join(data.get(SatelliteArrayBlockEntity.DATA_AP), data.get(SatelliteArrayBlockEntity.DATA_AP + 1));
+        return DataSlots.join(data.get(SatelliteArrayBlockEntity.DATA_AP), data.get(SatelliteArrayBlockEntity.DATA_AP + 1));
     }
 
     public int getFe() {
-        return ResonancePylonBlockEntity.join(data.get(SatelliteArrayBlockEntity.DATA_FE), data.get(SatelliteArrayBlockEntity.DATA_FE + 1));
+        return DataSlots.join(data.get(SatelliteArrayBlockEntity.DATA_FE), data.get(SatelliteArrayBlockEntity.DATA_FE + 1));
     }
 
     public int getChunkState() {
@@ -80,11 +72,4 @@ public class SatelliteArrayMenu extends NTAbstractContainerMenu<SatelliteArrayBl
         return data.get(SatelliteArrayBlockEntity.DATA_NODES);
     }
 
-    public int getPriority() {
-        return (short) data.get(SatelliteArrayBlockEntity.DATA_PRIORITY);
-    }
-
-    public int getLimit() {
-        return ResonancePylonBlockEntity.join(data.get(SatelliteArrayBlockEntity.DATA_LIMIT), data.get(SatelliteArrayBlockEntity.DATA_LIMIT + 1));
-    }
 }

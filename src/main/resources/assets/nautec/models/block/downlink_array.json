@@ -1,7 +1,0 @@
-{
-  "parent": "nautec:block/uplink_array",
-  "textures": {
-    "body": "nautec:block/downlink_array",
-    "particle": "nautec:block/downlink_array"
-  }
-}

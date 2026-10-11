@@ -3,7 +3,7 @@ package com.breakinblocks.nautec.network;
 import com.breakinblocks.nautec.Nautec;
 import com.breakinblocks.nautec.content.augments.ResonanceAugment;
 import com.breakinblocks.nautec.content.resonance.ResonanceCharmItem;
-import com.breakinblocks.nautec.content.resonance.SatelliteArrayBlockEntity;
+import com.breakinblocks.nautec.content.resonance.ResonanceNodeBlockEntity;
 import com.breakinblocks.nautec.data.NTDataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -34,7 +34,7 @@ public record SetCharmPriorityPayload(int hand, int priority) implements CustomP
             if (!(context.player() instanceof ServerPlayer player)) {
                 return;
             }
-            int priority = Mth.clamp(payload.priority(), SatelliteArrayBlockEntity.MIN_PRIORITY, SatelliteArrayBlockEntity.MAX_PRIORITY);
+            int priority = Mth.clamp(payload.priority(), ResonanceNodeBlockEntity.MIN_PRIORITY, ResonanceNodeBlockEntity.MAX_PRIORITY);
             if (payload.hand() == OpenCharmScreenPayload.AUGMENT) {
                 ResonanceAugment augment = ResonanceAugment.installed(player);
                 if (augment != null) {

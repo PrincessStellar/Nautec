@@ -1,7 +1,7 @@
 {
   "type": "nautec:aquatic_catalyst_channeling",
-  "duration": 160,
+  "duration": 600,
   "ingredient": "#c:gems/prismarine",
-  "power_amount": 1000,
+  "power_amount": 3750,
   "purity": 0.8
 }
