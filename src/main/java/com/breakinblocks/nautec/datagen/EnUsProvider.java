@@ -1452,6 +1452,14 @@ public class EnUsProvider extends LanguageProvider {
         add("config.jade.plugin_nautec.laser_crafting_matrix", "Laser Crafting Matrix");
         add("config.jade.plugin_nautec.aquatic_catalyst", "Aquatic Catalyst");
         add("config.jade.plugin_nautec.laser_junction", "Laser Junction");
+        add("config.jade.plugin_nautec.beam_speed", "Machine Speed From Beam Power");
+        add("config.jade.plugin_nautec.confined_spawner", "Confined Spawner");
+        add("config.jade.plugin_nautec.crystal_cradle", "Crystal Cradle");
+        add("config.jade.plugin_nautec.drain", "Deep Sea Drain");
+        add("config.jade.plugin_nautec.energy_converter", "Energy Converter");
+        add("config.jade.plugin_nautec.fe_generator", "FE Generators");
+        add("config.jade.plugin_nautec.fusion_controller", "Fusion Plant");
+        add("config.jade.plugin_nautec.prismarine_crystal", "Prismarine Crystal");
 
         add("nautec.jei.category.aquatic_catalyst_channeling", "Aquatic Catalyst Channeling");
         add("nautec.jei.category.augmentation_effects", "Augmentation Effects");

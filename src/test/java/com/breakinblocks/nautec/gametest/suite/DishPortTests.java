@@ -252,24 +252,35 @@ public final class DishPortTests {
             });
         });
 
-        r.add("dish_port/full_reactor_swaps_out_the_weakest", 40, helper -> {
+        r.add("dish_port/full_reactor_swaps_out_the_oldest_senescent", 40, helper -> {
             helper.setBlock(MACHINE, NTBlocks.BIO_REACTOR.get());
             BioReactorBlockEntity reactor = helper.getBlockEntity(MACHINE, BioReactorBlockEntity.class);
-            int weakest = reactor.getColonySlots() - 1;
+            int hungry = reactor.getColonySlots() - 1;
+            int oldest = 1;
             for (int slot = 0; slot < reactor.getColonySlots(); slot++) {
                 reactor.getBacteriaStorage().setBacteria(slot, colony(helper, NTBacterias.LITHOPHILES, 80 + slot));
-                reactor.setVitality(slot, slot == weakest ? 10 : 500);
+                reactor.setVitality(slot, slot == hungry ? 10 : 500);
             }
             ResourceHandler<ItemResource> side = items(helper);
+            helper.assertValueEqual(0, insert(side, reactor.dishInSlot(), dish(colony(helper, NTBacterias.CALCIOPHILES, 60))),
+                    "a full reactor with no senescent colony keeps the dish out");
+
+            for (int slot = 0; slot <= oldest; slot++) {
+                BacteriaInstance aged = colony(helper, NTBacterias.LITHOPHILES, 80 + slot);
+                aged.setAge(aged.getStats().lifespan() + 100L * (slot + 1));
+                reactor.getBacteriaStorage().setBacteria(slot, aged);
+            }
             helper.assertValueEqual(1, insert(side, reactor.dishInSlot(), dish(colony(helper, NTBacterias.CALCIOPHILES, 60))),
-                    "a full reactor takes a colony dish to swap");
+                    "a full reactor takes a colony dish to swap for a senescent colony");
 
             helper.runAfterDelay(12, () -> {
-                helper.assertValueEqual(NTBacterias.CALCIOPHILES, reactor.getBacteriaStorage().getBacteria(weakest).getBacteria(),
-                        "The new colony should take the weakest colony's slot");
+                helper.assertValueEqual(NTBacterias.CALCIOPHILES, reactor.getBacteriaStorage().getBacteria(oldest).getBacteria(),
+                        "The new colony should take the oldest senescent colony's slot");
+                helper.assertValueEqual(NTBacterias.LITHOPHILES, reactor.getBacteriaStorage().getBacteria(hungry).getBacteria(),
+                        "The colony with the least nutrient buffer stays when it is not senescent");
                 BacteriaInstance out = contents(reactor.getItemStackHandler().getStackInSlot(reactor.dishOutSlot()));
                 helper.assertValueEqual(NTBacterias.LITHOPHILES, out.getBacteria(), "the old colony leaves in the same dish");
-                helper.assertValueEqual(80L + weakest, out.getSize(), "size of the swapped out colony");
+                helper.assertValueEqual(80L + oldest, out.getSize(), "size of the swapped out colony");
                 helper.assertTrue(reactor.getItemStackHandler().getStackInSlot(reactor.dishEmptyOutSlot()).isEmpty(), "no empty dish comes out");
                 helper.assertValueEqual(0, insert(side, reactor.dishInSlot(), dish(colony(helper, NTBacterias.HALOTROPHS, 60))),
                         "no second swap while the colony output is full");

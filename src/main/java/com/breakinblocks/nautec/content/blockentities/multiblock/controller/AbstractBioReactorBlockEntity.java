@@ -202,11 +202,15 @@ public abstract class AbstractBioReactorBlockEntity extends LaserBlockEntity imp
     private int agedColony() {
         IBacteriaStorage storage = getBacteriaStorage();
         int aged = -1;
+        float oldest = 0f;
         for (int i = 0; i < colonies; i++) {
             BacteriaInstance bacteria = storage.getBacteria(i);
-            if (!bacteria.isEmpty() && bacteria.isSenescent()
-                    && (aged < 0 || bacteria.getVitality() < storage.getBacteria(aged).getVitality())) {
-                aged = i;
+            if (!bacteria.isEmpty() && bacteria.isSenescent()) {
+                float age = (float) bacteria.getAge() / Math.max(1, bacteria.getStats().lifespan());
+                if (aged < 0 || age > oldest) {
+                    aged = i;
+                    oldest = age;
+                }
             }
         }
         return aged;

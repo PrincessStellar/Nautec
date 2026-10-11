@@ -45,6 +45,7 @@ public class BacteriaIncubationCategory extends BacteriaCategory<BacteriaIncubat
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, BacteriaIncubationRecipe recipe, IFocusGroup focuses) {
         addBacteriaSlot(recipe, DRAWABLE_WIDTH / 2 - SLOT_SIZE / 2 + 1, GAP + Y_GAP_BETWEEN_IN_CATA - 22, recipe.bacteria());
+        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addItemStack(NTJeiUtil.maxStatDish(recipe.bacteria()));
 
         NTJeiUtil.addFramedSlot(builder, RecipeIngredientRole.INPUT,
                         DRAWABLE_WIDTH / 2 - SLOT_SIZE / 2 + 2, GAP + Y_GAP_BETWEEN_IN_CATA)
