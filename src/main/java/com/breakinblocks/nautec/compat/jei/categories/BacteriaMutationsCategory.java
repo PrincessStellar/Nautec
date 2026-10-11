@@ -48,6 +48,7 @@ public class BacteriaMutationsCategory extends BacteriaCategory<BacteriaMutation
         addBacteriaSlot(recipe, DRAWABLE_WIDTH - GAP - SLOT_SIZE, GAP + 7, recipe.resultBacteria());
 
         builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).add(NTJeiUtil.maxStatDish(recipe.inputBacteria()));
+        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).add(NTJeiUtil.maxStatDish(recipe.resultBacteria()));
 
         NTJeiUtil.addFramedSlot(builder, RecipeIngredientRole.INPUT,
                         DRAWABLE_WIDTH / 2 - SLOT_SIZE / 2 + 1, GAP + 8 + Y_GAP_BETWEEN_IN_CATA)
