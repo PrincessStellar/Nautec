@@ -1279,6 +1279,7 @@ public class EnUsProvider extends LanguageProvider {
         add("nautec.jade.status.burning", "Status: Burning");
         add("nautec.jade.status.waiting", "Status: Waiting for receiver");
         add("nautec.jade.status.no_fuel", "Status: No fuel");
+        add("nautec.jade.status.paused", "Status: Paused by redstone");
         add("nautec.jade.receiver.connected", "Receiver: %s, %s");
         add("nautec.jade.receiver.wrong_side", "Receiver: %s is facing the wrong way");
         add("nautec.jade.receiver.blocked", "Receiver: beam blocked by %s");
@@ -1299,6 +1300,7 @@ public class EnUsProvider extends LanguageProvider {
         add("nautec.catalyst.diagnostics.status.burning", "Status: burning, sending %s AP/t");
         add("nautec.catalyst.diagnostics.status.waiting", "Status: waiting for a receiver. Fuel is held until one is connected.");
         add("nautec.catalyst.diagnostics.status.idle", "Status: idle, no fuel loaded");
+        add("nautec.catalyst.diagnostics.status.paused", "Status: paused by a redstone signal. Fuel and burn progress are kept.");
         add("nautec.catalyst.diagnostics.boosters", "Budding Prismarine: %s touching, +%s%% output, +%s purity");
         add("nautec.catalyst.distance.one", "1 block %s");
         add("nautec.catalyst.distance", "%s blocks %s");

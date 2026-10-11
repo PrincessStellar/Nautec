@@ -25,7 +25,7 @@ public enum AquaticCatalystComponentProvider implements StreamServerDataProvider
 
     private static final ResourceLocation UID = Nautec.rl("aquatic_catalyst");
 
-    public record Data(boolean burning, boolean waiting, ItemStack queued, int remainingDuration, int transferring,
+    public record Data(boolean burning, boolean waiting, boolean paused, ItemStack queued, int remainingDuration, int transferring,
                        int scanStatus, int scanDistance, BlockState target, int maxDistance) {
         private static final StreamCodec<? super RegistryFriendlyByteBuf, ItemStack> QUEUED_CODEC = ItemStack.OPTIONAL_STREAM_CODEC;
         private static final StreamCodec<? super RegistryFriendlyByteBuf, BlockState> TARGET_CODEC = ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY);
@@ -33,6 +33,7 @@ public enum AquaticCatalystComponentProvider implements StreamServerDataProvider
                 (buf, data) -> {
                     ByteBufCodecs.BOOL.encode(buf, data.burning());
                     ByteBufCodecs.BOOL.encode(buf, data.waiting());
+                    ByteBufCodecs.BOOL.encode(buf, data.paused());
                     QUEUED_CODEC.encode(buf, data.queued());
                     ByteBufCodecs.VAR_INT.encode(buf, data.remainingDuration());
                     ByteBufCodecs.VAR_INT.encode(buf, data.transferring());
@@ -42,6 +43,7 @@ public enum AquaticCatalystComponentProvider implements StreamServerDataProvider
                     ByteBufCodecs.VAR_INT.encode(buf, data.maxDistance());
                 },
                 buf -> new Data(
+                    ByteBufCodecs.BOOL.decode(buf),
                     ByteBufCodecs.BOOL.decode(buf),
                     ByteBufCodecs.BOOL.decode(buf),
                     QUEUED_CODEC.decode(buf),
@@ -61,6 +63,7 @@ public enum AquaticCatalystComponentProvider implements StreamServerDataProvider
         return new Data(
                 blockEntity.isActive(),
                 blockEntity.isWaiting(),
+                blockEntity.isPaused(),
                 blockEntity.getProcessingItem().copy(),
                 blockEntity.getRemainingDuration(),
                 blockEntity.getPowerToTransfer(),
@@ -86,7 +89,9 @@ public enum AquaticCatalystComponentProvider implements StreamServerDataProvider
         @Override
         public void appendTooltip(ITooltip iTooltip, BlockAccessor blockAccessor, IPluginConfig iPluginConfig) {
             AquaticCatalystComponentProvider.INSTANCE.decodeFromData(blockAccessor).ifPresent(data -> {
-                if (data.burning()) {
+                if (data.paused()) {
+                    iTooltip.add(Component.translatable("nautec.jade.status.paused").withStyle(ChatFormatting.YELLOW));
+                } else if (data.burning()) {
                     iTooltip.add(Component.translatable("nautec.jade.status.burning").withStyle(ChatFormatting.GREEN));
                 } else if (data.waiting()) {
                     iTooltip.add(Component.translatable("nautec.jade.status.waiting").withStyle(ChatFormatting.RED));
@@ -98,7 +103,7 @@ public enum AquaticCatalystComponentProvider implements StreamServerDataProvider
                             data.queued().getCount(),
                             data.queued().getHoverName()));
                 }
-                if (data.burning() || data.waiting()) {
+                if (data.burning() || data.waiting() || (data.paused() && data.remainingDuration() > 0)) {
                     iTooltip.add(Component.translatable("nautec.jade.remaining_duration", data.remainingDuration()));
                     iTooltip.add(Component.translatable("nautec.jade.transferring", data.transferring()));
                 }

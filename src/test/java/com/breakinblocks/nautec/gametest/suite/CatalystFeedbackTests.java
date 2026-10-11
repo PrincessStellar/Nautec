@@ -2,6 +2,7 @@ package com.breakinblocks.nautec.gametest.suite;
 
 import com.breakinblocks.nautec.api.blockentities.BeamScan;
 import com.breakinblocks.nautec.content.blockentities.AquaticCatalystBlockEntity;
+import com.breakinblocks.nautec.content.blockentities.MixerBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.multiblock.semi.PrismarineCrystalBlockEntity;
 import com.breakinblocks.nautec.content.blocks.AquaticCatalystBlock;
 import com.breakinblocks.nautec.content.blocks.PrismarineLaserRelayBlock;
@@ -76,6 +77,34 @@ public final class CatalystFeedbackTests {
                 helper.assertValueEqual(BeamScan.Status.CONNECTED, catalyst.getBeamScan().status(), "a beam into the bottom of the crystal connects");
                 helper.assertTrue(catalyst.isActive(), "the catalyst burns into the crystal");
                 helper.assertTrue(crystal.getPower() > 0, "the crystal core counts the beam its part took");
+                helper.succeed();
+            });
+        });
+
+        r.add("catalyst_feedback/redstone_pauses_and_keeps_fuel", 120, helper -> {
+            AquaticCatalystBlockEntity catalyst = placeCatalyst(helper);
+            BlockPos mixerPos = CATALYST_POS.east(3);
+            BlockPos leverPos = CATALYST_POS.north();
+            helper.setBlock(mixerPos, NTBlocks.MIXER.get().defaultBlockState());
+            helper.runAfterDelay(1, () -> {
+                catalyst.getItemStackHandler().setStackInSlot(0, new ItemStack(Items.PRISMARINE_CRYSTALS, 4));
+                helper.setBlock(leverPos, Blocks.REDSTONE_BLOCK.defaultBlockState());
+            });
+            helper.runAfterDelay(40, () -> {
+                helper.assertTrue(catalyst.isPaused(), "a redstone signal pauses the catalyst");
+                helper.assertTrue(!catalyst.isActive(), "a paused catalyst does not burn");
+                helper.assertTrue(!catalyst.isWaiting(), "paused is not reported as waiting for a receiver");
+                helper.assertValueEqual(4, catalyst.getProcessingItem().getCount(), "fuel kept while paused");
+                helper.assertValueEqual(0, catalyst.getDuration(), "no burn progress while paused");
+                helper.assertValueEqual(0, helper.getBlockEntity(mixerPos, MixerBlockEntity.class).getPower(), "no beam while paused");
+                helper.assertTrue(hasLine(catalyst.diagnosticLines(), "nautec.catalyst.diagnostics.status.paused"), "diagnostics report the pause");
+                helper.setBlock(leverPos, Blocks.AIR.defaultBlockState());
+            });
+            helper.runAfterDelay(80, () -> {
+                helper.assertTrue(!catalyst.isPaused(), "removing the signal resumes the catalyst");
+                helper.assertTrue(catalyst.isActive(), "the catalyst burns again once unpaused");
+                helper.assertValueEqual(3, catalyst.getProcessingItem().getCount(), "one fuel item taken on resume");
+                helper.assertValueEqual(6, helper.getBlockEntity(mixerPos, MixerBlockEntity.class).getPower(), "beam back at 3750 / 600");
                 helper.succeed();
             });
         });

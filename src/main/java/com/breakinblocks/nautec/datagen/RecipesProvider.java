@@ -324,21 +324,21 @@ public class RecipesProvider extends RecipeProvider {
 
     private void aquaticCatalystRecipes(@NotNull RecipeOutput pRecipeOutput) {
         AquaticCatalystChannelingRecipeBuilder.newRecipe(tag(Tags.Items.GEMS_PRISMARINE))
-                .powerAmount(1000)
+                .powerAmount(3750)
                 .purity(0.8f)
-                .duration(160)
+                .duration(600)
                 .save(pRecipeOutput, key("prismarine_crystals_to_ap"));
 
         AquaticCatalystChannelingRecipeBuilder.newRecipe(Ingredient.of(Items.PRISMARINE_SHARD))
-                .powerAmount(2000)
+                .powerAmount(7500)
                 .purity(0.4f)
-                .duration(160)
+                .duration(600)
                 .save(pRecipeOutput, key("prismarine_shards_to_ap"));
 
         AquaticCatalystChannelingRecipeBuilder.newRecipe(Ingredient.of(NTItems.PRISMARINE_CRYSTAL_SHARD))
-                .powerAmount(2400)
+                .powerAmount(9000)
                 .purity(1.2f)
-                .duration(200)
+                .duration(750)
                 .save(pRecipeOutput, key("prismarine_crystal_shards_to_ap"));
     }
 

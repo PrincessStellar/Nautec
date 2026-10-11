@@ -72,6 +72,14 @@ public class AquaticCatalystBlock extends LaserBlock implements DisplayBlock {
     }
 
     @Override
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, block, fromPos, movedByPiston);
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof AquaticCatalystBlockEntity catalyst) {
+            catalyst.setPaused(level.hasNeighborSignal(pos));
+        }
+    }
+
+    @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         AquaticCatalystBlockEntity be = (AquaticCatalystBlockEntity) level.getBlockEntity(pos);
         var itemHandler = be.getItemStackHandler();
