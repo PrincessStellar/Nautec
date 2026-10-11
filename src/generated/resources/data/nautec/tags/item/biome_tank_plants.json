@@ -1,0 +1,29 @@
+{
+  "values": [
+    "nautec:glow_polyp",
+    "nautec:luminescent_algae",
+    "nautec:deep_kelp",
+    "nautec:prismarine_frond",
+    "nautec:abyssal_coral",
+    "nautec:vent_tubeworm",
+    "minecraft:kelp",
+    "minecraft:seagrass",
+    "minecraft:sea_pickle",
+    "minecraft:tube_coral",
+    "minecraft:brain_coral",
+    "minecraft:bubble_coral",
+    "minecraft:fire_coral",
+    "minecraft:horn_coral",
+    "minecraft:cactus",
+    "minecraft:sugar_cane",
+    "minecraft:bamboo",
+    "minecraft:sweet_berries",
+    "minecraft:glow_berries",
+    "minecraft:red_mushroom",
+    "minecraft:brown_mushroom",
+    "minecraft:crimson_fungus",
+    "minecraft:warped_fungus",
+    "minecraft:chorus_fruit",
+    "minecraft:cocoa_beans"
+  ]
+}

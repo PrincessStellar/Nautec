@@ -1,6 +1,7 @@
 package com.breakinblocks.nautec.content.blockentities;
 
 import com.google.common.collect.ImmutableMap;
+import com.breakinblocks.nautec.NTConfig;
 import com.breakinblocks.nautec.api.blockentities.LaserBlockEntity;
 import com.breakinblocks.nautec.capabilities.IOActions;
 import com.breakinblocks.nautec.content.blocks.PrismarineLaserRelayBlock;
@@ -37,6 +38,11 @@ public class PrismarineLaserRelayBlockEntity extends LaserBlockEntity {
     @Override
     public <T> ImmutableMap<Direction, Pair<IOActions, int[]>> getSidedInteractions(BlockCapability<T, @Nullable Direction> capability) {
         return ImmutableMap.of();
+    }
+
+    @Override
+    public int getMaxLaserDistance() {
+        return NTConfig.relayLaserDistance;
     }
 
     @Override

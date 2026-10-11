@@ -1,14 +1,13 @@
 package com.breakinblocks.nautec.content.resonance;
 
-import com.breakinblocks.nautec.transfer.TransferCapabilities;
+import com.breakinblocks.nautec.utils.DataSlots;
+
 import com.mojang.serialization.Codec;
 import com.breakinblocks.nautec.NTConfig;
-import com.breakinblocks.nautec.api.blockentities.BeamScan;
 import com.breakinblocks.nautec.api.blockentities.LaserBlockEntity;
 import com.breakinblocks.nautec.capabilities.IOActions;
 import com.breakinblocks.nautec.content.menus.SatelliteArrayMenu;
 import com.breakinblocks.nautec.registries.NTBlockEntityTypes;
-import com.breakinblocks.nautec.registries.NTCriteriaTriggers;
 import com.breakinblocks.nautec.registries.NTItems;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
@@ -19,7 +18,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -33,15 +31,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import com.breakinblocks.nautec.utils.valueio.ValueInput;
 import com.breakinblocks.nautec.utils.valueio.ValueOutput;
 import net.neoforged.neoforge.capabilities.BlockCapability;
-import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
-
 import com.breakinblocks.nautec.transfer.energy.EnergyHandler;
-import com.breakinblocks.nautec.transfer.energy.EnergyHandlerUtil;
 import com.breakinblocks.nautec.transfer.energy.SimpleEnergyHandler;
 import com.breakinblocks.nautec.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,25 +46,17 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
     public static final int STATUS_NO_NETWORK = 1;
     public static final int STATUS_NO_SATELLITE = 2;
     public static final int STATUS_SKY_BLOCKED = 3;
-    public static final int STATUS_NO_UPLINK = 4;
-    public static final int STATUS_NO_DOWNLINK = 5;
+    public static final int STATUS_NO_OUTPUT = 4;
 
     public static final int DATA_POWER = 0;
     public static final int DATA_PURITY = 2;
     public static final int DATA_STATUS = 3;
     public static final int DATA_UPLINKS = 4;
-    public static final int DATA_DOWNLINKS = 5;
-    public static final int DATA_KIND = 6;
-    public static final int DATA_AP = 7;
-    public static final int DATA_FE = 9;
-    public static final int DATA_PRIORITY = 11;
-    public static final int DATA_LIMIT = 12;
-    public static final int DATA_CHUNK = 14;
-    public static final int DATA_NODES = 15;
-    public static final int DATA_COUNT = 16;
-
-    public static final int MIN_PRIORITY = -100;
-    public static final int MAX_PRIORITY = 100;
+    public static final int DATA_AP = 5;
+    public static final int DATA_FE = 7;
+    public static final int DATA_CHUNK = 9;
+    public static final int DATA_NODES = 10;
+    public static final int DATA_COUNT = 11;
 
     public static final int LAUNCH_TICKS = 80;
     private static final int SKY_INTERVAL = 20;
@@ -87,16 +73,10 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
     private float relayPurity;
     private int status = STATUS_NO_NETWORK;
     private int uplinks;
-    private int downlinks;
     private long lastSync;
 
     private int apStored;
     private float apPurity;
-    private int beam;
-    private int pendingRelay;
-    private double pendingPurity;
-    private int priority;
-    private int limit = Integer.MAX_VALUE;
     private int nodes;
     private boolean chunkLoading;
     private final ResonanceChunkLoading.Ticket ticket = new ResonanceChunkLoading.Ticket();
@@ -115,34 +95,28 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
 
         @Override
         public int insert(int amount, TransactionContext transaction) {
-            return isUplink() ? energy.insert(amount, transaction) : 0;
+            return energy.insert(amount, transaction);
         }
 
         @Override
         public int extract(int amount, TransactionContext transaction) {
-            return isUplink() ? 0 : energy.extract(amount, transaction);
+            return 0;
         }
     };
-    private final Map<Direction, BlockCapabilityCache<EnergyHandler, @Nullable Direction>> neighbours = new EnumMap<>(Direction.class);
 
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
             return switch (index) {
-                case DATA_POWER -> ResonancePylonBlockEntity.low(relay);
-                case DATA_POWER + 1 -> ResonancePylonBlockEntity.high(relay);
+                case DATA_POWER -> DataSlots.low(relay);
+                case DATA_POWER + 1 -> DataSlots.high(relay);
                 case DATA_PURITY -> Math.round(relayPurity * 1000F);
                 case DATA_STATUS -> status;
                 case DATA_UPLINKS -> uplinks;
-                case DATA_DOWNLINKS -> downlinks;
-                case DATA_KIND -> isUplink() ? 1 : 0;
-                case DATA_AP -> ResonancePylonBlockEntity.low(apStored);
-                case DATA_AP + 1 -> ResonancePylonBlockEntity.high(apStored);
-                case DATA_FE -> ResonancePylonBlockEntity.low(energy.getAmountAsInt());
-                case DATA_FE + 1 -> ResonancePylonBlockEntity.high(energy.getAmountAsInt());
-                case DATA_PRIORITY -> priority;
-                case DATA_LIMIT -> ResonancePylonBlockEntity.low(effectiveLimit());
-                case DATA_LIMIT + 1 -> ResonancePylonBlockEntity.high(effectiveLimit());
+                case DATA_AP -> DataSlots.low(apStored);
+                case DATA_AP + 1 -> DataSlots.high(apStored);
+                case DATA_FE -> DataSlots.low(energy.getAmountAsInt());
+                case DATA_FE + 1 -> DataSlots.high(energy.getAmountAsInt());
                 case DATA_CHUNK -> ResonanceChunkLoading.state(chunkLoading);
                 case DATA_NODES -> nodes;
                 default -> 0;
@@ -167,10 +141,6 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
                 setChanged();
             }
         };
-    }
-
-    public boolean isUplink() {
-        return getBlockState().getBlock() instanceof SatelliteArrayBlock block && block.isUplink();
     }
 
     public ContainerData getData() {
@@ -210,8 +180,7 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
             case STATUS_ONLINE -> "nautec.satellite.status.online";
             case STATUS_NO_SATELLITE -> "nautec.satellite.status.no_satellite";
             case STATUS_SKY_BLOCKED -> "nautec.satellite.status.sky";
-            case STATUS_NO_UPLINK -> "nautec.satellite.status.no_uplink";
-            case STATUS_NO_DOWNLINK -> "nautec.satellite.status.no_downlink";
+            case STATUS_NO_OUTPUT -> "nautec.satellite.status.no_output";
             default -> "nautec.satellite.status.no_network";
         };
     }
@@ -232,48 +201,8 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
         return apPurity;
     }
 
-    public int getBeam() {
-        return beam;
-    }
-
-    public int getPriority() {
-        return priority;
-    }
-
-    public void setPriority(int priority) {
-        this.priority = Mth.clamp(priority, MIN_PRIORITY, MAX_PRIORITY);
-        setChanged();
-        sync();
-    }
-
-    public int getLimit() {
-        return limit;
-    }
-
-    public void setLimit(int limit) {
-        this.limit = Mth.clamp(limit, 0, NTConfig.satelliteTransferLimit);
-        setChanged();
-        sync();
-    }
-
-    public int effectiveLimit() {
-        return Math.max(0, Math.min(limit, NTConfig.satelliteTransferLimit));
-    }
-
     public boolean transmitting() {
-        return isUplink() && satellite && sky && networkId != null;
-    }
-
-    public boolean receiving() {
-        return !isUplink() && sky && networkId != null;
-    }
-
-    public int apDemand() {
-        return receiving() ? Math.max(0, Math.min(effectiveLimit(), NTConfig.satelliteApBuffer - apStored)) : 0;
-    }
-
-    public int feDemand() {
-        return receiving() ? Math.max(0, Math.min(effectiveLimit(), energy.getCapacityAsInt() - energy.getAmountAsInt())) : 0;
+        return satellite && sky && networkId != null;
     }
 
     public int takeAp(int amount) {
@@ -285,15 +214,6 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
         relay += taken;
         setChanged();
         return taken;
-    }
-
-    public void giveAp(int amount, float purity) {
-        if (amount <= 0) {
-            return;
-        }
-        addAp(amount, purity);
-        pendingPurity += (double) amount * purity;
-        pendingRelay += amount;
     }
 
     private void addAp(int amount, float purity) {
@@ -347,27 +267,12 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
 
     @Override
     public Set<Direction> getLaserInputs() {
-        return isUplink() ? PORTS : Set.of();
+        return PORTS;
     }
 
     @Override
     public Set<Direction> getLaserOutputs() {
-        return isUplink() ? Set.of() : PORTS;
-    }
-
-    @Override
-    public BeamScan scanBeam(Direction direction) {
-        BeamScan scan = super.scanBeam(direction);
-        if (scan.connected() && level.getBlockEntity(scan.targetPos(worldPosition)) instanceof SatelliteArrayBlockEntity) {
-            return new BeamScan(direction, BeamScan.Status.BLOCKED, scan.distance());
-        }
-        return scan;
-    }
-
-    @Override
-    protected int outgoingPower(Direction direction) {
-        int connected = connectedOutputs();
-        return connected == 0 ? 0 : getPowerToTransfer() / connected;
+        return Set.of();
     }
 
     @Override
@@ -408,7 +313,7 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
     }
 
     public boolean launch() {
-        if (!isUplink() || satellite || level == null) {
+        if (satellite || level == null) {
             return false;
         }
         this.satellite = true;
@@ -420,73 +325,21 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
 
     @Override
     public void commonTick() {
-        boolean uplink = isUplink();
         if (level instanceof ServerLevel serverLevel) {
             serverTick(serverLevel);
-            if (!uplink) {
-                int newBeam = connectedOutputs() > 0 ? Math.min(effectiveLimit(), apStored) : 0;
-                if (newBeam > 0) {
-                    apStored -= newBeam;
-                    setChanged();
-                }
-                if (newBeam != beam) {
-                    beam = newBeam;
-                    setChanged();
-                    requestSync();
-                }
-                push(serverLevel);
-            }
-        }
-        if (!uplink) {
-            transmitPower(beam);
-            setPurity(apStored > 0 || beam > 0 ? apPurity : 0F);
         }
         super.commonTick();
-        if (!uplink) {
-            this.power = beam;
-        } else if (level instanceof ServerLevel) {
+        if (level instanceof ServerLevel) {
             addAp(getPower(), getPurity());
         }
     }
 
-    private void push(ServerLevel serverLevel) {
-        int budget = Math.min(energy.getAmountAsInt(), effectiveLimit());
-        if (budget <= 0) {
-            return;
-        }
-        for (Direction direction : PORTS) {
-            if (budget <= 0) {
-                break;
-            }
-            BlockPos target = worldPosition.relative(direction);
-            if (serverLevel.getBlockEntity(target) instanceof SatelliteArrayBlockEntity) {
-                continue;
-            }
-            EnergyHandler handler = neighbours.computeIfAbsent(direction, side ->
-                    BlockCapabilityCache.create(TransferCapabilities.Energy.BLOCK, serverLevel, target, side.getOpposite())).getCapability();
-            if (handler != null) {
-                budget -= EnergyHandlerUtil.move(energy, handler, budget, null);
-            }
-        }
-    }
-
     public void beginTransfer() {
-        if (!isUplink()) {
-            relay = 0;
-            pendingRelay = 0;
-            pendingPurity = 0;
-        } else {
-            relay = 0;
-        }
+        relay = 0;
     }
 
     public void finishTransfer() {
-        if (!isUplink()) {
-            relay = pendingRelay;
-            relayPurity = pendingRelay > 0 ? (float) (pendingPurity / pendingRelay) : 0F;
-        } else {
-            relayPurity = relay > 0 ? apPurity : 0F;
-        }
+        relayPurity = relay > 0 ? apPurity : 0F;
     }
 
     private void serverTick(ServerLevel serverLevel) {
@@ -520,22 +373,13 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
         }
 
         SatelliteGrid.Link link = network == null ? SatelliteGrid.EMPTY : SatelliteGrid.link(network.id(), tick);
-        int newStatus;
-        if (isUplink()) {
-            newStatus = network == null ? STATUS_NO_NETWORK : !satellite ? STATUS_NO_SATELLITE : !sky ? STATUS_SKY_BLOCKED
-                    : link.downlinks() == 0 && link.nodes() == 0 ? STATUS_NO_DOWNLINK : STATUS_ONLINE;
-        } else {
-            newStatus = network == null ? STATUS_NO_NETWORK : !sky ? STATUS_SKY_BLOCKED : link.uplinks() == 0 ? STATUS_NO_UPLINK : STATUS_ONLINE;
-        }
+        int newStatus = network == null ? STATUS_NO_NETWORK : !satellite ? STATUS_NO_SATELLITE : !sky ? STATUS_SKY_BLOCKED
+                : link.nodes() == 0 ? STATUS_NO_OUTPUT : STATUS_ONLINE;
 
-        boolean changed = newStatus != status || link.uplinks() != uplinks || link.downlinks() != downlinks || link.nodes() != nodes;
+        boolean changed = newStatus != status || link.uplinks() != uplinks || link.nodes() != nodes;
         boolean flipped = newStatus != status;
-        if (!isUplink() && relay > 0 && newStatus == STATUS_ONLINE && status != STATUS_ONLINE) {
-            NTCriteriaTriggers.triggerNear(NTCriteriaTriggers.SATELLITE_RELAY.get(), serverLevel, worldPosition, 32.0);
-        }
         this.status = newStatus;
         this.uplinks = link.uplinks();
-        this.downlinks = link.downlinks();
         this.nodes = link.nodes();
         if ((changed && (flipped || tick - lastSync >= SYNC_INTERVAL)) || tick - lastSync >= SYNC_INTERVAL * 4) {
             lastSync = tick;
@@ -580,10 +424,6 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
     public void saveSettings(ValueOutput out) {
         ResonanceActions.copyNetwork(networkId, out);
         out.putBoolean("chunk_loading", chunkLoading);
-        if (!isUplink()) {
-            out.putInt("priority", priority);
-            out.putInt("limit", limit);
-        }
     }
 
     @Override
@@ -592,16 +432,6 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
         if (in.read("chunk_loading", Codec.BOOL).isPresent()) {
             setChunkLoading(in.getBooleanOr("chunk_loading", chunkLoading));
             applied = true;
-        }
-        if (!isUplink()) {
-            if (in.getInt("priority").isPresent()) {
-                setPriority(in.getIntOr("priority", priority));
-                applied = true;
-            }
-            if (in.getInt("limit").isPresent()) {
-                setLimit(in.getIntOr("limit", limit));
-                applied = true;
-            }
         }
         return applied;
     }
@@ -620,12 +450,8 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
         out.putFloat("relay_purity", relayPurity);
         out.putInt("status", status);
         out.putInt("uplinks", uplinks);
-        out.putInt("downlinks", downlinks);
         out.putInt("ap_stored", apStored);
         out.putFloat("ap_purity", apPurity);
-        out.putInt("beam", beam);
-        out.putInt("priority", priority);
-        out.putInt("limit", limit);
         out.putInt("nodes", nodes);
         out.putBoolean("chunk_loading", chunkLoading);
         energy.serialize(out.child("energy"));
@@ -643,12 +469,8 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
         this.relayPurity = in.getFloatOr("relay_purity", 0F);
         this.status = in.getIntOr("status", STATUS_NO_NETWORK);
         this.uplinks = in.getIntOr("uplinks", 0);
-        this.downlinks = in.getIntOr("downlinks", 0);
         this.apStored = in.getIntOr("ap_stored", 0);
         this.apPurity = in.getFloatOr("ap_purity", 0F);
-        this.beam = in.getIntOr("beam", 0);
-        this.priority = in.getIntOr("priority", 0);
-        this.limit = in.getIntOr("limit", Integer.MAX_VALUE);
         this.nodes = in.getIntOr("nodes", 0);
         this.chunkLoading = in.getBooleanOr("chunk_loading", false);
         energy.deserialize(in.childOrEmpty("energy"));

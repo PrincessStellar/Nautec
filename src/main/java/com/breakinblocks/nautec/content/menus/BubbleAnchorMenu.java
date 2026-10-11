@@ -2,7 +2,7 @@ package com.breakinblocks.nautec.content.menus;
 
 import com.breakinblocks.nautec.api.menu.NTMachineMenu;
 import com.breakinblocks.nautec.content.bubble.BubbleAnchorBlockEntity;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
+import com.breakinblocks.nautec.utils.DataSlots;
 import com.breakinblocks.nautec.registries.NTMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -48,11 +48,11 @@ public class BubbleAnchorMenu extends NTMachineMenu<BubbleAnchorBlockEntity> {
     }
 
     public int getBurn() {
-        return ResonancePylonBlockEntity.join(data.get(BubbleAnchorBlockEntity.DATA_BURN), data.get(BubbleAnchorBlockEntity.DATA_BURN + 1));
+        return DataSlots.join(data.get(BubbleAnchorBlockEntity.DATA_BURN), data.get(BubbleAnchorBlockEntity.DATA_BURN + 1));
     }
 
     public int getBurnTotal() {
-        return ResonancePylonBlockEntity.join(data.get(BubbleAnchorBlockEntity.DATA_TOTAL), data.get(BubbleAnchorBlockEntity.DATA_TOTAL + 1));
+        return DataSlots.join(data.get(BubbleAnchorBlockEntity.DATA_TOTAL), data.get(BubbleAnchorBlockEntity.DATA_TOTAL + 1));
     }
 
     public int getStatus() {

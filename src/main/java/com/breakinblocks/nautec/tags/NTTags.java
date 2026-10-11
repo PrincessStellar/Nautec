@@ -37,6 +37,7 @@ public final class NTTags {
         public static final TagKey<Item> REPAIRS_DIVING_SUIT = ntTag("repairs_diving_suit");
         public static final TagKey<Item> REPAIRS_PRISMARINE_ARMOR = ntTag("repairs_prismarine_armor");
         public static final TagKey<Item> SUBMARINE_MODULE = ntTag("submarine_module");
+        public static final TagKey<Item> BIOME_TANK_PLANTS = ntTag("biome_tank_plants");
         public static final TagKey<Item> DUSTS_SALT = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", "dusts/salt"));
         public static final TagKey<Item> INGOTS_AQUARINE_COPPER = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", "ingots/aquarine_copper"));
         public static final TagKey<Item> NUGGETS_AQUARINE_COPPER = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", "nuggets/aquarine_copper"));

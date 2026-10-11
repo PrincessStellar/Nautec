@@ -22,7 +22,7 @@ import com.breakinblocks.nautec.content.items.SpawnerConfinementMatrixItem;
 import com.breakinblocks.nautec.content.items.tools.WrenchMode;
 import com.breakinblocks.nautec.content.resonance.ResonanceNetwork;
 import com.breakinblocks.nautec.content.resonance.ResonanceNetworks;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
+import com.breakinblocks.nautec.content.resonance.ResonanceNodeBlockEntity;
 import com.breakinblocks.nautec.content.spawner.SpawnerFilterEntry;
 import com.breakinblocks.nautec.data.NTDataComponents;
 import com.breakinblocks.nautec.registries.NTBlocks;
@@ -186,15 +186,15 @@ public final class SideConfigTests {
         });
 
         r.add("configuration_card/resonance_network_respects_access", 20, helper -> {
-            helper.setBlock(FIRST, NTBlocks.RESONANCE_PYLON.get());
-            helper.setBlock(SECOND, NTBlocks.RESONANCE_PYLON.get());
-            ResonancePylonBlockEntity source = helper.getBlockEntity(FIRST, ResonancePylonBlockEntity.class);
-            ResonancePylonBlockEntity target = helper.getBlockEntity(SECOND, ResonancePylonBlockEntity.class);
+            helper.setBlock(FIRST, NTBlocks.RESONANCE_NODE.get());
+            helper.setBlock(SECOND, NTBlocks.RESONANCE_NODE.get());
+            ResonanceNodeBlockEntity source = helper.getBlockEntity(FIRST, ResonanceNodeBlockEntity.class);
+            ResonanceNodeBlockEntity target = helper.getBlockEntity(SECOND, ResonanceNodeBlockEntity.class);
             ServerPlayer owner = player(helper, "GridOwner");
             ResonanceNetworks networks = ResonanceNetworks.get(helper.getLevel().getServer());
             ResonanceNetwork network = networks.create(owner, "Card grid " + UUID.randomUUID().toString().substring(0, 6)).network();
             source.setNetwork(network);
-            source.setSendMode(false);
+            source.setOutput(true);
             MachineSettings card = ConfigurationCardItem.copy(source, helper.getLevel());
 
             boolean refused = false;
@@ -207,7 +207,7 @@ public final class SideConfigTests {
             helper.assertTrue(target.getNetworkId() == null, "A stranger cannot paste a private network");
             ConfigurationCardItem.paste(card, target, owner);
             helper.assertValueEqual(network.id(), target.getNetworkId(), "the owner pastes the network");
-            helper.assertFalse(target.isSendMode(), "the receive mode pastes too");
+            helper.assertTrue(target.isOutput(), "the output mode pastes too");
             networks.delete(owner, network.id());
             helper.succeed();
         });

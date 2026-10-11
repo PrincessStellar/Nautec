@@ -21,7 +21,6 @@ import com.breakinblocks.nautec.content.menus.CrateMenu;
 import com.breakinblocks.nautec.content.menus.FishingStationMenu;
 import com.breakinblocks.nautec.content.menus.CombustionDynamoMenu;
 import com.breakinblocks.nautec.content.menus.FusionControllerMenu;
-import com.breakinblocks.nautec.content.menus.ResonancePylonMenu;
 import com.breakinblocks.nautec.content.menus.SatelliteArrayMenu;
 import com.breakinblocks.nautec.content.menus.IncubatorMenu;
 import com.breakinblocks.nautec.content.menus.IndustrialBioReactorMenu;
@@ -62,7 +61,6 @@ public final class NTMenuTypes {
     public static final Supplier<MenuType<ConfinedSpawnerMenu>> CONFINED_SPAWNER = registerMenuType(ConfinedSpawnerMenu::new, "confined_spawner");
     public static final Supplier<MenuType<FusionControllerMenu>> FUSION_CONTROLLER = registerMenuType(FusionControllerMenu::new, "fusion_controller");
     public static final Supplier<MenuType<CombustionDynamoMenu>> COMBUSTION_DYNAMO = registerMenuType(CombustionDynamoMenu::new, "combustion_dynamo");
-    public static final Supplier<MenuType<ResonancePylonMenu>> RESONANCE_PYLON = registerMenuType(ResonancePylonMenu::new, "resonance_pylon");
     public static final Supplier<MenuType<SatelliteArrayMenu>> SATELLITE_ARRAY = registerMenuType(SatelliteArrayMenu::new, "satellite_array");
     public static final Supplier<MenuType<ResonanceNodeMenu>> RESONANCE_NODE = registerMenuType(ResonanceNodeMenu::new, "resonance_node");
     public static final Supplier<MenuType<DishStorageMenu>> DISH_STORAGE = registerMenuType(DishStorageMenu::new, "dish_storage");

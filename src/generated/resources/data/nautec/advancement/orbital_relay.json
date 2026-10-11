@@ -12,7 +12,7 @@
     "frame": "challenge",
     "icon": {
       "count": 1,
-      "id": "nautec:downlink_array"
+      "id": "nautec:resonance_node"
     },
     "title": {
       "translate": "advancements.nautec.orbital_relay.title"

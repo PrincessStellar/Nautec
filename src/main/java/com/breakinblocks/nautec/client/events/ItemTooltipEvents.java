@@ -11,7 +11,9 @@ import com.breakinblocks.nautec.api.gateways.PackedGateway;
 import com.breakinblocks.nautec.data.NTDataComponents;
 import com.breakinblocks.nautec.registries.NTBlocks;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -37,9 +39,14 @@ public final class ItemTooltipEvents {
         if (stack.getItem() instanceof BlockItem blockItem) {
             if (blockItem.getBlock() instanceof DishStorageBlock storage) {
                 event.getToolTip().add(Component.translatable("nautec.dish_storage.capacity", storage.getCapacity()).withStyle(ChatFormatting.GRAY));
-            } else if (blockItem.getBlock() instanceof BiomeTankBlock tank) {
-                event.getToolTip().add(Component.translatable("nautec.biome_tank.grows", tank.getType().plant().getName(new ItemStack(tank.getType().plant())),
-                        String.format(Locale.ROOT, "%.1f", NTConfig.biomeTankTicks / 20.0)).withStyle(ChatFormatting.GRAY));
+            } else if (blockItem.getBlock() instanceof BiomeTankBlock) {
+                Holder<Item> plant = stack.get(NTDataComponents.BIOME_TANK_PLANT.get());
+                if (plant == null) {
+                    event.getToolTip().add(Component.translatable("nautec.biome_tank.unseeded").withStyle(ChatFormatting.GRAY));
+                } else {
+                    event.getToolTip().add(Component.translatable("nautec.biome_tank.grows", plant.value().getName(new ItemStack(plant)),
+                            String.format(Locale.ROOT, "%.1f", NTConfig.biomeTankTicks / 20.0)).withStyle(ChatFormatting.GRAY));
+                }
             }
         }
         if (packed != null) {

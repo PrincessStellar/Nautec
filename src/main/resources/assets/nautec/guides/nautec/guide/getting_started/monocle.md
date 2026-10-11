@@ -38,9 +38,9 @@ Wear the monocle in your helmet slot or in its own Monocle curio slot. While it 
 | <ItemLink id="energy_converter"/> | AP sent, how many beams share it and the FE/t it costs, or why it is idle |
 | <ItemLink id="grafting_station"/> and <ItemLink id="advanced_bacterial_analyzer"/> | Status, Power and Purity |
 | <ItemLink id="colony_replicator"/> | Status, Replicate or Splice mode, and Biomass |
-| <ItemLink id="uplink_array"/> and <ItemLink id="downlink_array"/> | Uplink or Downlink, and its status |
+| <ItemLink id="uplink_array"/> | Its status |
 
-Use it to check that a beam is arriving and pure enough before you blame a recipe. Purity drops a little when a weaker beam feeds the same block as a pure one, and when it passes through a mirror or splitter.
+Use it to check that a beam is arriving and pure enough before you blame a recipe. Purity drops a little when a weaker beam feeds the same block as a pure one.
 
 A <ItemLink id="resonance_charm"/> worn in a charm slot does the same job, so you do not need both. See [Resonance Network](nautec:deep_engineering/resonance_network.md).
 

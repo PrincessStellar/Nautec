@@ -3,9 +3,9 @@ package com.breakinblocks.nautec.gametest.suite;
 import com.breakinblocks.nautec.api.augments.AugmentSlot;
 import com.breakinblocks.nautec.content.augments.EnderMagnetAugment;
 import com.breakinblocks.nautec.content.distributor.DistributorLink;
-import com.breakinblocks.nautec.content.menus.ResonancePylonMenu;
+import com.breakinblocks.nautec.content.menus.ResonanceNodeMenu;
 import com.breakinblocks.nautec.content.resonance.ResonanceActions;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
+import com.breakinblocks.nautec.content.resonance.ResonanceNodeBlockEntity;
 import com.breakinblocks.nautec.network.ResonanceActionPayload;
 import com.breakinblocks.nautec.registries.NTAugments;
 import com.breakinblocks.nautec.registries.NTBlocks;
@@ -34,7 +34,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public final class HardeningTests {
-    private static final BlockPos PYLON = new BlockPos(4, 1, 4);
+    private static final BlockPos NODE = new BlockPos(4, 1, 4);
 
     private HardeningTests() {
     }
@@ -44,9 +44,9 @@ public final class HardeningTests {
                 ClientInformation.createDefault());
     }
 
-    private static ResonancePylonBlockEntity pylon(NTGameTestHelper helper) {
-        helper.setBlock(PYLON, NTBlocks.RESONANCE_PYLON.get());
-        return helper.getBlockEntity(PYLON, ResonancePylonBlockEntity.class);
+    private static ResonanceNodeBlockEntity node(NTGameTestHelper helper) {
+        helper.setBlock(NODE, NTBlocks.RESONANCE_NODE.get());
+        return helper.getBlockEntity(NODE, ResonanceNodeBlockEntity.class);
     }
 
     private static ServerPlayer playerNear(NTGameTestHelper helper, String name) {
@@ -63,7 +63,7 @@ public final class HardeningTests {
         r.add("hardening/resonance_action_ignores_unloaded_positions", 20, helper -> {
             ServerLevel level = helper.getLevel();
             ServerPlayer player = playerNear(helper, "far_resonance");
-            BlockPos far = helper.absolutePos(PYLON).offset(200_000, 0, 200_000);
+            BlockPos far = helper.absolutePos(NODE).offset(200_000, 0, 200_000);
             int chunkX = far.getX() >> 4;
             int chunkZ = far.getZ() >> 4;
             helper.assertFalse(level.getChunkSource().hasChunk(chunkX, chunkZ), "the far chunk starts unloaded");
@@ -75,19 +75,19 @@ public final class HardeningTests {
         });
 
         r.add("hardening/resonance_action_needs_the_open_menu", 20, helper -> {
-            ResonancePylonBlockEntity pylon = pylon(helper);
+            ResonanceNodeBlockEntity node = node(helper);
             ServerPlayer player = playerNear(helper, "menu_resonance");
-            boolean before = pylon.isSendMode();
+            boolean before = node.isOutput();
 
-            ResonanceActions.apply(player, mode(helper.absolutePos(PYLON)));
-            helper.assertValueEqual(pylon.isSendMode(), before, "send mode without the pylon menu open");
+            ResonanceActions.apply(player, mode(helper.absolutePos(NODE)));
+            helper.assertValueEqual(node.isOutput(), before, "output mode without the node menu open");
 
-            player.containerMenu = new ResonancePylonMenu(1, player.getInventory(), pylon);
+            player.containerMenu = new ResonanceNodeMenu(1, player.getInventory(), node);
             try {
-                ResonanceActions.apply(player, mode(helper.absolutePos(PYLON)));
+                ResonanceActions.apply(player, mode(helper.absolutePos(NODE)));
             } catch (NullPointerException expected) {
             }
-            helper.assertValueEqual(pylon.isSendMode(), !before, "send mode with the pylon menu open");
+            helper.assertValueEqual(node.isOutput(), !before, "output mode with the node menu open");
             helper.succeed();
         });
 
@@ -118,7 +118,7 @@ public final class HardeningTests {
         });
 
         r.add("hardening/distributor_templates_drop_custom_data", 20, helper -> {
-            DistributorLink link = new DistributorLink(helper.absolutePos(PYLON), Direction.UP);
+            DistributorLink link = new DistributorLink(helper.absolutePos(NODE), Direction.UP);
             ItemStack padded = new ItemStack(Items.DIAMOND, 12);
             CompoundTag tag = new CompoundTag();
             tag.putString("padding", "x".repeat(4096));
@@ -144,7 +144,7 @@ public final class HardeningTests {
         });
 
         r.add("hardening/distributor_fluid_amount_is_capped", 20, helper -> {
-            DistributorLink link = new DistributorLink(helper.absolutePos(PYLON), Direction.UP);
+            DistributorLink link = new DistributorLink(helper.absolutePos(NODE), Direction.UP);
             link.setFluid(0, new FluidStack(Fluids.WATER, 50_000_000));
             helper.assertValueEqual(link.fluidAmount(0), DistributorLink.MAX_FLUID_AMOUNT, "fluid request amount");
             helper.assertValueEqual(link.fluid(0).getAmount(), 1, "the fluid template is a single unit");

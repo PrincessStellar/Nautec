@@ -56,7 +56,7 @@ The Laser Channeling Coil and Prismarine Crystal Shards need more purity than a 
 * A <ItemLink id="focusing_lens"/> in the beam's path, which adds 0.5 to the beam passing straight through it, up to 2.0 (`lensPurityBonus`).
 * <ItemLink id="budding_prismarine"/> touching the catalyst, which adds 0.1 per block, up to 2.0. See [Laser Power](laser_power.md).
 
-An item is judged by the purity of the beam it lies in. In a beam leaving a lens, mirror or splitter, that is the purity after the optic has changed it. A catalyst on Prismarine Crystal Shards firing through one lens gives 1.7 in the lens's outgoing beam, enough for the coil.
+An item is judged by the purity of the beam it lies in. In a beam leaving a lens, that is the purity after the lens has raised it. A catalyst on Prismarine Crystal Shards firing through one lens gives 1.7 in the lens's outgoing beam, enough for the coil.
 
 ***
 

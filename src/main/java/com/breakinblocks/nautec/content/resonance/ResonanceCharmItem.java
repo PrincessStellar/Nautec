@@ -4,7 +4,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import com.breakinblocks.nautec.network.OpenCharmScreenPayload;
 import top.theillusivec4.curios.api.SlotResult;
 import java.util.function.IntUnaryOperator;
-import com.breakinblocks.nautec.NTConfig;
 import com.breakinblocks.nautec.capabilities.power.IPowerStorage;
 import com.breakinblocks.nautec.api.items.ICurioItem;
 import com.breakinblocks.nautec.content.augments.ResonanceAugment;
@@ -33,7 +32,6 @@ import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -110,37 +108,31 @@ public class ResonanceCharmItem extends Item implements ICurioItem {
 
     public static OpenCharmScreenPayload.Info info(ServerPlayer player, @Nullable ResonanceBinding binding, int priority) {
         if (binding == null) {
-            return new OpenCharmScreenPayload.Info(false, "", "", false, 0, 0, 0, 0, priority);
+            return new OpenCharmScreenPayload.Info(false, "", "", false, 0, 0, 0, priority);
         }
         ResonanceNetwork network = ResonanceNetworks.get(player.level().getServer()).get(binding.network());
         if (network == null) {
-            return new OpenCharmScreenPayload.Info(true, binding.name(), "?", false, 0, 0, 0, 0, priority);
+            return new OpenCharmScreenPayload.Info(true, binding.name(), "?", false, 0, 0, 0, priority);
         }
         if (!ResonanceNetworks.canUse(player, network)) {
-            return new OpenCharmScreenPayload.Info(true, network.name(), network.ownerName(), false, 0, 0, 0, 0, priority);
+            return new OpenCharmScreenPayload.Info(true, network.name(), network.ownerName(), false, 0, 0, 0, priority);
         }
         int uplinks = 0;
-        int downlinks = 0;
         long stored = 0;
         for (SatelliteArrayBlockEntity array : SatelliteGrid.members(network.id())) {
-            if (array.isRemoved()) {
-                continue;
-            }
-            if (array.transmitting()) {
+            if (!array.isRemoved() && array.transmitting()) {
                 uplinks++;
                 stored += array.getEnergy().getAmountAsInt();
-            } else if (array.receiving()) {
-                downlinks++;
             }
         }
-        int pylons = 0;
-        for (ResonancePylonBlockEntity pylon : ResonanceGrid.members(network.id())) {
-            if (pylon.sending() && !pylon.isRemoved()) {
-                pylons++;
+        int nodes = 0;
+        for (ResonanceNodeBlockEntity node : SatelliteGrid.nodes(network.id())) {
+            if (!node.isRemoved() && node.isOutput()) {
+                nodes++;
             }
         }
-        return new OpenCharmScreenPayload.Info(true, network.name(), network.ownerName(), true, uplinks, downlinks,
-                (int) Math.min(Integer.MAX_VALUE, stored), pylons, priority);
+        return new OpenCharmScreenPayload.Info(true, network.name(), network.ownerName(), true, uplinks, nodes,
+                (int) Math.min(Integer.MAX_VALUE, stored), priority);
     }
 
     public static int priority(ItemStack charm) {
@@ -192,18 +184,6 @@ public class ResonanceCharmItem extends Item implements ICurioItem {
         return charge(player, tuning.charm(), amount, available -> available);
     }
 
-    public static int chargeFromPylons(ServerPlayer player, Tuning tuning, int budget) {
-        ResonanceNetwork network = network(player, tuning);
-        if (network == null) {
-            return 0;
-        }
-        List<Source> sources = sources(player, network);
-        if (sources.isEmpty()) {
-            return 0;
-        }
-        return charge(player, tuning.charm(), budget, demand -> draw(sources, demand));
-    }
-
     public static void charged(ServerPlayer player) {
         player.getInventory().setChanged();
         player.serverLevel().sendParticles(NTParticles.CRYSTAL_MOTE.get(), player.getX(), player.getY() + 1.0, player.getZ(), 3, 0.35, 0.5, 0.35, 0.0);
@@ -218,29 +198,6 @@ public class ResonanceCharmItem extends Item implements ICurioItem {
             delivered += fill(target, budget - delivered, source, false);
         }
         return delivered;
-    }
-
-    private record Source(ResonancePylonBlockEntity pylon, double factor) {
-    }
-
-    private static List<Source> sources(ServerPlayer player, ResonanceNetwork network) {
-        List<Source> sources = new ArrayList<>();
-        for (ResonancePylonBlockEntity pylon : ResonanceGrid.members(network.id())) {
-            if (!pylon.sending() || pylon.isRemoved()) {
-                continue;
-            }
-            double factor;
-            if (pylon.dimension().equals(player.level().dimension())) {
-                factor = 1.0 - NTConfig.resonanceSameDimensionLoss;
-            } else if (pylon.interdimensional()) {
-                factor = 1.0 - NTConfig.resonanceCrossDimensionLoss;
-            } else {
-                continue;
-            }
-            sources.add(new Source(pylon, factor));
-        }
-        sources.sort(Comparator.comparingDouble(Source::factor).reversed());
-        return sources;
     }
 
     private static List<ItemStack> targets(ServerPlayer player, ItemStack charm) {
@@ -293,25 +250,6 @@ public class ResonanceCharmItem extends Item implements ICurioItem {
 
     private static @Nullable IPowerStorage power(ItemStack stack) {
         return stack.getCount() == 1 ? stack.getCapability(NTCapabilities.PowerStorage.ITEM) : null;
-    }
-
-    private static int draw(List<Source> sources, int demand) {
-        int delivered = 0;
-        for (Source source : sources) {
-            int remaining = demand - delivered;
-            if (remaining <= 0) {
-                break;
-            }
-            int needed = (int) Math.min(Integer.MAX_VALUE, (long) Math.ceil(remaining / source.factor()));
-            int taken = Math.min(needed, source.pylon().sendable());
-            if (taken <= 0) {
-                continue;
-            }
-            int arriving = Math.min(remaining, (int) Math.floor(taken * source.factor()));
-            source.pylon().send(taken);
-            delivered += arriving;
-        }
-        return delivered;
     }
 
     @Override

@@ -149,7 +149,7 @@ public final class ContentIntegrityTests {
                     "diving_suit", "abyssal_trench", "deep_survey", "abyssal_maw", "prismatic_angler", "sea_scout",
                     "submarine_flight", "gateway_found", "gateway_travel", "sea_lane", "ring_maker", "first_culture",
                     "bacteria_mutation", "industrial_bio_reactor", "tidal_rotor", "thermal_vent_tap", "fusion_ignition",
-                    "resonance_network", "abyssal_pylon", "prismatic_emitter", "resonance_charm", "satellite_launch",
+                    "resonance_network", "prismatic_emitter", "resonance_charm", "satellite_launch",
                     "orbital_relay", "impulse_laser");
             for (String id : ids) {
                 var holder = advancements.get(Nautec.rl(id));

@@ -1,9 +1,5 @@
 package com.breakinblocks.nautec.datagen;
 
-import java.util.Map;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import com.breakinblocks.nautec.content.biometank.BiomeTankType;
-import com.breakinblocks.nautec.content.biometank.BiomeTankBlock;
 import com.breakinblocks.nautec.Nautec;
 import com.breakinblocks.nautec.api.gateways.PackedGateway;
 import com.breakinblocks.nautec.content.recipes.utils.IngredientWithCount;
@@ -510,25 +506,6 @@ public class RecipesProvider extends RecipeProvider {
     }
 
     private void beamOpticsRecipes(@NotNull RecipeOutput pRecipeOutput) {
-        shaped(RecipeCategory.DECORATIONS, NTBlocks.PRISMATIC_MIRROR.asItem())
-                .pattern("PCP")
-                .pattern("CSC")
-                .pattern("PCP")
-                .define('P', NTBlocks.POLISHED_PRISMARINE)
-                .define('C', Tags.Items.GEMS_PRISMARINE)
-                .define('S', NTItems.PRISMARINE_CRYSTAL_SHARD)
-                .unlockedBy("has_item", has(NTItems.PRISMARINE_CRYSTAL_SHARD))
-                .save(pRecipeOutput, key("prismatic_mirror"));
-
-        shaped(RecipeCategory.DECORATIONS, NTBlocks.BEAM_SPLITTER.asItem())
-                .pattern("DCD")
-                .pattern("CSC")
-                .pattern("DCD")
-                .define('D', NTBlocks.DARK_PRISMARINE_PILLAR)
-                .define('C', Tags.Items.GEMS_PRISMARINE)
-                .define('S', NTItems.PRISMARINE_CRYSTAL_SHARD)
-                .unlockedBy("has_item", has(NTItems.PRISMARINE_CRYSTAL_SHARD))
-                .save(pRecipeOutput, key("beam_splitter"));
 
         shaped(RecipeCategory.DECORATIONS, NTBlocks.FOCUSING_LENS.asItem())
                 .pattern("ASA")
@@ -668,17 +645,6 @@ public class RecipesProvider extends RecipeProvider {
                 .define('D', Tags.Items.GEMS_DIAMOND)
                 .unlockedBy("has_item", has(NTBlocks.PRISMARINE_RELAY))
                 .save(pRecipeOutput, key("laser_junction"));
-
-        shaped(RecipeCategory.MISC, NTBlocks.LONG_DISTANCE_LASER.asItem(), 1)
-                .pattern("DRD")
-                .pattern("PSP")
-                .pattern("PRP")
-                .define('D', Blocks.DARK_PRISMARINE)
-                .define('R', NTBlocks.PRISMARINE_RELAY)
-                .define('P', NTBlocks.POLISHED_PRISMARINE)
-                .define('S', NTItems.PRISMARINE_CRYSTAL_SHARD)
-                .unlockedBy("has_item", has(NTBlocks.PRISMARINE_RELAY))
-                .save(pRecipeOutput, key("long_distance_laser"));
 
         shaped(RecipeCategory.MISC, NTBlocks.AQUATIC_CATALYST.asItem(), 1)
                 .pattern("PCP")
@@ -1501,17 +1467,6 @@ public class RecipesProvider extends RecipeProvider {
     }
 
     private void fusionPlantRecipes(@NotNull RecipeOutput pRecipeOutput) {
-        shaped(RecipeCategory.MISC, NTBlocks.RESONANCE_PYLON.asItem())
-                .pattern(" R ")
-                .pattern("CEC")
-                .pattern("ALA")
-                .define('R', NTItems.RESONANT_SHARD)
-                .define('C', NTItems.AQUATIC_CHIP)
-                .define('E', Tags.Items.ENDER_PEARLS)
-                .define('A', NTItems.AQUARINE_STEEL_INGOT)
-                .define('L', NTItems.LASER_CHANNELING_COIL)
-                .unlockedBy("has_item", has(NTItems.RESONANT_SHARD))
-                .save(pRecipeOutput, key("resonance_pylon"));
 
         shaped(RecipeCategory.MISC, NTBlocks.RESONANCE_NODE.asItem(), 2)
                 .pattern(" S ")
@@ -1584,18 +1539,15 @@ public class RecipesProvider extends RecipeProvider {
                 .unlockedBy("has_item", has(NTItems.GRAFTING_ANCHOR))
                 .save(pRecipeOutput, key("advanced_grafting_anchor"));
 
-        for (Map.Entry<BiomeTankType, DeferredBlock<BiomeTankBlock>> tank : NTBlocks.BIOME_TANKS.entrySet()) {
-            shaped(RecipeCategory.MISC, tank.getValue().asItem())
-                    .pattern("DGD")
-                    .pattern("GXG")
-                    .pattern("GOG")
-                    .define('D', NTItems.DEEP_STEEL_PLATING)
-                    .define('G', Tags.Items.GLASS_PANES)
-                    .define('X', tank.getKey().plant())
-                    .define('O', Tags.Items.OBSIDIANS)
-                    .unlockedBy("has_item", has(NTItems.DEEP_STEEL_PLATING))
-                    .save(pRecipeOutput, key(tank.getKey().blockName()));
-        }
+        shaped(RecipeCategory.MISC, NTBlocks.BIOME_TANK.asItem())
+                .pattern("DGD")
+                .pattern("G G")
+                .pattern("GOG")
+                .define('D', NTItems.DEEP_STEEL_PLATING)
+                .define('G', Tags.Items.GLASS_PANES)
+                .define('O', Tags.Items.OBSIDIANS)
+                .unlockedBy("has_item", has(NTItems.DEEP_STEEL_PLATING))
+                .save(pRecipeOutput, key("biome_tank"));
 
         shaped(RecipeCategory.MISC, NTBlocks.PRISMATIC_EMITTER.asItem())
                 .pattern(" S ")
@@ -1617,7 +1569,7 @@ public class RecipesProvider extends RecipeProvider {
                 .define('E', Tags.Items.ENDER_PEARLS)
                 .define('R', NTItems.RESONANT_SHARD)
                 .define('G', NTItems.ATLANTIC_GOLD_INGOT)
-                .unlockedBy("has_item", has(NTBlocks.RESONANCE_PYLON))
+                .unlockedBy("has_item", has(NTItems.RESONANT_SHARD))
                 .save(pRecipeOutput, key("resonance_charm"));
 
         shaped(RecipeCategory.MISC, NTItems.PRISM_SATELLITE.get())
@@ -1642,21 +1594,8 @@ public class RecipesProvider extends RecipeProvider {
                 .define('R', NTItems.RESONANT_SHARD)
                 .define('A', NTItems.AQUARINE_STEEL_INGOT)
                 .define('J', NTBlocks.LASER_JUNCTION)
-                .unlockedBy("has_item", has(NTBlocks.RESONANCE_PYLON))
+                .unlockedBy("has_item", has(NTItems.RESONANT_SHARD))
                 .save(pRecipeOutput, key("uplink_array"));
-
-        shaped(RecipeCategory.MISC, NTBlocks.DOWNLINK_ARRAY.asItem())
-                .pattern("SLS")
-                .pattern("CRC")
-                .pattern("AJA")
-                .define('S', NTItems.PRISMARINE_CRYSTAL_SHARD)
-                .define('L', NTItems.PRISMARINE_LENS)
-                .define('C', NTItems.AQUATIC_CHIP)
-                .define('R', NTItems.RESONANT_SHARD)
-                .define('A', NTItems.AQUARINE_STEEL_INGOT)
-                .define('J', NTBlocks.LASER_JUNCTION)
-                .unlockedBy("has_item", has(NTBlocks.RESONANCE_PYLON))
-                .save(pRecipeOutput, key("downlink_array"));
 
         shapeless(RecipeCategory.TOOLS, NTItems.CONFIGURATION_CARD.get(), 1)
                 .requires(Items.PAPER)
@@ -1673,19 +1612,6 @@ public class RecipesProvider extends RecipeProvider {
                 .define('S', NTItems.PRISMARINE_CRYSTAL_SHARD)
                 .unlockedBy("has_item", has(NTItems.AQUARINE_STEEL_INGOT))
                 .save(pRecipeOutput, key("tuning_fork"));
-
-        shaped(RecipeCategory.MISC, NTBlocks.ABYSSAL_PYLON.asItem())
-                .pattern("FNF")
-                .pattern("EPE")
-                .pattern("DGD")
-                .define('F', NTItems.FLAWLESS_PRISMARINE_CRYSTAL)
-                .define('N', Tags.Items.NETHER_STARS)
-                .define('E', Tags.Items.ENDER_PEARLS)
-                .define('P', NTBlocks.RESONANCE_PYLON)
-                .define('D', NTItems.DEEP_STEEL_PLATING)
-                .define('G', NTItems.ATLANTIC_GOLD_INGOT)
-                .unlockedBy("has_item", has(NTBlocks.RESONANCE_PYLON))
-                .save(pRecipeOutput, key("abyssal_pylon"));
 
         shaped(RecipeCategory.MISC, NTBlocks.TIDAL_ROTOR.asItem())
                 .pattern("RIR")

@@ -2,11 +2,11 @@ package com.breakinblocks.nautec.gametest.suite;
 
 import com.breakinblocks.nautec.transfer.TransferCapabilities;
 import com.breakinblocks.nautec.NTConfig;
+import com.breakinblocks.nautec.data.NTDataComponents;
 import com.breakinblocks.nautec.api.bacteria.BacteriaInstance;
 import com.breakinblocks.nautec.capabilities.NTCapabilities;
 import com.breakinblocks.nautec.capabilities.bacteria.IBacteriaStorage;
 import com.breakinblocks.nautec.content.biometank.BiomeTankBlockEntity;
-import com.breakinblocks.nautec.content.biometank.BiomeTankType;
 import com.breakinblocks.nautec.content.blockentities.AquaticCatalystBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.GraftingStationBlockEntity;
 import com.breakinblocks.nautec.content.conduit.ConduitBeaconBlock;
@@ -20,6 +20,8 @@ import com.breakinblocks.nautec.registries.NTFluids;
 import com.breakinblocks.nautec.registries.NTItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
@@ -29,6 +31,8 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.AmethystClusterBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.fluids.FluidStack;
 import com.breakinblocks.nautec.transfer.ResourceHandler;
@@ -274,12 +278,41 @@ public final class ExpansionFeatureTests {
             helper.succeed();
         });
 
+        r.add("biome_tank/seeds_from_a_tagged_plant_and_keeps_it_when_broken", 60, helper -> {
+            helper.setBlock(MACHINE, NTBlocks.BIOME_TANK.get());
+            BiomeTankBlockEntity tank = helper.getBlockEntity(MACHINE, BiomeTankBlockEntity.class);
+            Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+            BlockPos abs = helper.absolutePos(MACHINE);
+            BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(abs), Direction.UP, abs, false);
+
+            ItemStack dirt = new ItemStack(Items.DIRT, 4);
+            ItemInteractionResult refused = helper.getLevel().getBlockState(abs).useItemOn(dirt, helper.getLevel(), player, InteractionHand.MAIN_HAND, hit);
+            helper.assertFalse(refused.consumesAction(), "an untagged item does not seed the tank");
+            helper.assertTrue(tank.getPlant() == null, "the tank stays unseeded");
+            helper.assertValueEqual(4, dirt.getCount(), "the untagged item is not used up");
+
+            ItemStack bamboo = new ItemStack(Items.BAMBOO, 3);
+            player.setItemInHand(InteractionHand.MAIN_HAND, bamboo);
+            ItemInteractionResult seeded = helper.getLevel().getBlockState(abs).useItemOn(bamboo, helper.getLevel(), player, InteractionHand.MAIN_HAND, hit);
+            helper.assertTrue(seeded.consumesAction(), "a tagged plant seeds the tank");
+            helper.assertTrue(tank.getPlant() != null && tank.getPlant().value() == Items.BAMBOO, "the tank now grows bamboo");
+            helper.assertValueEqual(2, bamboo.getCount(), "seeding uses one plant");
+
+            ItemStack drop = new ItemStack(NTBlocks.BIOME_TANK.get());
+            drop.applyComponents(tank.collectComponents());
+            helper.assertTrue(drop.has(NTDataComponents.BIOME_TANK_PLANT.get())
+                    && drop.get(NTDataComponents.BIOME_TANK_PLANT.get()).value() == Items.BAMBOO, "the dropped tank remembers its plant");
+            helper.succeed();
+        });
+
         r.add("biome_tank/grows_its_plant_for_pipes_to_take", 120, helper -> {
             int saved = NTConfig.biomeTankTicks;
             NTConfig.biomeTankTicks = 20;
-            helper.setBlock(MACHINE, NTBlocks.BIOME_TANKS.get(BiomeTankType.KELP).get());
-            helper.setBlock(MACHINE.east(2), NTBlocks.BIOME_TANKS.get(BiomeTankType.CACTUS).get());
+            helper.setBlock(MACHINE, NTBlocks.BIOME_TANK.get());
+            helper.setBlock(MACHINE.east(2), NTBlocks.BIOME_TANK.get());
             BiomeTankBlockEntity kelp = helper.getBlockEntity(MACHINE, BiomeTankBlockEntity.class);
+            kelp.setPlant(Items.KELP.builtInRegistryHolder());
+            helper.getBlockEntity(MACHINE.east(2), BiomeTankBlockEntity.class).setPlant(Items.CACTUS.builtInRegistryHolder());
             helper.runAfterDelay(50, () -> {
                 NTConfig.biomeTankTicks = saved;
                 ItemStack grown = kelp.getItemStackHandler().getStackInSlot(0);

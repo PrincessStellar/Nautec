@@ -14,7 +14,7 @@ import com.breakinblocks.nautec.content.bacteria.ProductNutrients;
 import com.breakinblocks.nautec.content.bacteria.SimpleCollapsedStats;
 import com.breakinblocks.nautec.content.blocks.ColonyReplicatorBlock;
 import com.breakinblocks.nautec.content.menus.ColonyReplicatorMenu;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
+import com.breakinblocks.nautec.utils.DataSlots;
 import com.breakinblocks.nautec.registries.NTBlockEntityTypes;
 import com.breakinblocks.nautec.utils.BacteriaHelper;
 import it.unimi.dsi.fastutil.Pair;
@@ -92,14 +92,14 @@ public class ColonyReplicatorBlockEntity extends LaserBlockEntity implements Men
         public int get(int index) {
             int stored = (int) Math.min(Integer.MAX_VALUE, biomass);
             return switch (index) {
-                case DATA_PROGRESS -> ResonancePylonBlockEntity.low(progress);
-                case DATA_PROGRESS + 1 -> ResonancePylonBlockEntity.high(progress);
-                case DATA_DURATION -> ResonancePylonBlockEntity.low(NTConfig.replicatorDuration);
-                case DATA_DURATION + 1 -> ResonancePylonBlockEntity.high(NTConfig.replicatorDuration);
+                case DATA_PROGRESS -> DataSlots.low(progress);
+                case DATA_PROGRESS + 1 -> DataSlots.high(progress);
+                case DATA_DURATION -> DataSlots.low(NTConfig.replicatorDuration);
+                case DATA_DURATION + 1 -> DataSlots.high(NTConfig.replicatorDuration);
                 case DATA_STATUS -> status;
                 case DATA_SPLICE -> splice ? 1 : 0;
-                case DATA_BIOMASS -> ResonancePylonBlockEntity.low(stored);
-                case DATA_BIOMASS + 1 -> ResonancePylonBlockEntity.high(stored);
+                case DATA_BIOMASS -> DataSlots.low(stored);
+                case DATA_BIOMASS + 1 -> DataSlots.high(stored);
                 default -> 0;
             };
         }

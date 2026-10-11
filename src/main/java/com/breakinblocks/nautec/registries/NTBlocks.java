@@ -1,15 +1,11 @@
 package com.breakinblocks.nautec.registries;
 
-import java.util.Map;
 import com.breakinblocks.nautec.content.conduits.ConduitTapBlock;
 import com.breakinblocks.nautec.content.conduits.CurrentConduitBlock;
 import com.breakinblocks.nautec.content.resonantstorage.ResonantCisternBlock;
 import com.breakinblocks.nautec.content.resonantstorage.ResonantStorageItem;
 import com.breakinblocks.nautec.content.resonantstorage.ResonantVaultBlock;
 import com.breakinblocks.nautec.content.resonantstorage.ResonantVaultItem;
-import java.util.EnumMap;
-import java.util.Collections;
-import com.breakinblocks.nautec.content.biometank.BiomeTankType;
 import com.breakinblocks.nautec.content.biometank.BiomeTankBlock;
 import com.breakinblocks.nautec.content.dishstorage.DishStorageBlock;
 import com.breakinblocks.nautec.content.conduit.ConduitBeaconBlock;
@@ -32,7 +28,6 @@ import com.breakinblocks.nautec.content.blocks.ConfinedSpawnerBlock;
 import com.breakinblocks.nautec.content.blocks.CrystalCradleBlock;
 import com.breakinblocks.nautec.content.blocks.BacterialAnalyzerTopBlock;
 import com.breakinblocks.nautec.content.blocks.BacterialFuelCellBlock;
-import com.breakinblocks.nautec.content.blocks.BeamSplitterBlock;
 import com.breakinblocks.nautec.content.blocks.BuddingPrismarineBlock;
 import com.breakinblocks.nautec.content.blocks.ChargerBlock;
 import com.breakinblocks.nautec.content.blocks.CrateBlock;
@@ -47,7 +42,6 @@ import com.breakinblocks.nautec.content.blocks.GatewayBlock;
 import com.breakinblocks.nautec.content.blocks.GatewayRingPartBlock;
 import com.breakinblocks.nautec.content.blocks.IncubatorBlock;
 import com.breakinblocks.nautec.content.blocks.LaserJunctionBlock;
-import com.breakinblocks.nautec.content.blocks.LongDistanceLaserBlock;
 import com.breakinblocks.nautec.content.blocks.LuckyFishingZoneBlock;
 import com.breakinblocks.nautec.content.blocks.LaserCraftingMatrixBlock;
 import com.breakinblocks.nautec.content.blocks.MixerBlock;
@@ -57,7 +51,6 @@ import com.breakinblocks.nautec.content.blocks.OilBarrelBlock;
 import com.breakinblocks.nautec.content.blocks.PressureForgeBlock;
 import com.breakinblocks.nautec.content.blocks.PrismarineLaserRelayBlock;
 import com.breakinblocks.nautec.content.blocks.PrismarineSandBlock;
-import com.breakinblocks.nautec.content.blocks.PrismaticMirrorBlock;
 import com.breakinblocks.nautec.content.blocks.ResonanceChamberBlock;
 import com.breakinblocks.nautec.content.blocks.SubmarineDockBlock;
 import com.breakinblocks.nautec.content.blocks.flora.DeepKelpBlock;
@@ -65,7 +58,6 @@ import com.breakinblocks.nautec.content.blocks.fusion.FusionCollectorBlock;
 import com.breakinblocks.nautec.content.blocks.generators.CombustionDynamoBlock;
 import com.breakinblocks.nautec.content.blocks.generators.ThermalVentTapBlock;
 import com.breakinblocks.nautec.content.resonance.PrismaticEmitterBlock;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlock;
 import com.breakinblocks.nautec.content.resonance.SatelliteArrayBlock;
 import com.breakinblocks.nautec.content.resonance.SatelliteArrayTopBlock;
 import com.breakinblocks.nautec.content.blocks.generators.TidalRotorBlock;
@@ -139,8 +131,6 @@ public final class NTBlocks {
             BlockBehaviour.Properties.ofFullCopy(Blocks.PRISMARINE_BRICKS).noOcclusion());
     public static final DeferredBlock<LaserCraftingMatrixBlock> LASER_CRAFTING_MATRIX = registerBlockAndItem("laser_crafting_matrix", LaserCraftingMatrixBlock::new,
             BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).noOcclusion(), LaserCraftingMatrixItem::new);
-    public static final DeferredBlock<LongDistanceLaserBlock> LONG_DISTANCE_LASER = registerBlockAndItem("long_distance_laser", LongDistanceLaserBlock::new,
-            BlockBehaviour.Properties.ofFullCopy(Blocks.DARK_PRISMARINE).noOcclusion());
     public static final DeferredBlock<LaserJunctionBlock> LASER_JUNCTION = registerBlockAndItem("laser_junction", props -> new LaserJunctionBlock(props, 8),
             BlockBehaviour.Properties.ofFullCopy(Blocks.DARK_PRISMARINE).noOcclusion(), true, false);
 
@@ -179,10 +169,6 @@ public final class NTBlocks {
     public static final DeferredBlock<ResonanceChamberBlock> RESONANCE_CHAMBER = registerBlockAndItem("resonance_chamber", ResonanceChamberBlock::new,
             BlockBehaviour.Properties.ofFullCopy(Blocks.SEA_LANTERN).strength(3.0f).noOcclusion());
 
-    public static final DeferredBlock<PrismaticMirrorBlock> PRISMATIC_MIRROR = registerBlockAndItem("prismatic_mirror", PrismaticMirrorBlock::new,
-            BlockBehaviour.Properties.ofFullCopy(Blocks.SEA_LANTERN).strength(1.5f).noOcclusion());
-    public static final DeferredBlock<BeamSplitterBlock> BEAM_SPLITTER = registerBlockAndItem("beam_splitter", BeamSplitterBlock::new,
-            BlockBehaviour.Properties.ofFullCopy(Blocks.SEA_LANTERN).strength(1.5f).noOcclusion());
     public static final DeferredBlock<FocusingLensBlock> FOCUSING_LENS = registerBlockAndItem("focusing_lens", FocusingLensBlock::new,
             BlockBehaviour.Properties.ofFullCopy(Blocks.SEA_LANTERN).strength(1.5f).noOcclusion());
 
@@ -260,15 +246,6 @@ public final class NTBlocks {
     public static final DeferredBlock<EnergyConverterBlock> ENERGY_CONVERTER = registerBlockAndItem("energy_converter", EnergyConverterBlock::new,
             BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK), true, true);
 
-    public static final DeferredBlock<ResonancePylonBlock> RESONANCE_PYLON = registerBlockAndItem("resonance_pylon",
-            properties -> new ResonancePylonBlock(properties, false),
-            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(4.0f, 12.0f).sound(SoundType.METAL).noOcclusion()
-                    .requiresCorrectToolForDrops().lightLevel(state -> 6));
-    public static final DeferredBlock<ResonancePylonBlock> ABYSSAL_PYLON = registerBlockAndItem("abyssal_pylon",
-            properties -> new ResonancePylonBlock(properties, true),
-            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_PURPLE).strength(6.0f, 1200.0f).sound(SoundType.NETHERITE_BLOCK).noOcclusion()
-                    .requiresCorrectToolForDrops().lightLevel(state -> 9));
-
     public static final DeferredBlock<ResonanceNodeBlock> RESONANCE_NODE = registerBlockAndItem("resonance_node", ResonanceNodeBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(3.0f, 12.0f).sound(SoundType.METAL).noOcclusion()
                     .requiresCorrectToolForDrops().lightLevel(state -> 7), true, false);
@@ -287,15 +264,12 @@ public final class NTBlocks {
             properties -> new DishStorageBlock(192, properties),
             BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).requiresCorrectToolForDrops()));
 
-    public static final Map<BiomeTankType, DeferredBlock<BiomeTankBlock>> BIOME_TANKS = biomeTanks();
+    public static final DeferredBlock<BiomeTankBlock> BIOME_TANK = registerBlockAndItem("biome_tank", BiomeTankBlock::new,
+            BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).strength(2.0f, 6.0f).sound(SoundType.GLASS).noOcclusion());
 
     public static final DeferredBlock<SatelliteArrayBlock> UPLINK_ARRAY = registerBlockAndItem("uplink_array",
-            properties -> new SatelliteArrayBlock(properties, true),
+            SatelliteArrayBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.GOLD).strength(5.0f, 12.0f).sound(SoundType.METAL).noOcclusion()
-                    .requiresCorrectToolForDrops().pushReaction(PushReaction.BLOCK).lightLevel(state -> 6));
-    public static final DeferredBlock<SatelliteArrayBlock> DOWNLINK_ARRAY = registerBlockAndItem("downlink_array",
-            properties -> new SatelliteArrayBlock(properties, false),
-            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(5.0f, 12.0f).sound(SoundType.METAL).noOcclusion()
                     .requiresCorrectToolForDrops().pushReaction(PushReaction.BLOCK).lightLevel(state -> 6));
     public static final DeferredBlock<SatelliteArrayTopBlock> SATELLITE_ARRAY_TOP = BLOCKS.registerBlock("satellite_array_top", SatelliteArrayTopBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(5.0f, 12.0f).sound(SoundType.METAL).noOcclusion()
@@ -371,15 +345,6 @@ public final class NTBlocks {
 
     private static <T extends Block> DeferredBlock<T> registerBlockAndItem(String name, Function<BlockBehaviour.Properties, T> blockConstructor, BlockBehaviour.Properties properties) {
         return registerBlockAndItem(name, blockConstructor, properties, true, true);
-    }
-
-    private static Map<BiomeTankType, DeferredBlock<BiomeTankBlock>> biomeTanks() {
-        Map<BiomeTankType, DeferredBlock<BiomeTankBlock>> tanks = new EnumMap<>(BiomeTankType.class);
-        for (BiomeTankType type : BiomeTankType.values()) {
-            tanks.put(type, registerBlockAndItem(type.blockName(), properties -> new BiomeTankBlock(type, properties),
-                    BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).strength(2.0f, 6.0f).sound(SoundType.GLASS).noOcclusion()));
-        }
-        return Collections.unmodifiableMap(tanks);
     }
 
     public static <T extends Block> DeferredBlock<T> bacteriaBlock(DeferredBlock<T> block) {

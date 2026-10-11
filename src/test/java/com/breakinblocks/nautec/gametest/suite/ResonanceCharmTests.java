@@ -9,19 +9,15 @@ import com.breakinblocks.nautec.content.resonance.ResonanceBinding;
 import com.breakinblocks.nautec.content.resonance.ResonanceCharmItem;
 import com.breakinblocks.nautec.content.resonance.ResonanceNetwork;
 import com.breakinblocks.nautec.content.resonance.ResonanceNetworks;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
 import com.breakinblocks.nautec.data.NTDataComponents;
 import com.breakinblocks.nautec.registries.NTAugmentSlots;
 import com.breakinblocks.nautec.registries.NTAugments;
-import com.breakinblocks.nautec.registries.NTBlocks;
 import com.breakinblocks.nautec.registries.NTItems;
 import com.breakinblocks.nautec.utils.AugmentHelper;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,15 +33,6 @@ public final class ResonanceCharmTests {
                 ClientInformation.createDefault());
     }
 
-    private static ResonancePylonBlockEntity sender(NTGameTestHelper helper, ResonanceNetwork network, int energy) {
-        BlockPos pos = helper.absolutePos(new BlockPos(4, 1, 4));
-        helper.getLevel().setBlock(pos, NTBlocks.RESONANCE_PYLON.get().defaultBlockState(), Block.UPDATE_ALL);
-        ResonancePylonBlockEntity pylon = (ResonancePylonBlockEntity) helper.getLevel().getBlockEntity(pos);
-        pylon.setNetwork(network);
-        pylon.getEnergyStorage().set(energy);
-        return pylon;
-    }
-
     private static ItemStack charm(ResonanceNetwork network) {
         ItemStack charm = new ItemStack(NTItems.RESONANCE_CHARM.get());
         charm.set(NTDataComponents.RESONANCE_BINDING.get(), new ResonanceBinding(network.id(), network.name()));
@@ -57,18 +44,17 @@ public final class ResonanceCharmTests {
             ServerPlayer owner = player(helper, "CharmOwner");
             ResonanceNetworks networks = ResonanceNetworks.get(helper.getLevel().getServer());
             ResonanceNetwork network = networks.create(owner, "Charm grid").network();
-            ResonancePylonBlockEntity pylon = sender(helper, network, 50_000);
             ItemStack battery = new ItemStack(NTItems.PRISMATIC_BATTERY.get());
             owner.getInventory().setItem(0, battery);
-            ItemStack charm = charm(network);
+            ResonanceCharmItem.Tuning tuning = ResonanceCharmItem.tuning(charm(network));
 
             helper.runAfterDelay(2, () -> {
-                int delivered = ResonanceCharmItem.chargeFromPylons(owner, ResonanceCharmItem.tuning(charm), BUDGET);
+                helper.assertTrue(ResonanceCharmItem.network(owner, tuning) != null, "the owner's charm reaches its network");
+                int demand = ResonanceCharmItem.demand(owner, tuning, BUDGET);
+                int delivered = ResonanceCharmItem.deliver(owner, tuning, demand);
                 IPowerStorage power = owner.getInventory().getItem(0).getCapability(NTCapabilities.PowerStorage.ITEM);
                 helper.assertTrue(delivered > 0, "the charm delivered power");
                 helper.assertValueEqual(power.getPowerStored(), delivered, "the battery holds what was delivered");
-                int drawn = 50_000 - pylon.getEnergyStorage().getAmountAsInt();
-                helper.assertTrue(drawn > delivered, "the pylon gave a little more than arrived, drew " + drawn + " for " + delivered);
                 networks.delete(owner, network.id());
                 helper.succeed();
             });
@@ -78,7 +64,6 @@ public final class ResonanceCharmTests {
             ServerPlayer owner = player(helper, "Implant");
             ResonanceNetworks networks = ResonanceNetworks.get(helper.getLevel().getServer());
             ResonanceNetwork network = networks.create(owner, "Implant grid").network();
-            sender(helper, network, 50_000);
             owner.getInventory().setItem(0, new ItemStack(NTItems.PRISMATIC_BATTERY.get()));
             ItemStack charm = charm(network);
             charm.set(NTDataComponents.RESONANCE_PRIORITY.get(), 3);
@@ -98,7 +83,7 @@ public final class ResonanceCharmTests {
                 ResonanceCharmItem.Tuning tuning = ResonanceCharmItem.tuning(owner);
                 helper.assertTrue(tuning != null && tuning.network().equals(network.id()), "the player is tuned through the augment");
                 helper.assertTrue(tuning.charm().isEmpty(), "no charm item is involved");
-                int delivered = ResonanceCharmItem.chargeFromPylons(owner, tuning, BUDGET);
+                int delivered = ResonanceCharmItem.deliver(owner, tuning, ResonanceCharmItem.demand(owner, tuning, BUDGET));
                 IPowerStorage power = owner.getInventory().getItem(0).getCapability(NTCapabilities.PowerStorage.ITEM);
                 helper.assertTrue(delivered > 0, "the augment delivered power");
                 helper.assertValueEqual(power.getPowerStored(), delivered, "the battery holds what was delivered");
@@ -112,12 +97,11 @@ public final class ResonanceCharmTests {
             ServerPlayer thief = player(helper, "Thief");
             ResonanceNetworks networks = ResonanceNetworks.get(helper.getLevel().getServer());
             ResonanceNetwork network = networks.create(owner, "Locked grid").network();
-            ResonancePylonBlockEntity pylon = sender(helper, network, 50_000);
             thief.getInventory().setItem(0, new ItemStack(NTItems.PRISMATIC_BATTERY.get()));
 
             helper.runAfterDelay(2, () -> {
-                helper.assertValueEqual(ResonanceCharmItem.chargeFromPylons(thief, ResonanceCharmItem.tuning(charm(network)), BUDGET), 0, "a charm bound by someone without access gives nothing");
-                helper.assertValueEqual(pylon.getEnergyStorage().getAmountAsInt(), 50_000, "the pylon kept its power");
+                helper.assertTrue(ResonanceCharmItem.network(thief, ResonanceCharmItem.tuning(charm(network))) == null,
+                        "a charm bound by someone without access reaches no network");
                 helper.assertTrue(ResonanceCharmItem.tuning(new ItemStack(NTItems.RESONANCE_CHARM.get())) == null, "an unbound charm tunes to nothing");
                 networks.delete(owner, network.id());
                 helper.succeed();

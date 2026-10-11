@@ -84,9 +84,9 @@ public final class PrismaticEmitterTests {
             helper.getLevel().setBlock(stone, Blocks.STONE.defaultBlockState(), Block.UPDATE_ALL);
             helper.assertValueEqual(emitter.toggle(stone, Direction.UP), PrismaticEmitterBlockEntity.LinkResult.NO_ENERGY, "stone takes no FE");
 
-            BlockPos pylon = helper.absolutePos(new BlockPos(6, 1, 2));
-            helper.getLevel().setBlock(pylon, NTBlocks.RESONANCE_PYLON.get().defaultBlockState(), Block.UPDATE_ALL);
-            helper.assertValueEqual(emitter.toggle(pylon, Direction.UP), PrismaticEmitterBlockEntity.LinkResult.NO_ENERGY, "pylons cannot be linked");
+            BlockPos node = helper.absolutePos(new BlockPos(6, 1, 2));
+            helper.getLevel().setBlock(node, NTBlocks.RESONANCE_NODE.get().defaultBlockState(), Block.UPDATE_ALL);
+            helper.assertValueEqual(emitter.toggle(node, Direction.UP), PrismaticEmitterBlockEntity.LinkResult.NO_ENERGY, "Resonance Nodes cannot be linked");
 
             int range = NTConfig.emitterRange;
             NTConfig.emitterRange = 2;

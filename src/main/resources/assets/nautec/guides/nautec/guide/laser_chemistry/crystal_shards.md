@@ -15,7 +15,7 @@ item_ids:
   The best Aquatic Catalyst fuel, and a part in many advanced recipes.
 </Column>
 
-In an <ItemLink id="aquatic_catalyst"/> a shard gives the most power of any fuel, 12 AP per tick for 10 seconds at purity 1.2. Shards also go into the Prismatic Battery, the Long Distance Laser and other advanced recipes.
+In an <ItemLink id="aquatic_catalyst"/> a shard gives the most power of any fuel, 12 AP per tick for 37.5 seconds at purity 1.2. Shards also go into the Prismatic Battery and other advanced recipes.
 
 ***
 

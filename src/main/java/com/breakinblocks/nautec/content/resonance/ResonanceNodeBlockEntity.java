@@ -1,6 +1,7 @@
 package com.breakinblocks.nautec.content.resonance;
 
 import com.breakinblocks.nautec.transfer.TransferCapabilities;
+import com.breakinblocks.nautec.utils.DataSlots;
 import com.breakinblocks.nautec.NTConfig;
 import com.breakinblocks.nautec.api.blockentities.LaserBlockEntity;
 import com.breakinblocks.nautec.capabilities.IOActions;
@@ -13,6 +14,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import com.breakinblocks.nautec.registries.NTCriteriaTriggers;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -43,6 +45,9 @@ import java.util.Set;
 import java.util.UUID;
 
 public class ResonanceNodeBlockEntity extends LaserBlockEntity implements MenuProvider, ResonanceTunable, ChunkLoadable {
+    public static final int MIN_PRIORITY = -100;
+    public static final int MAX_PRIORITY = 100;
+
     public static final int STATUS_ONLINE = 0;
     public static final int STATUS_NO_NETWORK = 1;
     public static final int STATUS_NO_CORE = 2;
@@ -78,6 +83,7 @@ public class ResonanceNodeBlockEntity extends LaserBlockEntity implements MenuPr
     private float apPurity;
     private int beam;
     private int flow;
+    private boolean relayed;
     private long lastSync;
 
     private final SimpleEnergyHandler energy;
@@ -107,19 +113,19 @@ public class ResonanceNodeBlockEntity extends LaserBlockEntity implements MenuPr
         @Override
         public int get(int index) {
             return switch (index) {
-                case DATA_FLOW -> ResonancePylonBlockEntity.low(flow);
-                case DATA_FLOW + 1 -> ResonancePylonBlockEntity.high(flow);
+                case DATA_FLOW -> DataSlots.low(flow);
+                case DATA_FLOW + 1 -> DataSlots.high(flow);
                 case DATA_PURITY -> Math.round(apPurity * 1000F);
                 case DATA_STATUS -> status;
                 case DATA_CORES -> cores;
                 case DATA_OUTPUT -> output ? 1 : 0;
-                case DATA_AP -> ResonancePylonBlockEntity.low(apStored);
-                case DATA_AP + 1 -> ResonancePylonBlockEntity.high(apStored);
-                case DATA_FE -> ResonancePylonBlockEntity.low(energy.getAmountAsInt());
-                case DATA_FE + 1 -> ResonancePylonBlockEntity.high(energy.getAmountAsInt());
+                case DATA_AP -> DataSlots.low(apStored);
+                case DATA_AP + 1 -> DataSlots.high(apStored);
+                case DATA_FE -> DataSlots.low(energy.getAmountAsInt());
+                case DATA_FE + 1 -> DataSlots.high(energy.getAmountAsInt());
                 case DATA_PRIORITY -> priority;
-                case DATA_LIMIT -> ResonancePylonBlockEntity.low(effectiveLimit());
-                case DATA_LIMIT + 1 -> ResonancePylonBlockEntity.high(effectiveLimit());
+                case DATA_LIMIT -> DataSlots.low(effectiveLimit());
+                case DATA_LIMIT + 1 -> DataSlots.high(effectiveLimit());
                 case DATA_CHUNK -> ResonanceChunkLoading.state(chunkLoading);
                 default -> 0;
             };
@@ -195,7 +201,7 @@ public class ResonanceNodeBlockEntity extends LaserBlockEntity implements MenuPr
     }
 
     public void setPriority(int priority) {
-        this.priority = Mth.clamp(priority, SatelliteArrayBlockEntity.MIN_PRIORITY, SatelliteArrayBlockEntity.MAX_PRIORITY);
+        this.priority = Mth.clamp(priority, ResonanceNodeBlockEntity.MIN_PRIORITY, ResonanceNodeBlockEntity.MAX_PRIORITY);
         setChanged();
     }
 
@@ -256,6 +262,10 @@ public class ResonanceNodeBlockEntity extends LaserBlockEntity implements MenuPr
 
     public void giveAp(int amount, float purity) {
         addAp(amount, purity);
+        if (amount > 0 && !relayed && level instanceof ServerLevel serverLevel) {
+            relayed = true;
+            NTCriteriaTriggers.triggerNear(NTCriteriaTriggers.SATELLITE_RELAY.get(), serverLevel, worldPosition, 32.0);
+        }
     }
 
     private void addAp(int amount, float purity) {
@@ -428,6 +438,9 @@ public class ResonanceNodeBlockEntity extends LaserBlockEntity implements MenuPr
         SatelliteGrid.Link link = network == null ? SatelliteGrid.EMPTY : SatelliteGrid.link(network.id(), tick);
         int newStatus = network == null ? STATUS_NO_NETWORK : link.uplinks() == 0 ? STATUS_NO_CORE : STATUS_ONLINE;
         boolean flipped = newStatus != status;
+        if (newStatus != STATUS_ONLINE) {
+            relayed = false;
+        }
         this.status = newStatus;
         this.cores = link.uplinks();
         if (flipped || tick - lastSync >= SYNC_INTERVAL * 4) {

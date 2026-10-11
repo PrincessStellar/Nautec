@@ -1,5 +1,6 @@
 {
   "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
     "frame": "nautec:block/biome_tank_frame",
     "base": "minecraft:block/obsidian",
@@ -299,90 +300,6 @@
             2,
             14,
             14
-          ]
-        }
-      }
-    },
-    {
-      "from": [
-        2.5,
-        2,
-        8
-      ],
-      "to": [
-        13.5,
-        13,
-        8
-      ],
-      "shade": false,
-      "rotation": {
-        "origin": [
-          8,
-          8,
-          8
-        ],
-        "axis": "y",
-        "angle": 45
-      },
-      "faces": {
-        "north": {
-          "texture": "#plant",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#plant",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        }
-      }
-    },
-    {
-      "from": [
-        2.5,
-        2,
-        8
-      ],
-      "to": [
-        13.5,
-        13,
-        8
-      ],
-      "shade": false,
-      "rotation": {
-        "origin": [
-          8,
-          8,
-          8
-        ],
-        "axis": "y",
-        "angle": -45
-      },
-      "faces": {
-        "north": {
-          "texture": "#plant",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#plant",
-          "uv": [
-            0,
-            0,
-            16,
-            16
           ]
         }
       }

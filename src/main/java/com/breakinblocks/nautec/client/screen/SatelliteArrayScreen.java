@@ -1,6 +1,5 @@
 package com.breakinblocks.nautec.client.screen;
 
-import com.breakinblocks.nautec.network.ResonanceActionPayload;
 import com.breakinblocks.nautec.NTConfig;
 import com.breakinblocks.nautec.content.menus.SatelliteArrayMenu;
 import com.breakinblocks.nautec.content.resonance.SatelliteArrayBlockEntity;
@@ -22,8 +21,6 @@ public class SatelliteArrayScreen extends ResonanceNetworkScreen<SatelliteArrayM
         super(menu, playerInventory, title);
     }
 
-    private static final int[] LIMITS = {1_000, 5_000, 10_000, 25_000, 50_000, 100_000, 250_000, 500_000, 1_000_000};
-
     @Override
     protected int chunkState() {
         return this.menu.getChunkState();
@@ -31,56 +28,6 @@ public class SatelliteArrayScreen extends ResonanceNetworkScreen<SatelliteArrayM
 
     @Override
     protected void addHeaderWidgets(int x, int y) {
-        if (this.menu.blockEntity.isUplink()) {
-            return;
-        }
-        int left = x + IMAGE_WIDTH - 136;
-        addRenderableWidget(new PanelButton(left, y + 4, 12, 14, () -> Component.literal("-"), () -> NEUTRAL, () -> NEUTRAL_HOVER,
-                () -> Component.translatable("nautec.satellite.priority.lower"),
-                () -> sendNumber(ResonanceActionPayload.PRIORITY, this.menu.getPriority() - 1)));
-        addRenderableWidget(new PanelButton(left + 12, y + 4, 30, 14, () -> Component.literal("P " + this.menu.getPriority()),
-                () -> RECEIVE_COLOR, () -> RECEIVE_HOVER,
-                () -> Component.translatable("nautec.satellite.priority", this.menu.getPriority()).append("\n")
-                        .append(Component.translatable("nautec.satellite.priority.desc").withStyle(ChatFormatting.GRAY)),
-                () -> sendNumber(ResonanceActionPayload.PRIORITY, 0)));
-        addRenderableWidget(new PanelButton(left + 42, y + 4, 12, 14, () -> Component.literal("+"), () -> NEUTRAL, () -> NEUTRAL_HOVER,
-                () -> Component.translatable("nautec.satellite.priority.raise"),
-                () -> sendNumber(ResonanceActionPayload.PRIORITY, this.menu.getPriority() + 1)));
-
-        int limitLeft = left + 58;
-        addRenderableWidget(new PanelButton(limitLeft, y + 4, 12, 14, () -> Component.literal("-"), () -> NEUTRAL, () -> NEUTRAL_HOVER,
-                () -> Component.translatable("nautec.satellite.limit.lower"), () -> sendNumber(ResonanceActionPayload.LIMIT, step(-1))));
-        addRenderableWidget(new PanelButton(limitLeft + 12, y + 4, 42, 14, () -> Component.literal(compact(this.menu.getLimit()) + "/t"),
-                () -> RECEIVE_COLOR, () -> RECEIVE_HOVER,
-                () -> Component.translatable("nautec.satellite.limit", number(this.menu.getLimit()), number(this.menu.getLimit()), number(NTConfig.satelliteTransferLimit))
-                        .append("\n").append(Component.translatable("nautec.satellite.limit.desc").withStyle(ChatFormatting.GRAY)),
-                () -> sendNumber(ResonanceActionPayload.LIMIT, NTConfig.satelliteTransferLimit)));
-        addRenderableWidget(new PanelButton(limitLeft + 54, y + 4, 12, 14, () -> Component.literal("+"), () -> NEUTRAL, () -> NEUTRAL_HOVER,
-                () -> Component.translatable("nautec.satellite.limit.raise"), () -> sendNumber(ResonanceActionPayload.LIMIT, step(1))));
-    }
-
-    private void sendNumber(int action, int value) {
-        send(action, null, Integer.toString(value));
-    }
-
-    private int step(int direction) {
-        int current = this.menu.getLimit();
-        int max = NTConfig.satelliteTransferLimit;
-        if (direction > 0) {
-            for (int value : LIMITS) {
-                if (value > current) {
-                    return Math.min(value, max);
-                }
-            }
-            return max;
-        }
-        int result = 0;
-        for (int value : LIMITS) {
-            if (value < current) {
-                result = value;
-            }
-        }
-        return Math.min(result, max);
     }
 
     private String statusKey() {
@@ -97,10 +44,10 @@ public class SatelliteArrayScreen extends ResonanceNetworkScreen<SatelliteArrayM
     protected void extractReadout(GuiGraphics graphics, int tx, int ty, ResonanceSyncPayload.@Nullable NetworkView view) {
         boolean online = this.menu.getStatus() == SatelliteArrayBlockEntity.STATUS_ONLINE;
         graphics.drawString(this.font, Component.translatable(statusKey()), tx + 9, ty - 10, online ? READOUT : READOUT_DIM, false);
-        Component kind = Component.translatable(this.menu.isUplink() ? "nautec.satellite.kind.uplink" : "nautec.satellite.kind.downlink");
+        Component kind = Component.translatable("nautec.satellite.kind.uplink");
         graphics.drawString(this.font, kind, IMAGE_WIDTH - 13 - this.font.width(kind), ty - 10, READOUT_DIM, false);
         String purity = String.format(Locale.ROOT, "%.2f", this.menu.getPurity());
-        graphics.drawString(this.font, Component.translatable(this.menu.isUplink() ? "nautec.satellite.sending" : "nautec.satellite.receiving",
+        graphics.drawString(this.font, Component.translatable("nautec.satellite.sending",
                 number(this.menu.getPower()), purity), tx, ty + 2, READOUT, false);
         graphics.drawString(this.font, Component.translatable("nautec.satellite.stored", compact(this.menu.getAp()), compact(NTConfig.satelliteApBuffer),
                 compact(this.menu.getFe()), compact(NTConfig.satelliteFeBuffer)), tx, ty + 13, READOUT_DIM, false);
@@ -113,9 +60,9 @@ public class SatelliteArrayScreen extends ResonanceNetworkScreen<SatelliteArrayM
         }
         lines.add(Component.translatable(statusKey()));
         lines.add(Component.translatable(statusKey() + ".desc").withStyle(ChatFormatting.GRAY));
-        lines.add(Component.translatable("nautec.satellite.links", this.menu.getUplinks(), this.menu.getDownlinks(), this.menu.getNodes()).withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("nautec.satellite.links", this.menu.getUplinks(), this.menu.getNodes()).withStyle(ChatFormatting.GRAY));
         lines.add(Component.translatable("nautec.satellite.loss.desc", Math.round(NTConfig.satelliteLoss * 100)).withStyle(ChatFormatting.GRAY));
-        lines.add(Component.translatable(this.menu.isUplink() ? "nautec.satellite.buffer.uplink" : "nautec.satellite.buffer.downlink").withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("nautec.satellite.buffer.uplink").withStyle(ChatFormatting.GRAY));
         return true;
     }
 }

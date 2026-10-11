@@ -3,7 +3,7 @@ package com.breakinblocks.nautec.content.menus;
 import com.breakinblocks.nautec.api.menu.NTMachineMenu;
 import com.breakinblocks.nautec.capabilities.item.ItemStackHandler;
 import com.breakinblocks.nautec.content.blockentities.EnergyConverterBlockEntity;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
+import com.breakinblocks.nautec.utils.DataSlots;
 import com.breakinblocks.nautec.registries.NTMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -43,7 +43,7 @@ public class EnergyConverterMenu extends NTMachineMenu<EnergyConverterBlockEntit
     }
 
     private int wide(int index) {
-        return ResonancePylonBlockEntity.join(data.get(index), data.get(index + 1));
+        return DataSlots.join(data.get(index), data.get(index + 1));
     }
 
     public int getRate() {

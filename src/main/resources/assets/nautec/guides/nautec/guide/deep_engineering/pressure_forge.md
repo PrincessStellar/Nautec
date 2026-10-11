@@ -69,7 +69,7 @@ A synthesizer fitted to the Forge stands in for the deep water, so you can build
 
 You need a working Forge under real water first, since the Flawless Prismarine Crystal comes out of one.
 
-<Color id="gold">Tip</Color>: Laser beams pass through water. A <ItemLink id="bacterial_fuel_cell"/> at full purity (2.5) covers all three recipes, and so does a <ItemLink id="prismarine_crystal"/> behind one [Prismatic Mirror](beam_optics.md) (3.0 x 0.9 = 2.7).
+<Color id="gold">Tip</Color>: Laser beams pass through water. A <ItemLink id="bacterial_fuel_cell"/> at full purity (2.5) covers all three recipes, and so does a <ItemLink id="prismarine_crystal"/> (3.0), routed through relays or a [Laser Junction](nautec:laser_chemistry/laser_manipulation.md) to turn corners.
 
 ***
 

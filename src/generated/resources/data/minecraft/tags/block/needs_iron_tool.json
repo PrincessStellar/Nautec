@@ -2,11 +2,9 @@
   "values": [
     "nautec:thermal_vent_tap",
     "nautec:combustion_dynamo",
-    "nautec:resonance_pylon",
     "nautec:resonance_node",
     "nautec:prismatic_emitter",
     "nautec:uplink_array",
-    "nautec:downlink_array",
     "nautec:satellite_array_top"
   ]
 }

@@ -30,7 +30,7 @@ import java.util.function.IntUnaryOperator;
 
 @EventBusSubscriber(modid = Nautec.MODID)
 public final class SatelliteGrid {
-    public static final Link EMPTY = new Link(0, 0F, 0, 0, 0, 0);
+    public static final Link EMPTY = new Link(0, 0F, 0, 0);
 
     private static final Map<UUID, Set<SatelliteArrayBlockEntity>> ARRAYS = new HashMap<>();
     private static final Map<UUID, Set<ResonanceNodeBlockEntity>> NODES = new HashMap<>();
@@ -40,7 +40,7 @@ public final class SatelliteGrid {
     private SatelliteGrid() {
     }
 
-    public record Link(int total, float purity, int share, int uplinks, int downlinks, int nodes) {
+    public record Link(int total, float purity, int uplinks, int nodes) {
     }
 
     private record Cached(long tick, Link link) {
@@ -125,20 +125,12 @@ public final class SatelliteGrid {
         long total = 0;
         double weighted = 0;
         int uplinks = 0;
-        int downlinks = 0;
         for (SatelliteArrayBlockEntity array : members) {
-            if (array.isRemoved()) {
-                continue;
-            }
-            if (array.isUplink()) {
-                if (array.transmitting()) {
-                    uplinks++;
-                    int power = Math.max(0, array.getPower());
-                    total += power;
-                    weighted += (double) power * array.getPurity();
-                }
-            } else if (array.hasSky()) {
-                downlinks++;
+            if (!array.isRemoved() && array.transmitting()) {
+                uplinks++;
+                int power = Math.max(0, array.getPower());
+                total += power;
+                weighted += (double) power * array.getPurity();
             }
         }
         int outputs = 0;
@@ -149,8 +141,7 @@ public final class SatelliteGrid {
         }
         int capped = (int) Math.min(Integer.MAX_VALUE, total);
         float purity = total > 0 ? (float) (weighted / total) : 0F;
-        int share = downlinks == 0 || uplinks == 0 ? 0 : (int) Math.floor(capped * (1.0 - NTConfig.satelliteLoss) / downlinks);
-        return new Link(capped, purity, share, uplinks, downlinks, outputs);
+        return new Link(capped, purity, uplinks, outputs);
     }
 
     @SubscribeEvent
@@ -207,10 +198,7 @@ public final class SatelliteGrid {
                 if (tuning == null) {
                     continue;
                 }
-                int satellite = charmDelivered.getOrDefault(charm.getKey(), 0);
-                int budget = NTConfig.charmTransferRate * ResonanceCharmItem.INTERVAL - satellite;
-                int pylons = budget > 0 ? ResonanceCharmItem.chargeFromPylons(player, tuning, budget) : 0;
-                if (satellite + pylons > 0) {
+                if (charmDelivered.getOrDefault(charm.getKey(), 0) > 0) {
                     ResonanceCharmItem.charged(player);
                     NTCriteriaTriggers.CHARM_CHARGED.get().trigger(player);
                 }
@@ -221,13 +209,10 @@ public final class SatelliteGrid {
     private static void transfer(List<SatelliteArrayBlockEntity> arrays, List<ResonanceNodeBlockEntity> nodes, List<ServerPlayer> players, long tick,
                                  Map<UUID, Integer> charmDelivered) {
         List<SatelliteArrayBlockEntity> cores = new ArrayList<>();
-        List<SatelliteArrayBlockEntity> downlinks = new ArrayList<>();
         for (SatelliteArrayBlockEntity array : arrays) {
             array.beginTransfer();
             if (array.transmitting()) {
                 cores.add(array);
-            } else if (array.receiving()) {
-                downlinks.add(array);
             }
         }
         List<ResonanceNodeBlockEntity> inputs = new ArrayList<>();
@@ -238,8 +223,8 @@ public final class SatelliteGrid {
         if (!cores.isEmpty()) {
             List<SatelliteArrayBlockEntity> rotated = rotate(cores, tick);
             feedCores(inputs, rotated);
-            moveAp(rotated, downlinks, outputs);
-            moveFe(rotated, downlinks, outputs, players, charmDelivered);
+            moveAp(rotated, outputs);
+            moveFe(rotated, outputs, players, charmDelivered);
         }
         for (SatelliteArrayBlockEntity array : arrays) {
             array.finishTransfer();
@@ -286,7 +271,7 @@ public final class SatelliteGrid {
         }
     }
 
-    private static void moveAp(List<SatelliteArrayBlockEntity> cores, List<SatelliteArrayBlockEntity> downlinks, List<ResonanceNodeBlockEntity> outputs) {
+    private static void moveAp(List<SatelliteArrayBlockEntity> cores, List<ResonanceNodeBlockEntity> outputs) {
         long supply = 0;
         float purity = 0F;
         Set<ResourceKey<Level>> supplied = new HashSet<>();
@@ -299,19 +284,12 @@ public final class SatelliteGrid {
             supply += stored;
             supplied.add(core.dimension());
         }
-        if (supply <= 0 || (downlinks.isEmpty() && outputs.isEmpty())) {
+        if (supply <= 0 || outputs.isEmpty()) {
             return;
         }
         float local = purity;
         float remote = crossDimension(purity);
         List<Receiver> receivers = new ArrayList<>();
-        for (SatelliteArrayBlockEntity downlink : downlinks) {
-            float given = supplied.contains(downlink.dimension()) ? local : remote;
-            receivers.add(receiver(downlink.getPriority(), downlink.apDemand(), amount -> {
-                downlink.giveAp(amount, given);
-                return amount;
-            }));
-        }
         for (ResonanceNodeBlockEntity node : outputs) {
             float given = supplied.contains(node.dimension()) ? local : remote;
             receivers.add(receiver(node.getPriority(), node.apDemand(), amount -> {
@@ -329,22 +307,16 @@ public final class SatelliteGrid {
         }
     }
 
-    private static void moveFe(List<SatelliteArrayBlockEntity> cores, List<SatelliteArrayBlockEntity> downlinks, List<ResonanceNodeBlockEntity> outputs,
-                               List<ServerPlayer> players, Map<UUID, Integer> charmDelivered) {
+    private static void moveFe(List<SatelliteArrayBlockEntity> cores, List<ResonanceNodeBlockEntity> outputs, List<ServerPlayer> players,
+                               Map<UUID, Integer> charmDelivered) {
         long supply = 0;
         for (SatelliteArrayBlockEntity core : cores) {
             supply += core.getEnergy().getAmountAsInt();
         }
-        if (supply <= 0 || (downlinks.isEmpty() && outputs.isEmpty() && players.isEmpty())) {
+        if (supply <= 0 || (outputs.isEmpty() && players.isEmpty())) {
             return;
         }
         List<Receiver> receivers = new ArrayList<>();
-        for (SatelliteArrayBlockEntity downlink : downlinks) {
-            receivers.add(receiver(downlink.getPriority(), downlink.feDemand(), amount -> {
-                downlink.giveFe(amount);
-                return amount;
-            }));
-        }
         for (ResonanceNodeBlockEntity node : outputs) {
             receivers.add(receiver(node.getPriority(), node.feDemand(), amount -> {
                 node.giveFe(amount);

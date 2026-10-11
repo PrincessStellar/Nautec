@@ -5,7 +5,7 @@ import com.breakinblocks.nautec.api.menu.NTMachineMenu;
 import com.breakinblocks.nautec.api.menu.slots.SlotFluidHandler;
 import com.breakinblocks.nautec.content.blockentities.GraftingStationBlockEntity;
 import com.breakinblocks.nautec.registries.NTMenuTypes;
-import com.breakinblocks.nautec.content.resonance.ResonancePylonBlockEntity;
+import com.breakinblocks.nautec.utils.DataSlots;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerData;
@@ -59,11 +59,11 @@ public class GraftingStationMenu extends NTMachineMenu<GraftingStationBlockEntit
     }
 
     public int getProgress() {
-        return ResonancePylonBlockEntity.join(data.get(GraftingStationBlockEntity.DATA_PROGRESS), data.get(GraftingStationBlockEntity.DATA_PROGRESS + 1));
+        return DataSlots.join(data.get(GraftingStationBlockEntity.DATA_PROGRESS), data.get(GraftingStationBlockEntity.DATA_PROGRESS + 1));
     }
 
     public int getDuration() {
-        return Math.max(1, ResonancePylonBlockEntity.join(data.get(GraftingStationBlockEntity.DATA_DURATION),
+        return Math.max(1, DataSlots.join(data.get(GraftingStationBlockEntity.DATA_DURATION),
                 data.get(GraftingStationBlockEntity.DATA_DURATION + 1)));
     }
 
@@ -72,6 +72,6 @@ public class GraftingStationMenu extends NTMachineMenu<GraftingStationBlockEntit
     }
 
     public int getRequiredPower() {
-        return ResonancePylonBlockEntity.join(data.get(GraftingStationBlockEntity.DATA_POWER), data.get(GraftingStationBlockEntity.DATA_POWER + 1));
+        return DataSlots.join(data.get(GraftingStationBlockEntity.DATA_POWER), data.get(GraftingStationBlockEntity.DATA_POWER + 1));
     }
 }

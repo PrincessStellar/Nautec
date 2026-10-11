@@ -1,7 +1,0 @@
-{
-  "parent": "nautec:block/biome_tank",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "plant": "minecraft:item/glow_berries"
-  }
-}

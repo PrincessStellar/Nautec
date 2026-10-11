@@ -118,17 +118,15 @@ public class NTAdvancements implements AdvancementSubProvider {
                 Map.of("tap", has(NTBlocks.THERMAL_VENT_TAP)));
         task(vent, "fusion_ignition", NTBlocks.FUSION_CONTROLLER, AdvancementType.GOAL, 50,
                 Map.of("running", player(NTCriteriaTriggers.FUSION_RUNNING.get(), null)));
-        AdvancementHolder network = task(tidal, "resonance_network", NTBlocks.RESONANCE_PYLON, AdvancementType.TASK, 0,
+        AdvancementHolder network = task(tidal, "resonance_network", NTBlocks.RESONANCE_NODE, AdvancementType.TASK, 0,
                 Map.of("created", player(NTCriteriaTriggers.RESONANCE_NETWORK.get(), null)));
-        task(network, "abyssal_pylon", NTBlocks.ABYSSAL_PYLON, AdvancementType.GOAL, 50,
-                Map.of("pylon", has(NTBlocks.ABYSSAL_PYLON)));
         task(network, "prismatic_emitter", NTBlocks.PRISMATIC_EMITTER, AdvancementType.TASK, 0,
                 Map.of("linked", player(NTCriteriaTriggers.EMITTER_LINKED.get(), null)));
         task(network, "resonance_charm", NTItems.RESONANCE_CHARM, AdvancementType.TASK, 0,
                 Map.of("charged", player(NTCriteriaTriggers.CHARM_CHARGED.get(), null)));
         AdvancementHolder launched = task(network, "satellite_launch", NTItems.PRISM_SATELLITE, AdvancementType.GOAL, 50,
                 Map.of("launched", player(NTCriteriaTriggers.SATELLITE_LAUNCHED.get(), null)));
-        task(launched, "orbital_relay", NTBlocks.DOWNLINK_ARRAY, AdvancementType.CHALLENGE, 100,
+        task(launched, "orbital_relay", NTBlocks.RESONANCE_NODE, AdvancementType.CHALLENGE, 100,
                 Map.of("relay", player(NTCriteriaTriggers.SATELLITE_RELAY.get(), null)));
 
         AdvancementHolder culture = task(root, "first_culture", NTItems.GRAFTING_TOOL, AdvancementType.TASK, 0,

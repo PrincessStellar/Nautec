@@ -18,7 +18,7 @@ item_ids:
 
 NauTec machines run on laser power, measured in AP per tick (AP/t). A beam carries two values: its power, and its purity. Machines use the power to run, and recipes check the purity before they start.
 
-A beam only forms between two laser blocks. The sending block needs something on that side that accepts a beam (a machine, a relay, an optic), no more than 16 blocks away (`laserDistance` in `config/nautec-common.toml`), with no solid block in between. Beams pass through water.
+A beam only forms between two laser blocks. The sending block needs something on that side that accepts a beam (a machine, a relay, a junction, a lens), no more than 16 blocks away (`laserDistance` in `config/nautec-common.toml`), or 64 from a relay, with no solid block in between. Beams pass through water.
 
 ***
 
@@ -77,8 +77,7 @@ The crystal stays where it generated, so build around it. An Aquarine Steel Pick
 ## <Color id="gold">Moving Power</Color>
 
 * [Laser Manipulation](nautec:laser_chemistry/laser_manipulation.md): the Prismarine Laser Relay passes a beam on, and the Laser Junction merges and splits beams.
-* [Beam Optics](nautec:deep_engineering/beam_optics.md): mirrors, splitters and lenses.
-* [Long Distance Laser](nautec:laser_augmentation/long_distance_laser.md): for beams longer than 16 blocks.
+* [Beam Optics](nautec:deep_engineering/beam_optics.md): the Focusing Lens, for raising purity.
 * [Charger](nautec:laser_chemistry/charger.md) and [Prismatic Battery](nautec:laser_chemistry/prismatic_battery.md): storing power in items.
 
 Wear a <ItemLink id="prism_monocle"/> to read the power and purity arriving at any laser block.
