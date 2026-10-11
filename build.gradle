@@ -207,6 +207,7 @@ publishing {
     publications {
         register('mavenJava', MavenPublication) {
             artifactId = mod_id
+            version = "${minecraft_version}-${project.version}"
             from components.java
         }
     }
