@@ -13,6 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -121,6 +122,22 @@ public final class CatalystFeedbackTests {
                 helper.assertTrue(!catalystState(helper).getValue(AquaticCatalystBlock.LINKED), "lamp should be red while waiting");
                 helper.succeed();
             });
+        });
+
+        r.add("catalyst_feedback/empty_off_hand_keeps_fed_fuel", 20, helper -> {
+            AquaticCatalystBlockEntity catalyst = placeCatalyst(helper);
+            Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+            player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.PRISMARINE_CRYSTALS, 4));
+            BlockPos absolute = helper.absolutePos(CATALYST_POS);
+            BlockHitResult hit = new BlockHitResult(absolute.getCenter(), Direction.UP, absolute, false);
+            BlockState state = helper.getLevel().getBlockState(absolute);
+            ItemInteractionResult fed = state.useItemOn(player.getMainHandItem(), helper.getLevel(), player, InteractionHand.MAIN_HAND, hit);
+            ItemInteractionResult offHand = state.useItemOn(player.getOffhandItem(), helper.getLevel(), player, InteractionHand.OFF_HAND, hit);
+            helper.assertTrue(fed.consumesAction(), "main hand fuel is taken");
+            helper.assertTrue(!offHand.consumesAction(), "an empty off hand does nothing");
+            helper.assertValueEqual(4, catalyst.getItemStackHandler().getStackInSlot(0).getCount(), "fuel stays in the catalyst");
+            helper.assertTrue(player.getMainHandItem().isEmpty(), "fuel left the main hand");
+            helper.succeed();
         });
 
         r.add("catalyst_feedback/backwards_relay_reported_then_fixed", 120, helper -> {
