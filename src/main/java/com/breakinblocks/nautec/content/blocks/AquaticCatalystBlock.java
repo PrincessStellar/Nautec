@@ -92,6 +92,8 @@ public class AquaticCatalystBlock extends LaserBlock implements DisplayBlock {
 
                 return InteractionResult.SUCCESS;
             }
+        } else if (hand != InteractionHand.MAIN_HAND) {
+            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
         } else if (player.isShiftKeyDown()) {
             if (!level.isClientSide()) {
                 be.diagnosticLines().forEach(player::sendSystemMessage);
