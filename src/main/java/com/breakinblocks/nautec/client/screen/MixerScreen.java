@@ -7,6 +7,8 @@ import com.breakinblocks.nautec.content.blockentities.MixerBlockEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
+import com.breakinblocks.nautec.api.client.screen.RecipeAreaHost;
+
 import java.util.List;
 
 public class MixerScreen extends NTMachineScreen<MixerBlockEntity> {
@@ -39,7 +41,12 @@ public class MixerScreen extends NTMachineScreen<MixerBlockEntity> {
             Component line = menu.blockEntity.getMaxDuration() > 0
                     ? Component.translatable("nautec.mixer.progress", Math.round(progress() * 100))
                     : Component.translatable("nautec.mixer.idle");
-            guiGraphics.setComponentTooltipForNextFrame(font, List.of(line), mouseX, mouseY);
+            guiGraphics.setComponentTooltipForNextFrame(font, RecipeAreaHost.withRecipeHint(List.of(line)), mouseX, mouseY);
         }
+    }
+
+    @Override
+    public List<RecipeArea> recipeAreas() {
+        return List.of(new RecipeArea(BAR_X - 1, BAR_Y - 1, BAR_WIDTH + 2, BAR_HEIGHT + 2, true));
     }
 }

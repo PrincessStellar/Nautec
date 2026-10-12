@@ -34,7 +34,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import java.text.NumberFormat;
 import java.util.List;
 
-public abstract class NTMachineScreen<T extends ContainerBlockEntity> extends AbstractContainerScreen<NTMachineMenu<T>> implements SideConfigHost {
+public abstract class NTMachineScreen<T extends ContainerBlockEntity> extends AbstractContainerScreen<NTMachineMenu<T>> implements SideConfigHost, RecipeAreaHost {
     private static final Identifier BACTERIA_OVERLAY_TEXTURE = Nautec.rl("textures/item/petri_dish_overlay.png");
     private static final Identifier DISH_TEXTURE = Nautec.rl("textures/item/petri_dish.png");
     private static final int DISH_GHOST = 0x66FFFFFF;
@@ -53,6 +53,16 @@ public abstract class NTMachineScreen<T extends ContainerBlockEntity> extends Ab
         super(menu, playerInventory, title, imageWidth, imageHeight);
 
         this.titleLabelY = 6;
+    }
+
+    @Override
+    public List<RecipeArea> recipeAreas() {
+        return List.of();
+    }
+
+    @Override
+    public ItemStack recipeCatalyst() {
+        return new ItemStack(this.menu.blockEntity.getBlockState().getBlock());
     }
 
     @Override

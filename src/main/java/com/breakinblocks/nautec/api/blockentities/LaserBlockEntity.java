@@ -124,6 +124,41 @@ public abstract class LaserBlockEntity extends ContainerBlockEntity {
         return powerToTransfer;
     }
 
+    public int apSent() {
+        int sent = 0;
+        for (Direction direction : getLaserOutputs()) {
+            if (this.laserDistances.getInt(direction) > 0 && !loopsBack(direction)) {
+                sent += Math.max(0, outgoingPower(direction));
+            }
+        }
+        return sent;
+    }
+
+    public float apSentPurity() {
+        for (Direction direction : getLaserOutputs()) {
+            if (this.laserDistances.getInt(direction) > 0 && !loopsBack(direction) && outgoingPower(direction) > 0) {
+                return outgoingPurity(direction);
+            }
+        }
+        return 0F;
+    }
+
+    public boolean receivesAp() {
+        return !getLaserInputs().isEmpty();
+    }
+
+    public boolean sendsAp() {
+        return !getPotentialLaserOutputs().isEmpty();
+    }
+
+    public int apStored() {
+        return 0;
+    }
+
+    public int apCapacity() {
+        return 0;
+    }
+
     public void transmitPower(int amount) {
         this.powerToTransfer = amount;
     }

@@ -49,7 +49,9 @@ The recipes are also shown in JEI. See [Deep Materials](materials.md) for what t
 
 ## <Color id="gold">Using It</Color>
 
-Right-click with an item to put it in, and with an <ItemLink id="etching_acid_bucket"/> to fill the tank. Right-click with an empty hand to take the output, or the input when the output slot is empty.
+Right-click with an empty hand to open the Forge. Its screen holds the input, the output, the acid tank and the synthesizer slot, with a progress arrow between input and output. Below them a checklist shows each requirement in green or red with its current value: depth, water above, beam power, beam purity against the recipe, and Etching Acid. Hover a line for what it needs. Click the arrow to see the Forge's recipes in JEI.
+
+You can still right-click with a forgeable item to put it in, and with an <ItemLink id="etching_acid_bucket"/> to fill the tank.
 
 Hoppers and pipes can put items and Etching Acid in and take finished items out, through any face by default. [Side Configuration](nautec:getting_started/utilities.md) sets each face separately for items and fluids. Since the top has to stay under water, feed it from the sides. The Forge presses one item at a time and only finishes a press when there is room in the output slot.
 
@@ -57,7 +59,7 @@ Look at it through a <ItemLink id="prism_monocle"/> to check it. It shows "Under
 
 ## <Color id="gold">Pressure Synthesizers</Color>
 
-A synthesizer fitted to the Forge stands in for the deep water, so you can build the Forge somewhere that looks the way you want. Right-click the Forge with one to fit it. Sneak and right-click with an empty hand to take it off. Fitting a different one swaps them and hands the old one back, and breaking the Forge drops whatever is fitted. A <ItemLink id="prism_monocle"/> shows which one is fitted.
+A synthesizer fitted to the Forge stands in for the deep water, so you can build the Forge somewhere that looks the way you want. Right-click the Forge with one, or place it in the synthesizer slot of its screen, to fit it. Take it out of that slot, or sneak and right-click with an empty hand, to take it off. Fitting a different one swaps them and hands the old one back, and breaking the Forge drops whatever is fitted. A <ItemLink id="prism_monocle"/> shows which one is fitted.
 
 <Row>
   <ItemImage id="pressure_synthesizer"/>

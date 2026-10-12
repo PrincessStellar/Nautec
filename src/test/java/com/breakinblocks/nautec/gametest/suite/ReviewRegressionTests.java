@@ -6,6 +6,7 @@ import com.breakinblocks.nautec.NTConfig;
 import com.breakinblocks.nautec.content.blockentities.multiblock.controller.AugmentationStationBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.multiblock.part.AugmentationStationExtensionBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.PressureForgeBlockEntity;
+import com.breakinblocks.nautec.content.menus.PressureForgeMenu;
 import com.breakinblocks.nautec.content.menus.IncubatorMenu;
 import com.breakinblocks.nautec.network.StartAugmentationPayload;
 import com.breakinblocks.nautec.network.ClearAugmentPayload;
@@ -345,16 +346,20 @@ public final class ReviewRegressionTests {
             helper.assertTrue(forge.getItemStackHandler().getStackInSlot(1).isEmpty(), "extraction removes output");
             helper.succeed();
         });
-        tests.put("pressure_forge_output_accessible_by_hand", helper -> {
+        tests.put("pressure_forge_output_taken_through_its_screen", helper -> {
             BlockPos pos = new BlockPos(4, 1, 4);
             helper.setBlock(pos, NTBlocks.PRESSURE_FORGE.get());
             var forge = helper.getBlockEntity(pos, PressureForgeBlockEntity.class);
             forge.getItemStackHandler().setStackInSlot(1, NTItems.AQUARINE_STEEL_INGOT.toStack());
             Player player = recipient(helper);
             BlockPos absolute = helper.absolutePos(pos);
-            forge.getBlockState().useWithoutItem(helper.getLevel(), player, new BlockHitResult(absolute.getCenter(), Direction.UP, absolute, false));
-            helper.assertTrue(forge.getItemStackHandler().getStackInSlot(1).isEmpty(), "manual interaction removes output");
-            helper.assertTrue(player.getInventory().contains(NTItems.AQUARINE_STEEL_INGOT.toStack()), "player receives output");
+            InteractionResult result = forge.getBlockState().useWithoutItem(helper.getLevel(), player, new BlockHitResult(absolute.getCenter(), Direction.UP, absolute, false));
+            helper.assertTrue(result.consumesAction(), "an empty hand opens the forge");
+            helper.assertFalse(forge.getItemStackHandler().getStackInSlot(1).isEmpty(), "opening the forge leaves the output in place");
+            PressureForgeMenu menu = new PressureForgeMenu(0, player.getInventory(), forge);
+            ItemStack taken = menu.getSlot(38).remove(64);
+            helper.assertTrue(taken.is(NTItems.AQUARINE_STEEL_INGOT.get()), "the output slot hands the item over");
+            helper.assertTrue(forge.getItemStackHandler().getStackInSlot(1).isEmpty(), "and empties the forge's output");
             helper.succeed();
         });
         for (String interruption : List.of("leaves_fluid", "removed")) {

@@ -10,6 +10,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -62,7 +63,10 @@ public class PressureForgeBlock extends LaserBlock {
         if (FluidUtil.interactWithFluidHandler(player, hand, pos, forge.getFluidTank(), null)) {
             return InteractionResult.SUCCESS;
         }
-        return ItemUtils.insertHeldItem(forge.getItemHandler(), 0, stack, player, hand);
+        if (level instanceof ServerLevel serverLevel && PressureForgeBlockEntity.isInput(serverLevel, stack)) {
+            return ItemUtils.insertHeldItem(forge.getItemHandler(), 0, stack, player, hand);
+        }
+        return InteractionResult.TRY_WITH_EMPTY_HAND;
     }
 
     @Override
@@ -78,8 +82,8 @@ public class PressureForgeBlock extends LaserBlock {
             level.playSound(null, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 1.0F, 0.8F);
             return InteractionResult.SUCCESS;
         }
-        int slot = forge.getItemStackHandler().getStackInSlot(1).isEmpty() ? 0 : 1;
-        return ItemUtils.extractItemToPlayer(forge.getItemHandler(), slot, player);
+        player.openMenu(forge, pos);
+        return InteractionResult.SUCCESS;
     }
 
     private static InteractionResult fitSynthesizer(PressureForgeBlockEntity forge, PressureSynthesizerItem synthesizer, ItemStack stack,

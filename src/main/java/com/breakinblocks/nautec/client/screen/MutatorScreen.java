@@ -51,4 +51,9 @@ public class MutatorScreen extends NTMachineScreen<MutatorBlockEntity> {
                             .withStyle(ChatFormatting.GRAY)), mouseX, mouseY);
         }
     }
+
+    @Override
+    public List<RecipeArea> recipeAreas() {
+        return List.of(new RecipeArea(56, 36, 62, 14, false));
+    }
 }

@@ -1,6 +1,7 @@
 package com.breakinblocks.nautec.registries;
 
 import com.breakinblocks.nautec.content.menus.ConduitTapMenu;
+import com.breakinblocks.nautec.content.menus.PressureForgeMenu;
 import com.breakinblocks.nautec.content.menus.ResonantCisternMenu;
 import com.breakinblocks.nautec.content.menus.ResonantVaultMenu;
 import com.breakinblocks.nautec.content.dishstorage.DishStorageMenu;
@@ -54,6 +55,7 @@ public final class NTMenuTypes {
     public static final Supplier<MenuType<ColonyReplicatorMenu>> COLONY_REPLICATOR = registerMenuType(ColonyReplicatorMenu::new, "colony_replicator");
     public static final Supplier<MenuType<BubbleAnchorMenu>> BUBBLE_ANCHOR = registerMenuType(BubbleAnchorMenu::new, "bubble_anchor");
     public static final Supplier<MenuType<EnergyConverterMenu>> ENERGY_CONVERTER = registerMenuType(EnergyConverterMenu::new, "energy_converter");
+    public static final Supplier<MenuType<PressureForgeMenu>> PRESSURE_FORGE = registerMenuType(PressureForgeMenu::new, "pressure_forge");
     public static final Supplier<MenuType<DistributorMenu>> DISTRIBUTOR = registerMenuType(DistributorMenu::new, "nautechnical_distributor");
     public static final Supplier<MenuType<AdvancedBacterialAnalyzerMenu>> ADVANCED_BACTERIAL_ANALYZER = registerMenuType(AdvancedBacterialAnalyzerMenu::new, "advanced_bacterial_analyzer");
     public static final Supplier<MenuType<GraftingStationMenu>> GRAFTING_STATION = registerMenuType(GraftingStationMenu::new, "grafting_station");

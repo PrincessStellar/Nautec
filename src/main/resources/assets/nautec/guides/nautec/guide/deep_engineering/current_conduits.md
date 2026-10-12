@@ -48,7 +48,7 @@ Right-click a tap with an empty hand to open it. Pick a face on the left, then s
 
 * **Insert:** the network puts this resource into the block.
 * **Extract:** the network takes this resource out of the block. Generators and hoppers can also push into an Extract face.
-* **Both:** takes and gives, but never sends something back to the block it came from.
+* **Extract & Insert:** takes and gives, but never sends something back to the block it came from.
 * **Off:** this face ignores the resource.
 
 New taps start with every face on Insert, so set the source faces to Extract.
@@ -57,7 +57,7 @@ The connector on each block a tap touches shows how that face is set: orange whe
 
 **Priority** runs from -99 to 99. Higher priority destinations fill first. **Distribution** decides what happens between destinations of the same priority: Round Robin takes turns, Nearest First fills the closest, Random picks a different start each move. **Redstone** can make a face run only while the tap is powered, or only while it is not.
 
-A <ItemLink id="configuration_card"/> copies every face of one tap onto another.
+A <ItemLink id="configuration_card"/> copies every face of one tap onto another, along with its upgrade and filter. Pasting takes the upgrade and filter from your inventory and gives back the ones the target tap held.
 
 ***
 

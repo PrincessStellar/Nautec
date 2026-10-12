@@ -17,9 +17,13 @@ import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -38,6 +42,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 public class ThermalVentTapBlockEntity extends FeGeneratorBlockEntity {
     public static final int BUFFER = 100_000;
@@ -140,8 +145,26 @@ public class ThermalVentTapBlockEntity extends FeGeneratorBlockEntity {
         int perSalt = Math.max(1, NTConfig.ventTapSaltWaterPerSalt);
         if (burned >= perSalt) {
             burned -= perSalt;
-            forceInsertItem(0, new ItemStack(NTItems.SALT.get()), false);
+            ItemStack salt = saltByproduct();
+            if (!salt.isEmpty()) {
+                forceInsertItem(0, salt, false);
+            }
         }
+    }
+
+    public static ItemStack saltByproduct() {
+        String id = NTConfig.ventTapSaltItem.trim();
+        if (id.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        Identifier key = Identifier.tryParse(id);
+        if (key != null) {
+            Optional<Item> item = BuiltInRegistries.ITEM.getOptional(key);
+            if (item.isPresent()) {
+                return item.get() == Items.AIR ? ItemStack.EMPTY : new ItemStack(item.get());
+            }
+        }
+        return new ItemStack(NTItems.SALT.get());
     }
 
     private void pushSalt(ServerLevel level) {

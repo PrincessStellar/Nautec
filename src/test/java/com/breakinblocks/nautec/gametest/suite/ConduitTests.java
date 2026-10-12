@@ -16,6 +16,13 @@ import com.breakinblocks.nautec.content.conduits.TapFace;
 import com.breakinblocks.nautec.content.conduits.TapFilter;
 import com.breakinblocks.nautec.content.conduits.TapFlow;
 import com.breakinblocks.nautec.content.conduits.TapSide;
+import com.breakinblocks.nautec.content.items.ConfigurationCardItem;
+import com.breakinblocks.nautec.content.items.MachineSettings;
+import com.breakinblocks.nautec.data.NTDataComponents;
+import com.mojang.authlib.GameProfile;
+import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import com.breakinblocks.nautec.network.ConduitTapEditPayload;
 import com.breakinblocks.nautec.registries.NTBacterias;
 import com.breakinblocks.nautec.registries.NTBlocks;
@@ -48,6 +55,7 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.Set;
+import java.util.UUID;
 
 public final class ConduitTests {
     private static final int Y = 1;
@@ -315,6 +323,59 @@ public final class ConduitTests {
             helper.succeed();
         });
 
+        r.add("conduit/card_moves_upgrades_from_the_inventory", 5, helper -> {
+            line(helper, 2, 6);
+            ConduitTapBlockEntity source = tap(helper, 2);
+            ConduitTapBlockEntity target = tap(helper, 6);
+            source.getItemStackHandler().setStackInSlot(ConduitTapBlockEntity.UPGRADE_SLOT, new ItemStack(NTItems.EDDY_UPGRADE.get()));
+            source.getItemStackHandler().setStackInSlot(ConduitTapBlockEntity.FILTER_SLOT, new ItemStack(NTItems.FILTER.get()));
+            setMode(source, Direction.NORTH, ConduitChannel.ITEMS, FlowMode.EXTRACT);
+            target.getItemStackHandler().setStackInSlot(ConduitTapBlockEntity.UPGRADE_SLOT, new ItemStack(NTItems.SURGE_UPGRADE.get()));
+            MachineSettings card = ConfigurationCardItem.copy(source, helper.getLevel());
+            helper.assertTrue(card != null, "a tap has settings to copy");
+            ServerPlayer player = serverPlayer(helper, "TapPaster");
+
+            helper.assertValueEqual(2, ConfigurationCardItem.missingUpgrades(card, target, player).size(), "missing upgrade and filter");
+            helper.assertTrue(!ConfigurationCardItem.paste(card, target, player), "nothing pastes while the items are missing");
+            helper.assertValueEqual(FlowMode.INSERT, target.face(Direction.NORTH).mode(ConduitChannel.ITEMS), "faces untouched by a refused paste");
+            helper.assertTrue(target.getItemStackHandler().getStackInSlot(ConduitTapBlockEntity.UPGRADE_SLOT).is(NTItems.SURGE_UPGRADE.get()), "upgrade untouched by a refused paste");
+
+            player.getInventory().add(new ItemStack(NTItems.EDDY_UPGRADE.get()));
+            player.getInventory().add(new ItemStack(NTItems.FILTER.get()));
+            helper.assertTrue(ConfigurationCardItem.missingUpgrades(card, target, player).isEmpty(), "nothing missing once carried");
+            helper.assertTrue(ConfigurationCardItem.paste(card, target, player), "the paste goes through");
+            helper.assertTrue(target.getItemStackHandler().getStackInSlot(ConduitTapBlockEntity.UPGRADE_SLOT).is(NTItems.EDDY_UPGRADE.get()), "upgrade moved in");
+            helper.assertTrue(target.getItemStackHandler().getStackInSlot(ConduitTapBlockEntity.FILTER_SLOT).is(NTItems.FILTER.get()), "filter moved in");
+            helper.assertTrue(target.hasFilterUpgrade(), "the tap reads its new filter");
+            helper.assertValueEqual(FlowMode.EXTRACT, target.face(Direction.NORTH).mode(ConduitChannel.ITEMS), "faces pasted");
+            helper.assertValueEqual(0, player.getInventory().countItem(NTItems.EDDY_UPGRADE.get()), "upgrade taken from the inventory");
+            helper.assertValueEqual(0, player.getInventory().countItem(NTItems.FILTER.get()), "filter taken from the inventory");
+            helper.assertValueEqual(1, player.getInventory().countItem(NTItems.SURGE_UPGRADE.get()), "the replaced upgrade is handed back");
+            helper.assertTrue(source.getItemStackHandler().getStackInSlot(ConduitTapBlockEntity.UPGRADE_SLOT).is(NTItems.EDDY_UPGRADE.get()), "the source keeps its upgrade");
+            helper.succeed();
+        });
+
+        r.add("conduit/card_click_on_a_waterlogged_tap_pastes", 5, helper -> {
+            line(helper, 2, 6);
+            ConduitTapBlockEntity source = tap(helper, 2);
+            BlockPos targetPos = tapAt(helper, 6);
+            ServerLevel level = helper.getLevel();
+            level.setBlock(targetPos, level.getBlockState(targetPos).setValue(BlockStateProperties.WATERLOGGED, true), Block.UPDATE_ALL);
+            ConduitTapBlockEntity target = (ConduitTapBlockEntity) level.getBlockEntity(targetPos);
+            setMode(source, Direction.SOUTH, ConduitChannel.FLUIDS, FlowMode.BOTH);
+            ItemStack card = new ItemStack(NTItems.CONFIGURATION_CARD.get());
+            card.set(NTDataComponents.MACHINE_SETTINGS.get(), ConfigurationCardItem.copy(source, level));
+            ServerPlayer player = serverPlayer(helper, "WetPaster");
+            player.setItemInHand(InteractionHand.MAIN_HAND, card);
+            BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(targetPos), Direction.UP, targetPos, false);
+            try {
+                player.gameMode.useItemOn(player, level, card, InteractionHand.MAIN_HAND, hit);
+            } catch (NullPointerException expected) {
+            }
+            helper.assertValueEqual(FlowMode.BOTH, target.face(Direction.SOUTH).mode(ConduitChannel.FLUIDS), "the click pasted instead of opening the tap");
+            helper.succeed();
+        });
+
         r.add("conduit/idle_face_resumes_within_an_interval", 300, helper -> {
             ChestBlockEntity[] chests = chestLine(helper);
             ConduitTapBlockEntity source = tap(helper, 1);
@@ -435,6 +496,13 @@ public final class ConduitTests {
             ConduitWrenching.convert(level, pos, level.getBlockState(pos), null);
         }
         return pos;
+    }
+
+    private static ServerPlayer serverPlayer(GameTestHelper helper, String name) {
+        ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(), new GameProfile(UUID.randomUUID(), name),
+                ClientInformation.createDefault());
+        player.getAbilities().instabuild = false;
+        return player;
     }
 
     private static ConduitTapBlockEntity tap(GameTestHelper helper, int x) {

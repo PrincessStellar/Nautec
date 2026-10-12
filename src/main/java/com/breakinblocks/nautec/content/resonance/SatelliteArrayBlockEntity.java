@@ -201,6 +201,31 @@ public class SatelliteArrayBlockEntity extends LaserBlockEntity implements MenuP
         return apPurity;
     }
 
+    @Override
+    public int apStored() {
+        return apStored;
+    }
+
+    @Override
+    public int apCapacity() {
+        return NTConfig.satelliteApBuffer;
+    }
+
+    @Override
+    public boolean sendsAp() {
+        return true;
+    }
+
+    @Override
+    public int apSent() {
+        return relay;
+    }
+
+    @Override
+    public float apSentPurity() {
+        return relayPurity;
+    }
+
     public boolean transmitting() {
         return satellite && sky && networkId != null;
     }

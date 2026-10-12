@@ -2,11 +2,26 @@ package com.breakinblocks.nautec.client.screen;
 
 import com.breakinblocks.nautec.Nautec;
 import com.breakinblocks.nautec.api.bacteria.BacteriaInstance;
+import com.breakinblocks.nautec.api.bacteria.Bacteria;
 import com.breakinblocks.nautec.api.client.screen.NTMachineScreen;
+import com.breakinblocks.nautec.api.client.screen.RecipeAreaHost;
+import com.breakinblocks.nautec.client.ClientRecipes;
+import com.breakinblocks.nautec.content.bacteria.ProductNutrients;
+import com.breakinblocks.nautec.content.recipes.ColonyFeedingRecipe;
+import com.breakinblocks.nautec.utils.BacteriaHelper;
 import com.breakinblocks.nautec.api.menu.NTMachineMenu;
 import com.breakinblocks.nautec.content.blockentities.multiblock.controller.AbstractBioReactorBlockEntity;
 import com.breakinblocks.nautec.content.menus.BioReactorLayout;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.Holder;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -15,7 +30,10 @@ import net.minecraft.world.entity.player.Inventory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 public abstract class AbstractBioReactorScreen<T extends AbstractBioReactorBlockEntity> extends NTMachineScreen<T> {
     public static final Identifier PROGRESS_ARROW = Nautec.rl("container/bio_reactor/progress_arrow");
@@ -24,7 +42,10 @@ public abstract class AbstractBioReactorScreen<T extends AbstractBioReactorBlock
     private static final int STARVING_FILL = 0xFFB8483E;
     private static final int PROGRESS_FILL = 0xFF7FD9A0;
 
+    private static final int NUTRIENT_NAMES = 4;
+
     private final BioReactorLayout layout;
+    private @Nullable List<ColonyFeedingRecipe> feeding;
 
     protected AbstractBioReactorScreen(NTMachineMenu<T> menu, Inventory playerInventory, Component title, BioReactorLayout layout) {
         super(menu, playerInventory, title, layout.imageWidth(), layout.imageHeight());
@@ -122,16 +143,118 @@ public abstract class AbstractBioReactorScreen<T extends AbstractBioReactorBlock
             guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, PROGRESS_ARROW, BioReactorLayout.ARROW_WIDTH, BioReactorLayout.ARROW_HEIGHT,
                     0, 0, this.leftPos + arrow[0], this.topPos + arrow[1], width, BioReactorLayout.ARROW_HEIGHT);
             if (isHovering(arrow[0], arrow[1], BioReactorLayout.ARROW_WIDTH, BioReactorLayout.ARROW_HEIGHT, mouseX, mouseY)) {
-                guiGraphics.setComponentTooltipForNextFrame(this.font, statusTooltip(reactor), mouseX, mouseY);
+                guiGraphics.setComponentTooltipForNextFrame(this.font, RecipeAreaHost.withRecipeHint(statusTooltip(reactor)), mouseX, mouseY);
             }
         }
         if (this.layout.progressArrows() != null) {
             for (int[] arrow : this.layout.progressArrows()) {
                 if (isHovering(arrow[0], arrow[1], BioReactorLayout.ARROW_WIDTH, BioReactorLayout.ARROW_HEIGHT, mouseX, mouseY)) {
-                    guiGraphics.setComponentTooltipForNextFrame(this.font, statusTooltip(reactor), mouseX, mouseY);
+                    guiGraphics.setComponentTooltipForNextFrame(this.font, RecipeAreaHost.withRecipeHint(statusTooltip(reactor)), mouseX, mouseY);
                 }
             }
         }
+        if (this.menu.getCarried().isEmpty()) {
+            for (int i = 0; i < this.layout.nutrients().length; i++) {
+                int[] slot = this.layout.nutrients()[i];
+                if (isHovering(slot[0], slot[1], 16, 16, mouseX, mouseY)
+                        && reactor.getItemStackHandler().getStackInSlot(reactor.nutrientSlot(i)).isEmpty()) {
+                    guiGraphics.setComponentTooltipForNextFrame(this.font, nutrientTooltip(reactor), mouseX, mouseY);
+                }
+            }
+        }
+    }
+
+    @Override
+    public List<RecipeArea> recipeAreas() {
+        List<RecipeArea> areas = new ArrayList<>();
+        if (this.layout.progressArrows() != null) {
+            for (int[] arrow : this.layout.progressArrows()) {
+                areas.add(new RecipeArea(arrow[0], arrow[1], BioReactorLayout.ARROW_WIDTH, BioReactorLayout.ARROW_HEIGHT, true));
+            }
+        }
+        if (this.layout.summaryArrow() != null) {
+            int[] arrow = this.layout.summaryArrow();
+            areas.add(new RecipeArea(arrow[0], arrow[1], BioReactorLayout.ARROW_WIDTH, BioReactorLayout.ARROW_HEIGHT, true));
+        }
+        return areas;
+    }
+
+    private List<ColonyFeedingRecipe> feeding(ClientLevel level) {
+        if (this.feeding == null) {
+            List<ColonyFeedingRecipe> recipes = new ArrayList<>();
+            for (RecipeHolder<ColonyFeedingRecipe> holder : ClientRecipes.get().byType(ColonyFeedingRecipe.TYPE)) {
+                recipes.add(holder.value());
+            }
+            recipes.addAll(ProductNutrients.derive(ClientRecipes.get(), level.registryAccess()).feeding());
+            this.feeding = recipes;
+        }
+        return this.feeding;
+    }
+
+    private List<Component> nutrientTooltip(T reactor) {
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.translatable("nautec.bio_reactor.nutrient").withStyle(ChatFormatting.AQUA));
+        lines.add(Component.translatable("nautec.bio_reactor.nutrient.desc").withStyle(ChatFormatting.GRAY));
+        ClientLevel level = Minecraft.getInstance().level;
+        boolean any = false;
+        if (level != null) {
+            for (int i = 0; i < reactor.getColonySlots(); i++) {
+                BacteriaInstance colony = reactor.getBacteriaStorage().getBacteria(i);
+                if (colony.isEmpty()) {
+                    continue;
+                }
+                any = true;
+                Map<Item, ItemStack> eats = new LinkedHashMap<>();
+                for (ColonyFeedingRecipe recipe : feeding(level)) {
+                    if (!recipe.accepts(colony, level)) {
+                        continue;
+                    }
+                    Optional<Holder<Item>> first = recipe.ingredient().ingredient().items().findFirst();
+                    if (first.isPresent()) {
+                        Item item = first.get().value();
+                        eats.putIfAbsent(item, new ItemStack(item, Math.max(1, recipe.ingredient().count())));
+                    }
+                }
+                lines.add(Component.translatable("nautec.bio_reactor.nutrient.colony", i + 1, colonyName(level, colony), eatsList(eats))
+                        .withStyle(eats.isEmpty() ? ChatFormatting.RED : ChatFormatting.WHITE));
+            }
+        }
+        if (!any) {
+            lines.add(Component.translatable("nautec.bio_reactor.nutrient.no_colony").withStyle(ChatFormatting.GRAY));
+        }
+        return RecipeAreaHost.withRecipeHint(lines);
+    }
+
+    private static Component colonyName(ClientLevel level, BacteriaInstance colony) {
+        Bacteria bacteria = BacteriaHelper.getBacteria(level.registryAccess(), colony.getBacteria());
+        if (bacteria != null) {
+            Item item = bacteria.resource().resolve();
+            if (item != Items.AIR) {
+                return new ItemStack(item).getHoverName();
+            }
+        }
+        return Component.literal(colony.getBacteria().identifier().getPath());
+    }
+
+    private static Component eatsList(Map<Item, ItemStack> eats) {
+        if (eats.isEmpty()) {
+            return Component.translatable("nautec.bio_reactor.nutrient.nothing");
+        }
+        MutableComponent list = Component.empty();
+        int shown = 0;
+        for (ItemStack stack : eats.values()) {
+            if (shown == NUTRIENT_NAMES) {
+                list.append(Component.translatable("nautec.bio_reactor.nutrient.more", eats.size() - NUTRIENT_NAMES));
+                break;
+            }
+            if (shown > 0) {
+                list.append(", ");
+            }
+            list.append(stack.getCount() > 1 ? Component.translatable("nautec.configuration_card.stack", stack.getCount(), stack.getHoverName())
+                    : stack.getHoverName());
+            shown++;
+        }
+        return list;
     }
 
     private static List<Component> vitalityTooltip(AbstractBioReactorBlockEntity reactor, int colony) {

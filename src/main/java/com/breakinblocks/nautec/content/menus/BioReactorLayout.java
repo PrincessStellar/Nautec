@@ -7,18 +7,18 @@ public record BioReactorLayout(int imageWidth, int imageHeight, int inventoryY,
     public static final int ARROW_WIDTH = 24;
     public static final int ARROW_HEIGHT = 10;
 
-    public static final BioReactorLayout BIO_REACTOR = new BioReactorLayout(176, 174, 92,
-            new int[][]{{52, 11}, {52, 33}, {52, 55}},
-            new int[][]{{107, 12}, {107, 34}, {107, 56}},
-            new int[][]{{20, 23}, {20, 45}},
-            new int[][]{{148, 23}, {148, 45}},
-            new int[][]{{47, 12, 3, 16}, {47, 34, 3, 16}, {47, 56, 3, 16}},
-            new int[][]{{76, 16}, {76, 38}, {76, 60}},
+    public static final BioReactorLayout BIO_REACTOR = new BioReactorLayout(176, 192, 110,
+            new int[][]{{52, 21}, {52, 43}, {52, 65}},
+            new int[][]{{107, 22}, {107, 44}, {107, 66}},
+            new int[][]{{20, 33}, {20, 55}},
+            new int[][]{{148, 33}, {148, 55}},
+            new int[][]{{47, 22, 3, 16}, {47, 44, 3, 16}, {47, 66, 3, 16}},
+            new int[][]{{76, 26}, {76, 48}, {76, 70}},
             null,
             null,
-            new int[]{7, 69},
-            new int[]{27, 69},
-            new int[]{148, 67});
+            new int[]{7, 79},
+            new int[]{27, 79},
+            new int[]{148, 77});
 
     public static final BioReactorLayout INDUSTRIAL = industrial();
 

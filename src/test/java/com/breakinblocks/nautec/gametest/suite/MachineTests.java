@@ -13,6 +13,10 @@ import com.breakinblocks.nautec.content.blockentities.OilBarrelBlockEntity;
 import com.breakinblocks.nautec.content.blocks.OilBarrelBlock;
 import com.breakinblocks.nautec.NTConfig;
 import com.breakinblocks.nautec.content.blockentities.PressureForgeBlockEntity;
+import com.breakinblocks.nautec.content.menus.PressureForgeMenu;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.level.GameType;
 import com.breakinblocks.nautec.content.recipes.PressureForgingRecipe;
 import com.breakinblocks.nautec.content.recipes.inputs.PressureForgingRecipeInput;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -56,6 +60,54 @@ public final class MachineTests {
     }
 
     public static void register(NTTestRegistrar r) {
+
+        r.add("machine/pressure_forge_menu_reports_requirements", 20, helper -> {
+            BlockPos pos = new BlockPos(4, 1, 4);
+            helper.setBlock(pos, NTBlocks.PRESSURE_FORGE.get().defaultBlockState());
+            PressureForgeBlockEntity forge = helper.getBlockEntity(pos, PressureForgeBlockEntity.class);
+            Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+            PressureForgeMenu menu = new PressureForgeMenu(0, player.getInventory(), forge);
+            helper.assertValueEqual(PressureForgeBlockEntity.STATUS_EMPTY, menu.getStatus(), "an empty forge is idle");
+            helper.assertFalse(menu.hasRecipe(), "no recipe without an input");
+            forge.getItemStackHandler().setStackInSlot(0, new ItemStack(NTItems.RESONANT_SHARD.get()));
+            helper.runAfterDelay(1, () -> {
+                helper.assertTrue(menu.hasRecipe(), "a resonant shard has a forging recipe");
+                helper.assertValueEqual(2.0F, menu.getRecipePurity(), "the recipe purity reaches the screen");
+                helper.assertValueEqual(Math.min(NTConfig.pressureForgeDepth, -20), menu.getDepthLimit(), "depth limit takes the deeper of config and recipe");
+                helper.assertValueEqual(helper.absolutePos(pos).getY(), menu.getY(), "the forge's own height");
+                helper.assertValueEqual(0, menu.getWater(), "no water above in open air");
+                helper.assertValueEqual(PressureForgeBlockEntity.STATUS_WAITING, menu.getStatus(), "a valid input without power waits");
+                for (int i = 1; i <= NTConfig.pressureForgeWaterColumn; i++) {
+                    helper.setBlock(pos.above(i), Blocks.WATER.defaultBlockState());
+                }
+                helper.runAfterDelay(1, () -> {
+                    helper.assertValueEqual(NTConfig.pressureForgeWaterColumn, menu.getWater(), "the full water column is counted");
+                    helper.succeed();
+                });
+            });
+        });
+
+        r.add("machine/pressure_forge_menu_synthesizer_slot", 5, helper -> {
+            BlockPos pos = new BlockPos(4, 1, 4);
+            helper.setBlock(pos, NTBlocks.PRESSURE_FORGE.get().defaultBlockState());
+            PressureForgeBlockEntity forge = helper.getBlockEntity(pos, PressureForgeBlockEntity.class);
+            Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+            PressureForgeMenu menu = new PressureForgeMenu(0, player.getInventory(), forge);
+            Slot synthesizer = menu.getSlot(36);
+            Slot input = menu.getSlot(37);
+            Slot output = menu.getSlot(38);
+            helper.assertFalse(synthesizer.mayPlace(new ItemStack(Items.STONE)), "only synthesizers fit the synthesizer slot");
+            helper.assertFalse(output.mayPlace(new ItemStack(NTItems.RESONANT_SHARD.get())), "nothing can be placed in the output");
+            helper.assertTrue(input.mayPlace(new ItemStack(NTItems.RESONANT_SHARD.get())), "inputs go in the input slot");
+            synthesizer.set(new ItemStack(NTItems.PRESSURE_SYNTHESIZER.get()));
+            helper.assertValueEqual(PressureForgeBlockEntity.Synthesizer.BASIC, forge.getSynthesizer(), "placing a synthesizer fits it");
+            ItemStack taken = synthesizer.remove(1);
+            helper.assertTrue(taken.is(NTItems.PRESSURE_SYNTHESIZER.get()), "taking it out returns the synthesizer");
+            helper.assertValueEqual(PressureForgeBlockEntity.Synthesizer.NONE, forge.getSynthesizer(), "and leaves the forge without one");
+            helper.assertTrue(PressureForgeBlockEntity.isInput(helper.getLevel(), new ItemStack(NTItems.RESONANT_SHARD.get())), "a recipe input");
+            helper.assertFalse(PressureForgeBlockEntity.isInput(helper.getLevel(), new ItemStack(Items.STONE)), "stone is not a forge input");
+            helper.succeed();
+        });
 
         r.add("machine/pressure_forge_needs_depth_and_water", 40, helper -> helper.runAfterDelay(1, () -> {
             BlockPos dry = new BlockPos(4, 1, 4);

@@ -12,6 +12,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -129,6 +130,23 @@ public final class OceanGeneratorTests {
                 helper.assertTrue(tap.getItemStackHandler().getStackInSlot(0).is(NTItems.SALT.get()), "it leaves salt behind");
                 helper.assertTrue(helper.getBlockState(TAP).getValue(BlockStateProperties.LIT), "it lights up while running");
             });
+        });
+
+        r.add("generators/vent_tap_salt_item_follows_the_config", 5, helper -> {
+            String original = NTConfig.ventTapSaltItem;
+            try {
+                NTConfig.ventTapSaltItem = "minecraft:sugar";
+                helper.assertTrue(ThermalVentTapBlockEntity.saltByproduct().is(Items.SUGAR), "the configured item is used");
+                NTConfig.ventTapSaltItem = "";
+                helper.assertTrue(ThermalVentTapBlockEntity.saltByproduct().isEmpty(), "an empty value leaves nothing behind");
+                NTConfig.ventTapSaltItem = "minecraft:air";
+                helper.assertTrue(ThermalVentTapBlockEntity.saltByproduct().isEmpty(), "air leaves nothing behind");
+                NTConfig.ventTapSaltItem = "nautec:not_an_item";
+                helper.assertTrue(ThermalVentTapBlockEntity.saltByproduct().is(NTItems.SALT.get()), "an unknown id falls back to salt");
+            } finally {
+                NTConfig.ventTapSaltItem = original;
+            }
+            helper.succeed();
         });
 
         r.add("generators/vent_tap_pushes_salt_into_adjacent_inventory", 60, helper -> {

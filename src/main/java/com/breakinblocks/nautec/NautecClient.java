@@ -11,6 +11,7 @@ import com.breakinblocks.nautec.client.screen.ResonanceNodeScreen;
 import com.breakinblocks.nautec.client.screen.ColonyReplicatorScreen;
 import com.breakinblocks.nautec.client.screen.BubbleAnchorScreen;
 import com.breakinblocks.nautec.client.screen.EnergyConverterScreen;
+import com.breakinblocks.nautec.client.screen.PressureForgeScreen;
 import com.breakinblocks.nautec.client.screen.DistributorScreen;
 import com.breakinblocks.nautec.api.client.renderer.blockentities.LaserBlockEntityRenderer;
 import com.breakinblocks.nautec.api.client.renderer.items.AnchorItemRenderer;
@@ -416,6 +417,7 @@ public final class NautecClient {
         event.register(NTMenuTypes.RESONANT_CISTERN.get(), ResonantCisternScreen::new);
         event.register(NTMenuTypes.BUBBLE_ANCHOR.get(), BubbleAnchorScreen::new);
         event.register(NTMenuTypes.ENERGY_CONVERTER.get(), EnergyConverterScreen::new);
+        event.register(NTMenuTypes.PRESSURE_FORGE.get(), PressureForgeScreen::new);
         event.register(NTMenuTypes.COLONY_REPLICATOR.get(), ColonyReplicatorScreen::new);
         event.register(NTMenuTypes.SUBMARINE_MODULES.get(), SubmarineModuleScreen::new);
         event.register(NTMenuTypes.CONFINED_SPAWNER.get(), ConfinedSpawnerScreen::new);

@@ -578,6 +578,10 @@ public abstract class ContainerBlockEntity extends BlockEntity {
         return false;
     }
 
+    public int[] cardSlots() {
+        return new int[0];
+    }
+
     public List<FluidTank> fluidTanks() {
         List<FluidTank> tanks = new ArrayList<>();
         if (fluidTank != null) {
