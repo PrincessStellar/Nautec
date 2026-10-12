@@ -158,6 +158,15 @@ public abstract class AbstractBioReactorBlockEntity extends LaserBlockEntity imp
         return colonies + nutrientSlots + index;
     }
 
+    @Override
+    public int[] cardSlots() {
+        int[] slots = new int[upgradeSlots];
+        for (int i = 0; i < upgradeSlots; i++) {
+            slots[i] = upgradeSlot(i);
+        }
+        return slots;
+    }
+
     public boolean isOutputSlot(int slot) {
         return slot >= 0 && slot < colonies;
     }

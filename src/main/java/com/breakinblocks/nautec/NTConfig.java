@@ -457,6 +457,10 @@ public final class NTConfig {
             .comment("The mB of Salt Water a Thermal Vent Tap boils for each Salt it leaves behind")
             .defineInRange("ventTapSaltWaterPerSalt", 1_000, 1, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.ConfigValue<String> VENT_TAP_SALT_ITEM = BUILDER
+            .comment("The item a Thermal Vent Tap leaves behind for each ventTapSaltWaterPerSalt mB it boils. Leave it empty, or set it to minecraft:air, for none. An id that is not a registered item falls back to nautec:salt")
+            .define("ventTapSaltItem", "nautec:salt", entry -> entry instanceof String);
+
     private static final ModConfigSpec.IntValue COMBUSTION_DYNAMO_OUTPUT = BUILDER
             .comment("The FE per tick a Combustion Dynamo makes while it burns oil and water, before any additive")
             .defineInRange("combustionDynamoOutput", 320, 0, 10_000_000);
@@ -1147,6 +1151,7 @@ public final class NTConfig {
     public static int ventTapMaxOutput = 1_250;
     public static int ventTapSaltWaterPerTick = 10;
     public static int ventTapSaltWaterPerSalt = 1_000;
+    public static String ventTapSaltItem = "nautec:salt";
     public static int combustionDynamoOutput = 320;
     public static int combustionDynamoTicksPerOil = 10;
     public static int combustionDynamoWaterPerTick = 1;
@@ -1474,6 +1479,7 @@ public final class NTConfig {
         ventTapMaxOutput = value(VENT_TAP_MAX_OUTPUT);
         ventTapSaltWaterPerTick = value(VENT_TAP_SALT_WATER_PER_TICK);
         ventTapSaltWaterPerSalt = value(VENT_TAP_SALT_WATER_PER_SALT);
+        ventTapSaltItem = value(VENT_TAP_SALT_ITEM);
         combustionDynamoOutput = value(COMBUSTION_DYNAMO_OUTPUT);
         combustionDynamoTicksPerOil = value(COMBUSTION_DYNAMO_TICKS_PER_OIL);
         combustionDynamoWaterPerTick = value(COMBUSTION_DYNAMO_WATER_PER_TICK);

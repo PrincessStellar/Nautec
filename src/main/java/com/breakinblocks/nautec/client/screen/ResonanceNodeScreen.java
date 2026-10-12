@@ -7,6 +7,7 @@ import com.breakinblocks.nautec.network.ResonanceActionPayload;
 import com.breakinblocks.nautec.network.ResonanceSyncPayload;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +18,6 @@ import java.util.Locale;
 public class ResonanceNodeScreen extends ResonanceNetworkScreen<ResonanceNodeMenu> {
     private static final int ONLINE = 0xFF5FE8B0;
     private static final int OFFLINE = 0xFFE36A5C;
-    private static final int[] LIMITS = {1_000, 5_000, 10_000, 25_000, 50_000, 100_000, 250_000, 500_000, 1_000_000};
 
     public ResonanceNodeScreen(ResonanceNodeMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -45,14 +45,16 @@ public class ResonanceNodeScreen extends ResonanceNetworkScreen<ResonanceNodeMen
 
         int limitLeft = left + 58;
         addRenderableWidget(new PanelButton(limitLeft, y + 4, 12, 14, () -> Component.literal("-"), () -> NEUTRAL, () -> NEUTRAL_HOVER,
-                () -> Component.translatable("nautec.satellite.limit.lower"), () -> sendNumber(ResonanceActionPayload.LIMIT, step(-1))));
+                () -> Component.translatable("nautec.satellite.limit.lower").append("\n")
+                        .append(Component.translatable("nautec.resonance_node.limit.step").withStyle(ChatFormatting.GRAY)), () -> sendNumber(ResonanceActionPayload.LIMIT, step(-1))));
         addRenderableWidget(new PanelButton(limitLeft + 12, y + 4, 42, 14, () -> Component.literal(compact(this.menu.getLimit()) + "/t"),
                 () -> RECEIVE_COLOR, () -> RECEIVE_HOVER,
                 () -> Component.translatable("nautec.satellite.limit", number(this.menu.getLimit()), number(this.menu.getLimit()), number(NTConfig.satelliteTransferLimit))
                         .append("\n").append(Component.translatable("nautec.resonance_node.limit.desc").withStyle(ChatFormatting.GRAY)),
                 () -> sendNumber(ResonanceActionPayload.LIMIT, NTConfig.satelliteTransferLimit)));
         addRenderableWidget(new PanelButton(limitLeft + 54, y + 4, 12, 14, () -> Component.literal("+"), () -> NEUTRAL, () -> NEUTRAL_HOVER,
-                () -> Component.translatable("nautec.satellite.limit.raise"), () -> sendNumber(ResonanceActionPayload.LIMIT, step(1))));
+                () -> Component.translatable("nautec.satellite.limit.raise").append("\n")
+                        .append(Component.translatable("nautec.resonance_node.limit.step").withStyle(ChatFormatting.GRAY)), () -> sendNumber(ResonanceActionPayload.LIMIT, step(1))));
 
         addRenderableWidget(new PanelButton(x + IMAGE_WIDTH - 50, y + READOUT_Y + 3, 40, 12,
                 () -> Component.translatable(this.menu.isOutput() ? "nautec.resonance_node.mode.output" : "nautec.resonance_node.mode.input"),
@@ -70,21 +72,31 @@ public class ResonanceNodeScreen extends ResonanceNetworkScreen<ResonanceNodeMen
     private int step(int direction) {
         int current = this.menu.getLimit();
         int max = NTConfig.satelliteTransferLimit;
+        if (Screen.hasControlDown() || Screen.hasShiftDown()) {
+            long delta = (long) direction * (Screen.hasControlDown() ? 10 : 1);
+            return (int) Math.max(0, Math.min(max, current + delta));
+        }
         if (direction > 0) {
-            for (int value : LIMITS) {
-                if (value > current) {
-                    return Math.min(value, max);
-                }
+            long value = 1;
+            while (value <= current) {
+                value = nextLimit(value);
             }
-            return max;
+            return (int) Math.min(value, max);
         }
-        int result = 0;
-        for (int value : LIMITS) {
-            if (value < current) {
-                result = value;
-            }
+        long result = 0;
+        for (long value = 1; value < current; value = nextLimit(value)) {
+            result = value;
         }
-        return Math.min(result, max);
+        return (int) Math.min(result, max);
+    }
+
+    private static long nextLimit(long value) {
+        long scale = 1;
+        while (scale * 10 <= value) {
+            scale *= 10;
+        }
+        long lead = value / scale;
+        return lead < 2 ? 2 * scale : lead < 5 ? 5 * scale : 10 * scale;
     }
 
     private String statusKey() {

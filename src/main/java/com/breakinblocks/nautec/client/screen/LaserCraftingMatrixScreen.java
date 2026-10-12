@@ -11,6 +11,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
+import com.breakinblocks.nautec.api.client.screen.RecipeAreaHost;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -51,7 +53,7 @@ public class LaserCraftingMatrixScreen extends NTMachineScreen<LaserCraftingMatr
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         if (isHovering(ARROW_X - 10, 20, 44, 46, mouseX, mouseY)) {
-            guiGraphics.renderComponentTooltip(font, statusLines(menu.blockEntity), mouseX, mouseY);
+            guiGraphics.renderComponentTooltip(font, RecipeAreaHost.withRecipeHint(statusLines(menu.blockEntity)), mouseX, mouseY);
         }
     }
 
@@ -67,5 +69,10 @@ public class LaserCraftingMatrixScreen extends NTMachineScreen<LaserCraftingMatr
                                 String.format(Locale.ROOT, "%.2f", matrix.getPurity()), String.format(Locale.ROOT, "%.2f", matrix.getRecipePurity()))
                         .withStyle(matrix.getPurity() >= matrix.getRecipePurity() ? ChatFormatting.GREEN : ChatFormatting.RED),
                 Component.translatable("nautec.laser_crafting_matrix.top_only").withStyle(ChatFormatting.DARK_GRAY));
+    }
+
+    @Override
+    public List<RecipeArea> recipeAreas() {
+        return List.of(new RecipeArea(ARROW_X, ARROW_Y, 24, 16, true));
     }
 }

@@ -45,9 +45,9 @@ These work in every mode:
 
 Every NauTec machine that holds items or fluids lets you choose, face by face, what automation can do there. Items and fluids are set separately. Each face has one of four modes:
 
-* Input and Output (green): hoppers and pipes can put inputs in and take outputs out. Every face starts like this.
-* Input (blue): inputs can go in, nothing comes out.
-* Output (orange): outputs can come out, nothing goes in.
+* Insert and Extract (green): hoppers and pipes can insert into the input slots and extract from the output slots. Every face starts like this.
+* Insert (blue): hoppers and pipes can insert, nothing comes out.
+* Extract (orange): hoppers and pipes can extract, nothing goes in.
 * Off (grey): hoppers and pipes cannot reach this face at all.
 
 A machine only ever takes inputs into its input slots and gives outputs from its output slots, whatever the face mode, so a pipe cannot pull your ingredients back out.
@@ -63,15 +63,16 @@ The Bio Reactor and Industrial Bio Reactor have one item setting per side for th
   ### <Color id="aqua">Configuration Card</Color>
 </Row>
 
-Copies settings from one block to another. Sneak and right-click a machine to copy its settings onto the card, then right-click another block to paste them. Sneak and right-click the air to clear the card. The tooltip shows where the settings came from and what they cover.
+Copies settings from one block to another. Sneak and right-click a machine to copy its settings onto the card, then right-click another block to paste them. Sneak and right-click the air to clear the card. The tooltip shows where the settings came from and what they cover. Right-clicking with the card always pastes, even on blocks that would otherwise open their screen.
 
 * The side configuration pastes onto any machine with side configuration, so one card can set up a whole row of different machines the same way.
 * A block's own settings only paste onto the same kind of block:
   * a <ItemLink id="confined_spawner"/>'s filter and whitelist mode
   * a <ItemLink id="resonance_node"/>'s network, input or output mode, priority, limit and chunk loading
-  * a <ItemLink id="resonance_node"/>'s network, input or output mode, priority, limit and chunk loading
   * an <ItemLink id="uplink_array"/>'s network and chunk loading
   * a <ItemLink id="laser_junction"/>'s input and output faces
+  * a Conduit Tap's faces
+* Upgrades and filters copy as well, onto the same kind of block: a Conduit Tap's upgrade and filter, an <ItemLink id="energy_converter"/>'s upgrades and a Bio Reactor's upgrades. Pasting takes them from your inventory and hands back whatever the target held in those slots. If you are missing any, nothing is pasted and the card tells you what you need.
 
 Pasting a resonance network checks that you are allowed to use it, the same as choosing it in the screen.
 

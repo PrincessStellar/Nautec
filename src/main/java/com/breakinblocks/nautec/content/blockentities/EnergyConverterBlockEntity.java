@@ -91,6 +91,15 @@ public class EnergyConverterBlockEntity extends LaserBlockEntity implements Menu
         addItemHandler(UPGRADE_SLOTS, EnergyConversionUpgradeItem.MAX_PER_SLOT, EnergyConverterBlockEntity::acceptsUpgrade);
     }
 
+    @Override
+    public int[] cardSlots() {
+        int[] slots = new int[UPGRADE_SLOTS];
+        for (int slot = 0; slot < UPGRADE_SLOTS; slot++) {
+            slots[slot] = slot;
+        }
+        return slots;
+    }
+
     public static boolean acceptsUpgrade(int slot, ItemStack stack) {
         return stack.getItem() instanceof EnergyConversionUpgradeItem upgrade && upgrade.getTier().ordinal() == slot;
     }

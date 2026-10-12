@@ -226,6 +226,21 @@ public class ResonanceNodeBlockEntity extends LaserBlockEntity implements MenuPr
         return apPurity;
     }
 
+    @Override
+    public int apStored() {
+        return apStored;
+    }
+
+    @Override
+    public int apCapacity() {
+        return NTConfig.resonanceNodeApBuffer;
+    }
+
+    @Override
+    public boolean sendsAp() {
+        return output;
+    }
+
     public static String statusKey(int status) {
         return switch (status) {
             case STATUS_ONLINE -> "nautec.resonance_node.status.online";

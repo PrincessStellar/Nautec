@@ -1,25 +1,32 @@
 package com.breakinblocks.nautec.content.items;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import com.breakinblocks.nautec.Nautec;
 import com.breakinblocks.nautec.api.blockentities.ContainerBlockEntity;
 import com.breakinblocks.nautec.api.sides.SideConfig;
+import com.breakinblocks.nautec.capabilities.item.ItemStackHandler;
 import com.breakinblocks.nautec.data.NTDataComponents;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import com.breakinblocks.nautec.utils.valueio.ProblemReporter;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -32,11 +39,18 @@ import com.breakinblocks.nautec.utils.valueio.ValueInput;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class ConfigurationCardItem extends Item {
     public static final String SIDE_CONFIG = "side_config";
     public static final String SETTINGS = "settings";
+    public static final String UPGRADES = "upgrades";
+
+    public record CardSlot(int slot, ItemStack stack) {
+        public static final Codec<CardSlot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.INT.fieldOf("slot").forGetter(CardSlot::slot),
+                ItemStack.CODEC.fieldOf("stack").forGetter(CardSlot::stack)
+        ).apply(instance, CardSlot::new));
+    }
 
     public ConfigurationCardItem(Properties properties) {
         super(properties);
@@ -49,6 +63,10 @@ public class ConfigurationCardItem extends Item {
                 machine.getSideConfig().save(out.child(SIDE_CONFIG));
             }
             machine.saveSettings(out.child(SETTINGS));
+            List<CardSlot> upgrades = upgradesOf(machine);
+            if (!upgrades.isEmpty()) {
+                out.store(UPGRADES, CardSlot.CODEC.listOf(), upgrades);
+            }
             CompoundTag data = out.buildResult();
             if (data.getCompound(SETTINGS).isEmpty()) {
                 data.remove(SETTINGS);
@@ -61,8 +79,130 @@ public class ConfigurationCardItem extends Item {
         }
     }
 
+    private static List<CardSlot> upgradesOf(ContainerBlockEntity machine) {
+        List<CardSlot> upgrades = new ArrayList<>();
+        ItemStackHandler handler = machine.getItemStackHandler();
+        if (handler == null) {
+            return upgrades;
+        }
+        for (int slot : machine.cardSlots()) {
+            ItemStack stack = handler.getStackInSlot(slot);
+            if (!stack.isEmpty()) {
+                upgrades.add(new CardSlot(slot, stack.copy()));
+            }
+        }
+        return upgrades;
+    }
+
+    public static List<CardSlot> upgrades(MachineSettings settings, HolderLookup.Provider registries) {
+        if (!settings.data().contains(UPGRADES)) {
+            return List.of();
+        }
+        return TagValueInput.create(registries, settings.data()).read(UPGRADES, CardSlot.CODEC.listOf()).orElse(List.of());
+    }
+
+    private static boolean sameType(MachineSettings settings, ContainerBlockEntity machine) {
+        return settings.blockEntityType().equals(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(machine.getType()));
+    }
+
+    private static List<CardSlot> applicableUpgrades(MachineSettings settings, ContainerBlockEntity machine, Player player) {
+        ItemStackHandler handler = machine.getItemStackHandler();
+        if (handler == null || !sameType(settings, machine)) {
+            return List.of();
+        }
+        int[] allowed = machine.cardSlots();
+        List<CardSlot> applicable = new ArrayList<>();
+        for (CardSlot entry : upgrades(settings, player.registryAccess())) {
+            for (int slot : allowed) {
+                if (slot == entry.slot() && slot < handler.getSlots()) {
+                    applicable.add(entry);
+                    break;
+                }
+            }
+        }
+        return applicable;
+    }
+
+    private static int needed(CardSlot entry, ItemStack current) {
+        if (ItemStack.isSameItemSameComponents(current, entry.stack())) {
+            return Math.max(0, entry.stack().getCount() - current.getCount());
+        }
+        return entry.stack().getCount();
+    }
+
+    public static List<ItemStack> missingUpgrades(MachineSettings settings, ContainerBlockEntity machine, Player player) {
+        List<ItemStack> missing = new ArrayList<>();
+        if (player.getAbilities().instabuild) {
+            return missing;
+        }
+        List<ItemStack> wanted = new ArrayList<>();
+        ItemStackHandler handler = machine.getItemStackHandler();
+        for (CardSlot entry : applicableUpgrades(settings, machine, player)) {
+            int need = needed(entry, handler.getStackInSlot(entry.slot()));
+            if (need <= 0) {
+                continue;
+            }
+            boolean merged = false;
+            for (ItemStack stack : wanted) {
+                if (ItemStack.isSameItemSameComponents(stack, entry.stack())) {
+                    stack.grow(need);
+                    merged = true;
+                    break;
+                }
+            }
+            if (!merged) {
+                wanted.add(entry.stack().copyWithCount(need));
+            }
+        }
+        for (ItemStack stack : wanted) {
+            int have = ContainerHelper.clearOrCountMatchingItems(player.getInventory(),
+                    candidate -> ItemStack.isSameItemSameComponents(candidate, stack), 0, true);
+            if (have < stack.getCount()) {
+                missing.add(stack.copyWithCount(stack.getCount() - have));
+            }
+        }
+        return missing;
+    }
+
+    private static boolean migrateUpgrades(MachineSettings settings, ContainerBlockEntity machine, Player player) {
+        List<CardSlot> applicable = applicableUpgrades(settings, machine, player);
+        if (applicable.isEmpty()) {
+            return false;
+        }
+        ItemStackHandler handler = machine.getItemStackHandler();
+        Inventory inventory = player.getInventory();
+        boolean free = player.getAbilities().instabuild;
+        for (CardSlot entry : applicable) {
+            ItemStack current = handler.getStackInSlot(entry.slot()).copy();
+            ItemStack wanted = entry.stack();
+            int need = needed(entry, current);
+            if (ItemStack.isSameItemSameComponents(current, wanted)) {
+                if (current.getCount() > wanted.getCount()) {
+                    give(player, current.copyWithCount(current.getCount() - wanted.getCount()));
+                }
+            } else if (!current.isEmpty()) {
+                give(player, current);
+            }
+            if (need > 0 && !free) {
+                ContainerHelper.clearOrCountMatchingItems(inventory, candidate -> ItemStack.isSameItemSameComponents(candidate, wanted), need, false);
+            }
+            handler.setStackInSlot(entry.slot(), wanted.copy());
+        }
+        inventory.setChanged();
+        return true;
+    }
+
+    private static void give(Player player, ItemStack stack) {
+        if (!player.getInventory().add(stack) && !stack.isEmpty()) {
+            player.drop(stack, false);
+        }
+    }
+
     public static boolean paste(MachineSettings settings, ContainerBlockEntity machine, ServerPlayer player) {
-        boolean applied = false;
+        if (!missingUpgrades(settings, machine, player).isEmpty()) {
+            return false;
+        }
+        boolean applied = migrateUpgrades(settings, machine, player);
         try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(Nautec.LOGGER)) {
             ValueInput in = TagValueInput.create(reporter, player.level().registryAccess(), settings.data());
             Optional<ValueInput> sides = in.child(SIDE_CONFIG);
@@ -74,16 +214,26 @@ public class ConfigurationCardItem extends Item {
                 applied = true;
             }
             Optional<ValueInput> own = in.child(SETTINGS);
-            ResourceLocation type = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(machine.getType());
-            if (own.isPresent() && settings.blockEntityType().equals(type) && machine.loadSettings(own.get(), player)) {
+            if (own.isPresent() && sameType(settings, machine) && machine.loadSettings(own.get(), player)) {
                 applied = true;
             }
         }
         return applied;
     }
 
+    private static Component list(List<ItemStack> stacks) {
+        MutableComponent joined = Component.empty();
+        for (int i = 0; i < stacks.size(); i++) {
+            if (i > 0) {
+                joined.append(", ");
+            }
+            joined.append(Component.translatable("nautec.configuration_card.stack", stacks.get(i).getCount(), stacks.get(i).getHoverName()));
+        }
+        return joined;
+    }
+
     @Override
-    public InteractionResult useOn(UseOnContext context) {
+    public InteractionResult onItemUseFirst(ItemStack card, UseOnContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         Player player = context.getPlayer();
@@ -93,7 +243,6 @@ public class ConfigurationCardItem extends Item {
         if (!(level instanceof ServerLevel serverLevel) || !(player instanceof ServerPlayer serverPlayer)) {
             return InteractionResult.SUCCESS;
         }
-        ItemStack card = context.getItemInHand();
         Component name = machine.getBlockState().getBlock().getName();
         if (player.isSecondaryUseActive()) {
             MachineSettings settings = copy(machine, serverLevel);
@@ -112,6 +261,11 @@ public class ConfigurationCardItem extends Item {
             return InteractionResult.FAIL;
         }
         if (!level.mayInteract(player, pos)) {
+            return InteractionResult.FAIL;
+        }
+        List<ItemStack> missing = missingUpgrades(settings, machine, player);
+        if (!missing.isEmpty()) {
+            player.displayClientMessage(Component.translatable("nautec.configuration_card.missing", list(missing)).withStyle(ChatFormatting.RED), true);
             return InteractionResult.FAIL;
         }
         if (!paste(settings, machine, serverPlayer)) {
@@ -154,6 +308,16 @@ public class ConfigurationCardItem extends Item {
             }
             if (settings.data().contains(SETTINGS)) {
                 tooltip.add(Component.translatable("nautec.configuration_card.tooltip.settings", source).withStyle(ChatFormatting.GRAY));
+            }
+            HolderLookup.Provider registries = context.registries();
+            if (registries != null && settings.data().contains(UPGRADES)) {
+                List<ItemStack> upgrades = new ArrayList<>();
+                for (CardSlot entry : upgrades(settings, registries)) {
+                    upgrades.add(entry.stack());
+                }
+                if (!upgrades.isEmpty()) {
+                    tooltip.add(Component.translatable("nautec.configuration_card.tooltip.upgrades", list(upgrades)).withStyle(ChatFormatting.GRAY));
+                }
             }
             tooltip.add(Component.translatable("nautec.configuration_card.tooltip.clear").withStyle(ChatFormatting.DARK_GRAY));
         }

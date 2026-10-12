@@ -790,6 +790,11 @@ public class ConduitTapBlockEntity extends ContainerBlockEntity implements MenuP
     }
 
     @Override
+    public int[] cardSlots() {
+        return new int[]{UPGRADE_SLOT, FILTER_SLOT};
+    }
+
+    @Override
     public void saveSettings(ValueOutput out) {
         writeFaces(out, "tap_faces");
     }

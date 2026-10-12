@@ -15,6 +15,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
+import com.breakinblocks.nautec.api.client.screen.RecipeAreaHost;
+
 import java.util.List;
 
 public class GraftingStationScreen extends NTMachineScreen<GraftingStationBlockEntity> {
@@ -43,11 +45,16 @@ public class GraftingStationScreen extends NTMachineScreen<GraftingStationBlockE
         if (isHovering(76, 36, 24, 12, mouseX, mouseY)) {
             int status = station().getStatus();
             boolean running = status == GraftingStationBlockEntity.STATUS_RUNNING;
-            guiGraphics.renderComponentTooltip(this.font, List.of(
+            guiGraphics.renderComponentTooltip(this.font, RecipeAreaHost.withRecipeHint(List.of(
                     Component.translatable(GraftingStationBlock.statusKey(status)).withStyle(running ? ChatFormatting.AQUA : ChatFormatting.RED),
                     Component.translatable("nautec.grafting_station.requirements", station().getRequiredPower(),
                             String.format("%.1f", NTConfig.graftingStationPurity), NTConfig.graftingStationSaltWaterUsage).withStyle(ChatFormatting.GRAY)
-            ), mouseX, mouseY);
+            )), mouseX, mouseY);
         }
+    }
+
+    @Override
+    public List<RecipeArea> recipeAreas() {
+        return List.of(new RecipeArea(76, 36, 24, 12, true));
     }
 }

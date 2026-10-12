@@ -297,6 +297,7 @@ public class NTJeiPlugin implements IModPlugin {
         registerGhostInputs(registration, NTAbstractContainerScreen.class);
         registration.addGuiContainerHandler(ConfinedSpawnerScreen.class, handler);
         registration.addGenericGuiContainerHandler(AbstractContainerScreen.class, new SideConfigJeiHandler());
+        registration.addGenericGuiContainerHandler(AbstractContainerScreen.class, new RecipeAreaJeiHandler());
     }
 
     @Override
