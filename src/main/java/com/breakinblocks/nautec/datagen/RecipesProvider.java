@@ -65,6 +65,7 @@ public class RecipesProvider extends RecipeProvider {
         resonanceRecipes(pRecipeOutput);
         gatewayRecipes(pRecipeOutput);
         pressureForgeRecipes(pRecipeOutput);
+        smelterRecipes(pRecipeOutput);
         dockRecipes(pRecipeOutput);
         waveJetRecipes(pRecipeOutput);
         atlanteanRifleRecipes(pRecipeOutput);
@@ -449,6 +450,19 @@ public class RecipesProvider extends RecipeProvider {
                 .define('L', NTItems.LASER_CHANNELING_COIL)
                 .unlockedBy("has_item", has(NTItems.LASER_CHANNELING_COIL))
                 .save(pRecipeOutput, key("submarine_dock"));
+    }
+
+    private void smelterRecipes(@NotNull RecipeOutput pRecipeOutput) {
+        shaped(RecipeCategory.DECORATIONS, NTBlocks.LASER_PURIFICATION_SMELTER.asItem())
+                .pattern("ALA")
+                .pattern("CBC")
+                .pattern("ALA")
+                .define('A', NTItems.AQUARINE_STEEL_INGOT)
+                .define('L', NTItems.LASER_CHANNELING_COIL)
+                .define('C', NTItems.AQUATIC_CHIP)
+                .define('B', Items.BLAST_FURNACE)
+                .unlockedBy("has_item", has(NTItems.LASER_CHANNELING_COIL))
+                .save(pRecipeOutput, key("laser_purification_smelter"));
     }
 
     private void pressureForgeRecipes(@NotNull RecipeOutput pRecipeOutput) {

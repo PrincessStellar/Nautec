@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "nautec:aquarine_steel_ingot",
+    "B": "minecraft:blast_furnace",
+    "C": "nautec:aquatic_chip",
+    "L": "nautec:laser_channeling_coil"
+  },
+  "pattern": [
+    "ALA",
+    "CBC",
+    "ALA"
+  ],
+  "result": {
+    "id": "nautec:laser_purification_smelter"
+  }
+}

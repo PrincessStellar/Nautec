@@ -72,6 +72,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.IRecipeManager;
@@ -383,6 +384,7 @@ public class NTJeiPlugin implements IModPlugin {
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addCraftingStation(PressureForgingRecipeCategory.RECIPE_TYPE, NTBlocks.PRESSURE_FORGE.toStack());
+        registration.addCraftingStation(RecipeTypes.SMELTING, NTBlocks.LASER_PURIFICATION_SMELTER.toStack());
         registration.addCraftingStation(ResonanceCraftingRecipeCategory.RECIPE_TYPE, NTBlocks.RESONANCE_CHAMBER.toStack());
         registration.addCraftingStation(AquaticCatalystChannelingRecipeCategory.RECIPE_TYPE,
                 new ItemStack(NTBlocks.AQUATIC_CATALYST.get()));

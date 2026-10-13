@@ -72,7 +72,8 @@ Copies settings from one block to another. Sneak and right-click a machine to co
   * an <ItemLink id="uplink_array"/>'s network and chunk loading
   * a <ItemLink id="laser_junction"/>'s input and output faces
   * a Conduit Tap's faces
-* Upgrades and filters copy as well, onto the same kind of block: a Conduit Tap's upgrade and filter, an <ItemLink id="energy_converter"/>'s upgrades and a Bio Reactor's upgrades. Pasting takes them from your inventory and hands back whatever the target held in those slots. If you are missing any, nothing is pasted and the card tells you what you need.
+  * a <ItemLink id="laser_purification_smelter"/>'s auto-distribute setting
+* Upgrades and filters copy as well, onto the same kind of block: a Conduit Tap's upgrade and filter, an <ItemLink id="energy_converter"/>'s upgrades, a Bio Reactor's upgrades and a Laser Purification Smelter's conduit upgrade. Pasting takes them from your inventory and hands back whatever the target held in those slots. If you are missing any, nothing is pasted and the card tells you what you need.
 
 Pasting a resonance network checks that you are allowed to use it, the same as choosing it in the screen.
 

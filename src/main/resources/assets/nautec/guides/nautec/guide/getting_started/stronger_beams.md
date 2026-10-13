@@ -55,6 +55,8 @@ Purity does not speed anything up. A machine that needs a minimum purity (the Ad
 
 **Stacking.** The Bio Reactors work out what they need from their colonies and upgrades first, and a stronger beam then speeds up on top of their Speed Upgrades. A reactor whose upgrades make it run ×1.5 and that gets four times the power it needs runs ×3. A stronger beam does not make a colony eat its nutrient any faster, so it is pure extra output. The Advanced Grafting Anchor works the same way: it raises the station's need to 500 AP and grafts faster, and a beam above 500 AP speeds it up again.
 
+**No speed-up.** The [Laser Purification Smelter](nautec:deep_engineering/laser_purification_smelter.md) runs at the speed of its conduit upgrade, however strong the beam. A purer beam lowers the AP it needs instead.
+
 **Already scaling.** The [Resonance Chamber](nautec:deep_engineering/resonance_chamber.md) charges by however much power it receives, and a [Crystal Cradle](nautec:deep_engineering/crystal_cultivation.md) grows by the total power it has taken in, so both already go faster on a stronger beam, in direct proportion.
 
 ***

@@ -1,0 +1,13 @@
+{
+  "parent": "nautec:block/template_emissive_cube_n",
+  "textures": {
+    "down": "nautec:block/laser_purification_smelter_bottom",
+    "east": "nautec:block/laser_purification_smelter_side",
+    "north": "nautec:block/laser_purification_smelter_front_active",
+    "north_emissive": "nautec:block/laser_purification_smelter_front_active_emissive",
+    "particle": "nautec:block/laser_purification_smelter_front_active",
+    "south": "nautec:block/laser_purification_smelter_side",
+    "up": "nautec:block/laser_purification_smelter_top",
+    "west": "nautec:block/laser_purification_smelter_side"
+  }
+}

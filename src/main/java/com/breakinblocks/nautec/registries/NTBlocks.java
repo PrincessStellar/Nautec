@@ -49,6 +49,7 @@ import com.breakinblocks.nautec.content.items.blocks.LaserCraftingMatrixItem;
 import com.breakinblocks.nautec.content.blocks.MutatorBlock;
 import com.breakinblocks.nautec.content.blocks.OilBarrelBlock;
 import com.breakinblocks.nautec.content.blocks.PressureForgeBlock;
+import com.breakinblocks.nautec.content.blocks.LaserPurificationSmelterBlock;
 import com.breakinblocks.nautec.content.blocks.PrismarineLaserRelayBlock;
 import com.breakinblocks.nautec.content.blocks.PrismarineSandBlock;
 import com.breakinblocks.nautec.content.blocks.ResonanceChamberBlock;
@@ -158,6 +159,9 @@ public final class NTBlocks {
 
     public static final DeferredBlock<PressureForgeBlock> PRESSURE_FORGE = registerBlockAndItem("pressure_forge", PressureForgeBlock::new,
             BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).strength(4.0f).noOcclusion());
+
+    public static final DeferredBlock<LaserPurificationSmelterBlock> LASER_PURIFICATION_SMELTER = registerBlockAndItem("laser_purification_smelter",
+            LaserPurificationSmelterBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).strength(4.0f));
 
     public static final DeferredBlock<GatewayBlock> GATEWAY = registerBlockAndItem("gateway", GatewayBlock::new,
             BlockBehaviour.Properties.ofFullCopy(Blocks.DARK_PRISMARINE).strength(4.0f).noOcclusion());

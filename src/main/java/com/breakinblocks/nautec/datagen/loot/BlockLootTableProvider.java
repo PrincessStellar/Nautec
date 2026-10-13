@@ -97,6 +97,7 @@ public class BlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(NTBlocks.LASER_JUNCTION.get());
         dropSelf(NTBlocks.SUBMARINE_DOCK.get());
         dropSelf(NTBlocks.PRESSURE_FORGE.get());
+        dropSelf(NTBlocks.LASER_PURIFICATION_SMELTER.get());
         dropSelf(NTBlocks.GATEWAY.get());
         dropSelf(NTBlocks.GATEWAY_RING.get());
         add(NTBlocks.GATEWAY_RING_PART.get(), noDrop());

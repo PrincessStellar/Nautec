@@ -38,6 +38,7 @@ import com.breakinblocks.nautec.content.blockentities.MixerBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.MutatorBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.OilBarrelBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.PressureForgeBlockEntity;
+import com.breakinblocks.nautec.content.blockentities.LaserPurificationSmelterBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.PrismarineLaserRelayBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.ResonanceChamberBlockEntity;
 import com.breakinblocks.nautec.content.blockentities.SubmarineDockBlockEntity;
@@ -107,6 +108,9 @@ public final class NTBlockEntityTypes {
     public static final Supplier<BlockEntityType<PressureForgeBlockEntity>> PRESSURE_FORGE = BLOCK_ENTITIES.register("pressure_forge",
             () -> new BlockEntityType<>(PressureForgeBlockEntity::new,
                     NTBlocks.PRESSURE_FORGE.get()));
+    public static final Supplier<BlockEntityType<LaserPurificationSmelterBlockEntity>> LASER_PURIFICATION_SMELTER = BLOCK_ENTITIES.register("laser_purification_smelter",
+            () -> new BlockEntityType<>(LaserPurificationSmelterBlockEntity::new,
+                    NTBlocks.LASER_PURIFICATION_SMELTER.get()));
     public static final Supplier<BlockEntityType<GatewayBlockEntity>> GATEWAY = BLOCK_ENTITIES.register("gateway",
             () -> new BlockEntityType<>(GatewayBlockEntity::new,
                     NTBlocks.GATEWAY.get()));

@@ -577,6 +577,16 @@ public final class NTConfig {
             .comment("The Etching Acid capacity of an Abyssal Pressure Forge")
             .defineInRange("pressureForgeCapacity", 4_000, 1, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.ConfigValue<List<? extends Integer>> SMELTER_SLOTS = BUILDER
+            .comment("How many input slots a Laser Purification Smelter unlocks with no upgrade, then with an Eddy, Surge, Riptide and Maelstrom Upgrade.",
+                    "Five whole numbers from 1 to 9")
+            .defineList("smelterSlots", List.of(1, 3, 5, 7, 9), () -> 1, entry -> entry instanceof Number number && number.intValue() >= 1 && number.intValue() <= 9);
+
+    private static final ModConfigSpec.ConfigValue<List<? extends Integer>> SMELTER_AP_MULTIPLIERS = BUILDER
+            .comment("The AP a Laser Purification Smelter needs per tick for each busy slot, with no upgrade, then with an Eddy, Surge, Riptide and Maelstrom Upgrade.",
+                    "The total is divided by the beam's purity when the purity is above 1.0. Five whole numbers, 0 or more")
+            .defineList("smelterApMultipliers", List.of(1, 2, 4, 8, 16), () -> 1, entry -> entry instanceof Number number && number.intValue() >= 0);
+
     private static final ModConfigSpec.IntValue ADVANCED_ANALYZER_POWER_USAGE = BUILDER
             .comment("The beam power in AP an Advanced Bacterial Analyzer needs to run")
             .defineInRange("advancedAnalyzerPowerUsage", 40, 0, Integer.MAX_VALUE);
@@ -1205,6 +1215,8 @@ public final class NTConfig {
     public static int pressureForgePowerUsage = 40;
     public static int pressureForgeAcidUsage = 250;
     public static int pressureForgeCapacity = 4_000;
+    public static int[] smelterSlots = {1, 3, 5, 7, 9};
+    public static int[] smelterApMultipliers = {1, 2, 4, 8, 16};
 
     public static int advancedAnalyzerPowerUsage = 40;
     public static double advancedAnalyzerPurity = 2.1;
@@ -1313,6 +1325,20 @@ public final class NTConfig {
             values[i] = BUILDER.comment(String.format(comment, tier)).defineInRange(key + CONDUIT_TIERS[i], defaults[i], min, max);
         }
         return values;
+    }
+
+    private static int[] tierList(List<?> configured, int[] defaults) {
+        if (configured.size() != defaults.length) {
+            return defaults;
+        }
+        int[] result = new int[defaults.length];
+        for (int i = 0; i < result.length; i++) {
+            if (!(configured.get(i) instanceof Number number)) {
+                return defaults;
+            }
+            result[i] = number.intValue();
+        }
+        return result;
     }
 
     private static int[] values(ModConfigSpec.IntValue[] values) {
@@ -1533,6 +1559,8 @@ public final class NTConfig {
         pressureForgePowerUsage = value(PRESSURE_FORGE_POWER_USAGE);
         pressureForgeAcidUsage = value(PRESSURE_FORGE_ACID_USAGE);
         pressureForgeCapacity = value(PRESSURE_FORGE_CAPACITY);
+        smelterSlots = tierList(value(SMELTER_SLOTS), new int[]{1, 3, 5, 7, 9});
+        smelterApMultipliers = tierList(value(SMELTER_AP_MULTIPLIERS), new int[]{1, 2, 4, 8, 16});
 
         advancedAnalyzerPowerUsage = value(ADVANCED_ANALYZER_POWER_USAGE);
         advancedAnalyzerPurity = value(ADVANCED_ANALYZER_PURITY);

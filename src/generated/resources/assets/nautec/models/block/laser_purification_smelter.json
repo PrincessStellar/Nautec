@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "bottom": "nautec:block/laser_purification_smelter_bottom",
+    "front": "nautec:block/laser_purification_smelter_front",
+    "side": "nautec:block/laser_purification_smelter_side",
+    "top": "nautec:block/laser_purification_smelter_top"
+  }
+}

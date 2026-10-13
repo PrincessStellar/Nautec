@@ -37,6 +37,11 @@ public class NetworkEvents {
                 OpenResonanceAugmentPayload::handle
         );
         registrar.playToServer(
+                SmelterAutoDistributePayload.TYPE,
+                SmelterAutoDistributePayload.STREAM_CODEC,
+                SmelterAutoDistributePayload::handle
+        );
+        registrar.playToServer(
                 ReplicatorModePayload.TYPE,
                 ReplicatorModePayload.STREAM_CODEC,
                 ReplicatorModePayload::handle

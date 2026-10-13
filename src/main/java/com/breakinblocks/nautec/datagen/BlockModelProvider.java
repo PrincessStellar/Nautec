@@ -7,6 +7,7 @@ import com.breakinblocks.nautec.content.conduits.TapArm;
 import com.breakinblocks.nautec.content.conduit.ConduitBeaconBlock;
 import com.breakinblocks.nautec.content.blocks.OxygenDiffuserBlock;
 import com.breakinblocks.nautec.content.blocks.ColonyReplicatorBlock;
+import com.breakinblocks.nautec.content.blocks.LaserPurificationSmelterBlock;
 import com.breakinblocks.nautec.content.bubble.BubbleAnchorBlock;
 import com.breakinblocks.nautec.NTRegistries;
 import com.breakinblocks.nautec.Nautec;
@@ -251,6 +252,7 @@ public class BlockModelProvider extends ModelProvider {
         advancedAnalyzer(NTBlocks.ADVANCED_BACTERIAL_ANALYZER.get());
         bubbleAnchor(NTBlocks.BUBBLE_ANCHOR.get());
         replicator(NTBlocks.COLONY_REPLICATOR.get());
+        laserPurificationSmelter(NTBlocks.LASER_PURIFICATION_SMELTER.get());
         blockModels.createDoor(NTBlocks.PRESSURE_HATCH.get());
         oxygenDiffuser(NTBlocks.OXYGEN_DIFFUSER.get());
         conduitBeacon(NTBlocks.CONDUIT_BEACON.get());
@@ -274,6 +276,21 @@ public class BlockModelProvider extends ModelProvider {
                 front(blockTexture(block, "_front_active_emissive")));
         blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
                 .with(BlockModelGenerators.createBooleanModelDispatch(ColonyReplicatorBlock.ACTIVE,
+                        BlockModelGenerators.plainVariant(active), BlockModelGenerators.plainVariant(idle)))
+                .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
+    }
+
+    private void laserPurificationSmelter(Block block) {
+        Identifier idle = createdModels.computeIfAbsent(Nautec.rl("block/laser_purification_smelter"), key -> ModelTemplates.CUBE_ORIENTABLE_TOP_BOTTOM.create(key, new TextureMapping()
+                .put(TextureSlot.FRONT, blockTexture(block, "_front"))
+                .put(TextureSlot.SIDE, blockTexture(block, "_side"))
+                .put(TextureSlot.TOP, blockTexture(block, "_top"))
+                .put(TextureSlot.BOTTOM, blockTexture(block, "_bottom")), blockModels.modelOutput));
+        Identifier active = emissiveCube("laser_purification_smelter_active", faces(blockTexture(block, "_bottom"), blockTexture(block, "_top"),
+                blockTexture(block, "_front_active"), blockTexture(block, "_side")), blockTexture(block, "_front_active"),
+                front(blockTexture(block, "_front_active_emissive")));
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
+                .with(BlockModelGenerators.createBooleanModelDispatch(LaserPurificationSmelterBlock.ACTIVE,
                         BlockModelGenerators.plainVariant(active), BlockModelGenerators.plainVariant(idle)))
                 .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
     }
